@@ -5,8 +5,9 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
-import AppLogo from './AppLogo.vue';
+import { BookOpen, Folder, Image, LayoutGrid } from 'lucide-vue-next';
+import talmanLogo from '@/assets/images/talman-logo.webp';
+
 
 const mainNavItems: NavItem[] = [
     {
@@ -35,9 +36,13 @@ const footerNavItems: NavItem[] = [
         <SidebarHeader>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('dashboard')">
-                            <AppLogo />
+                    <SidebarMenuButton class="h-[10rem]" as-child>
+                        <Link class="flex items-center justify-center" :href="route('dashboard')">
+                            <img 
+                                :src="talmanLogo" 
+                                alt="Talman Group Logo" 
+                                class="w-[10rem]" 
+                            />
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
