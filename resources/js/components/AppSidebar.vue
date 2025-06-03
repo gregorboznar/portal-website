@@ -14,6 +14,12 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: '/dashboard',
         icon: LayoutGrid,
+
+        title: 'Social Feed',
+        href: '/social-feed',
+        icon: LayoutGrid,
+
+        
     },
 ];
 
