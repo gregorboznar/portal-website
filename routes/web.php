@@ -11,5 +11,17 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+Route::get('friends', function () {
+    return Inertia::render('Friends');
+})->middleware(['auth', 'verified'])->name('friends');
+
+Route::get('events', function () {
+    return Inertia::render('Events');
+})->middleware(['auth', 'verified'])->name('events');
+
+Route::get('whitney-wire-report', function () {
+    return Inertia::render('WhitneyWireReport');
+})->middleware(['auth', 'verified'])->name('whitney-wire-report');
+
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
