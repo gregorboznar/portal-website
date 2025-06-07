@@ -11,6 +11,14 @@
   --font-sans:
     Instrument Sans, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  
+  --font-red-hat-display: RedHatDisplay, sans-serif;
+  --font-nexa-light: NexaLight, sans-serif;
+  --font-nexa-bold: NexaBold, sans-serif;
+  --font-playfair: PlayfairDisplay, serif;
+  --font-playfair-bold: PlayfairDisplay-Bold, serif;
+  --font-poppins: Poppins, sans-serif;
+  --font-poppins-semibold: Poppins-SemiBold, sans-serif;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -58,6 +66,50 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Custom Colors */
+  --color-black-800: #1d1f23;
+  --color-black-900: #191b1e;
+  --color-black-950: #191919;
+  --color-black: #231f20;
+  
+  --color-yellow-400: #f2cb13;
+  
+  --color-white-50: #ffffff;
+  --color-white-100: #f5f5f5;
+  --color-white-200: #ecebf3;
+  --color-white-300: #b1b2b3;
+  --color-white-700: #2c2f36;
+  --color-white-800: #fcfcfc;
+  --color-white: #ffffff;
+  
+  --color-green-400: #3ac970;
+  --color-green-500: #22c55e;
+  --color-green-600: #16a34a;
+  --color-green: #3f7c5c;
+  
+  --color-emerald-500: #10b981;
+  --color-teal-500: #14b8a6;
+  
+  --color-destroy: #e0403e;
+  --color-lightdestroy: #f0605e;
+  --color-secondary: #F4F4F5;
+  --color-lightgreen: #51906e;
+  --color-green-light: #4CAF50;
+  --color-gold: #ddbe69;
+  --color-linen: #f8f2e1;
+  --color-gray: #dedede;
+  --color-gray-1: #838383;
+  --color-dark-60: #17181a;
+  --color-dark-30: #878c90;
+  --color-dark-20: #f1f3f7;
+  --color-reddish-pink: #ff3559;
+  --color-border: #f3f3f3;
+  --color-input: #f6f6f6;
+  --color-blue-gray: #92929d;
+  --color-light-gray: #f1f3f7;
+  --color-pale-green: #c7d9cf;
+  --color-bg: #f3f7f5;
 }
 
 /*

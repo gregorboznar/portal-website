@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -22,6 +23,13 @@ Route::get('events', function () {
 Route::get('whitney-wire-report', function () {
     return Inertia::render('WhitneyWireReport');
 })->middleware(['auth', 'verified'])->name('whitney-wire-report');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/api/posts', [PostController::class, 'index']);
+    Route::post('/api/posts', [PostController::class, 'store']);
+    Route::post('/api/posts/{post}/like', [PostController::class, 'toggleLike']);
+    Route::get('/api/posts/{post}', [PostController::class, 'show']);
+});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
