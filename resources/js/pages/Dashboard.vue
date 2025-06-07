@@ -4,8 +4,10 @@ import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import PostCreator from '@/components/PostCreator.vue';
 import FeedPost from '@/components/FeedPost.vue';
+import Event from '@/components/Event.vue';
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import FeedIcon from '@/assets/icons/feed.svg'
 
 interface PostAuthor {
     name: string;
@@ -60,9 +62,19 @@ onMounted(() => {
     <Head title="Dashboard" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-  <div class="flex h-full flex-1 gap-6 rounded-xl p-4 w-full">
+  <div class="flex h-full flex-1 gap-4   w-full bg-bg">
     
-    <div class="flex flex-col gap-6 flex-1">
+    
+    <div class="flex flex-col gap-4 flex-1">
+    <div class="flex  gap-2 ml-3">
+      <FeedIcon class="w-5 h-5 relative top-1" />
+
+      <div class="flex items-left flex-col">
+        <h1 class="text-xl font-semibold text-left">Social Feed</h1>
+        <p class="p-s ">Stay Connected and Informed</p>
+      </div>
+    </div>
+     
       <PostCreator @post-created="handleNewPost" />
 
       <div v-if="loading" class="space-y-6">
@@ -89,13 +101,10 @@ onMounted(() => {
       </div>
     </div>
 
-    
-    <div class="w-72 flex-shrink-0 hidden xl:block">
-      <div class="bg-white rounded-lg shadow p-4">
-        <h3 class="font-semibold mb-4">Upcoming Events</h3>
-        <p class="text-gray-500 text-sm">No upcoming events</p>
-      </div>
+    <div>
+<Event />
     </div>
+    
   </div>
 </AppLayout>
 

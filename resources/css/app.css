@@ -2,6 +2,22 @@
 
 @import "tw-animate-css";
 
+@font-face {
+    font-family: 'PlayfairDisplay-Bold';
+    src: url('/fonts/PlayfairDisplay-Bold.woff2') format('woff2');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Poppins';
+    src: url('/fonts/Poppins-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
@@ -166,7 +182,7 @@
   --chart-4: hsl(43 74% 66%);
   --chart-5: hsl(27 87% 67%);
   --radius: 0.5rem;
-  --sidebar-background: hsl(0 0% 98%);
+  --sidebar-background: --color-bg;
   --sidebar-foreground: hsl(240 5.3% 26.1%);
   --sidebar-primary: hsl(0 0% 10%);
   --sidebar-primary-foreground: hsl(0 0% 98%);
@@ -222,6 +238,18 @@
 
     body {
         @apply bg-background text-foreground;
+    }
+
+    h1 {
+        font-family: PlayfairDisplay-Bold, serif;
+    }
+
+    p {
+        font-family: Poppins, sans-serif;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        --tw-text-opacity: 1;
+        color: rgb(35 31 32 / var(--tw-text-opacity, 1));
     }
 }
 

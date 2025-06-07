@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="12px" viewBox="0 0 12 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>com006</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="feed" transform="translate(-457, -390)" fill="#3F7C5C">
+            <g id="com006" transform="translate(457, 390)">
+                <path d="M6,12 C2.7,12 0,9.3 0,6 C0,2.7 2.7,0 6,0 C9.3,0 12,2.7 12,6 C12,9.3 9.3,12 6,12 Z M4.2,4.8 C4.2,5.82000003 4.97999997,6.6 6,6.6 C7.02000003,6.6 7.8,5.82000003 7.8,4.8 C7.8,3.77999997 7.02000003,3 6,3 C4.97999997,3 4.2,3.77999997 4.2,4.8 Z" id="Vector" opacity="0.300000012"></path>
+                <g id="Group" transform="translate(1.98, 7.8)" fill-rule="nonzero">
+                    <path d="M8.04001465,2.64001465 C7.56001464,1.14001465 5.94000735,0 4.02000732,0 C2.1000073,0 0.480000007,1.14001465 0,2.64001465 C1.02000003,3.60001466 2.46000738,4.2 4.02000732,4.2 C5.58000727,4.2 7.02001462,3.60001466 8.04001465,2.64001465 Z" id="Vector"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
