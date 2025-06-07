@@ -242,6 +242,8 @@
 
     h1 {
         font-family: PlayfairDisplay-Bold, serif;
+       font-weight: 600;
+       font-size:1.25rem;
     }
 
     p {

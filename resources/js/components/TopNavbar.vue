@@ -2,6 +2,9 @@
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import HomeIcon from '@/assets/icons/home.svg'
+import MessageIcon from '@/assets/icons/message-2.svg'
+import CircleGreenIcon from '@/assets/icons/circle.svg'
 /* import { SidebarTrigger } from '@/components/ui/sidebar';
  */
 import UserMenuContent from '@/components/UserMenuContent.vue';
@@ -26,19 +29,19 @@ const auth = computed(() => page.props.auth as AuthData);
 
 const navItems = computed(() => [
     {
-        icon: Home,
+        icon: HomeIcon,
         href: '/dashboard',
         active: page.url === '/dashboard',
         label: 'Social Feed'
     },
     {
-        icon: Bell,
+        icon: MessageIcon,
         href: '/friends',
         active: page.url === '/friends',
         label: 'Friends'
     },
     {
-        icon: Search,
+        icon: CircleGreenIcon,
         href: '/events',
         active: page.url === '/events',
         label: 'Events'
