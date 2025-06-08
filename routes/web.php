@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -29,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/api/posts', [PostController::class, 'store']);
     Route::post('/api/posts/{post}/like', [PostController::class, 'toggleLike']);
     Route::get('/api/posts/{post}', [PostController::class, 'show']);
+    Route::post('/api/images/upload', [ImageController::class, 'upload']);
 });
 
 require __DIR__ . '/settings.php';
