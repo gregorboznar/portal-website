@@ -25,6 +25,15 @@ interface Post {
     comments: number;
     views: number;
     isLiked: boolean;
+    images?: {
+        id: number;
+        url: string;
+        filename: string;
+        original_filename: string;
+        width: number;
+        height: number;
+        optimizations?: Record<string, any>;
+    }[];
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -97,6 +106,7 @@ onMounted(() => {
           :is-liked="post.isLiked"
           :type="post.type"
           :poll-options="post.poll_options"
+          :images="post.images"
         />
       </div>
     </div>

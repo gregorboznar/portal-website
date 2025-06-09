@@ -30,7 +30,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/api/posts', [PostController::class, 'store']);
     Route::post('/api/posts/{post}/like', [PostController::class, 'toggleLike']);
     Route::get('/api/posts/{post}', [PostController::class, 'show']);
+    Route::get('/api/posts/{post}/comments', [PostController::class, 'getComments']);
+    Route::post('/api/posts/{post}/comments', [PostController::class, 'storeComment']);
+    Route::post('/api/posts/{post}/view', [PostController::class, 'trackView']);
     Route::post('/api/images/upload', [ImageController::class, 'upload']);
+
+    // Debug route - remove after debugging
+    Route::get('/debug/image/{id}', function ($id) {
+        $image = \App\Models\Image::find($id);
+        $post = \App\Models\Post::find($id);
+
+        return response()->json([
+            'image' => $image,
+            'post' => $post,
+            'post_with_images' => $post ? $post->load('images') : null,
+        ]);
+    });
 });
 
 require __DIR__ . '/settings.php';

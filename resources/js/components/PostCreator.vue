@@ -52,7 +52,6 @@ const postType = ref<'regular' | 'poll'>('regular');
 const pollOptions = ref<string[]>(['', '']);
 const isDialogOpen = ref(false);
 const uploadedImages = ref<UploadedImage[]>([]);
-const isUploading = ref(false);
 const showEmojiPicker = ref(false);
 const filePondRef = ref();
 const filePondFiles = ref([]);
@@ -109,16 +108,12 @@ const handleFilePondAddFile = (error: any, file: any) => {
         return;
     }
     
-    // Upload the file immediately when added
+    // Upload the file when it's added
     uploadImage(file.file);
 };
 
 const uploadImage = async (file: File) => {
-    if (isUploading.value) return;
-    
     try {
-        isUploading.value = true;
-        
         const formData = new FormData();
         formData.append('image', file);
         formData.append('type', 'posts');
@@ -134,8 +129,6 @@ const uploadImage = async (file: File) => {
         }
     } catch (error) {
         console.error('Error uploading image:', error);
-    } finally {
-        isUploading.value = false;
     }
 };
 
