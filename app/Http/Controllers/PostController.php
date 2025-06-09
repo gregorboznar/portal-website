@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +12,7 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::with(['user', 'likes'])
+        $posts = Post::with(['user', 'likes', 'images'])
             ->withCount('likes')
             ->latest()
             ->get()
@@ -30,6 +31,17 @@ class PostController extends Controller
                     'comments' => $post->comments_count,
                     'views' => $post->views_count,
                     'isLiked' => Auth::check() ? $post->isLikedBy(Auth::user()) : false,
+                    'images' => $post->images->map(function ($image) {
+                        return [
+                            'id' => $image->id,
+                            'url' => asset('storage/' . $image->path),
+                            'filename' => $image->filename,
+                            'original_filename' => $image->original_filename,
+                            'width' => $image->width,
+                            'height' => $image->height,
+                            'optimizations' => $this->formatOptimizations($image->optimizations),
+                        ];
+                    }),
                 ];
             });
 
@@ -43,6 +55,8 @@ class PostController extends Controller
             'type' => 'in:regular,poll',
             'poll_options' => 'array|max:10',
             'poll_options.*' => 'string|max:255',
+            'images' => 'array|max:5',
+            'images.*' => 'integer|exists:images,id',
         ]);
 
         $post = Post::create([
@@ -52,7 +66,14 @@ class PostController extends Controller
             'poll_options' => $request->type === 'poll' ? $request->poll_options : null,
         ]);
 
-        $post->load('user');
+        if ($request->has('images') && is_array($request->images)) {
+            Image::whereIn('id', $request->images)->update([
+                'imageable_type' => Post::class,
+                'imageable_id' => $post->id,
+            ]);
+        }
+
+        $post->load(['user', 'images']);
 
         return response()->json([
             'id' => $post->id,
@@ -68,6 +89,17 @@ class PostController extends Controller
             'comments' => 0,
             'views' => 0,
             'isLiked' => false,
+            'images' => $post->images->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'url' => asset('storage/' . $image->path),
+                    'filename' => $image->filename,
+                    'original_filename' => $image->original_filename,
+                    'width' => $image->width,
+                    'height' => $image->height,
+                    'optimizations' => $this->formatOptimizations($image->optimizations),
+                ];
+            }),
         ]);
     }
 
@@ -95,7 +127,7 @@ class PostController extends Controller
     {
         $post->increment('views_count');
 
-        $post->load(['user', 'likes']);
+        $post->load(['user', 'likes', 'images']);
 
         return response()->json([
             'id' => $post->id,
@@ -111,6 +143,35 @@ class PostController extends Controller
             'comments' => $post->comments_count,
             'views' => $post->views_count,
             'isLiked' => Auth::check() ? $post->isLikedBy(Auth::user()) : false,
+            'images' => $post->images->map(function ($image) {
+                return [
+                    'id' => $image->id,
+                    'url' => asset('storage/' . $image->path),
+                    'filename' => $image->filename,
+                    'original_filename' => $image->original_filename,
+                    'width' => $image->width,
+                    'height' => $image->height,
+                    'optimizations' => $this->formatOptimizations($image->optimizations),
+                ];
+            }),
         ]);
+    }
+
+    private function formatOptimizations(?array $optimizations): array
+    {
+        if (!$optimizations) {
+            return [];
+        }
+
+        $formatted = [];
+        foreach ($optimizations as $size => $data) {
+            $formatted[$size] = [
+                'url' => asset('storage/' . $data['path']),
+                'width' => $data['width'],
+                'height' => $data['height'],
+            ];
+        }
+
+        return $formatted;
     }
 }

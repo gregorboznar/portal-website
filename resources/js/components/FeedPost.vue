@@ -20,7 +20,20 @@ interface FeedPostProps {
     isLiked?: boolean;
     type?: 'regular' | 'poll';
     pollOptions?: string[];
+    images?: {
+        id: number;
+        url: string;
+        filename: string;
+        original_filename: string;
+        width: number;
+        height: number;
+        optimizations?: Record<string, any>;
+    }[];
+
+    
 }
+
+
 
 const props = defineProps<FeedPostProps>();
 
@@ -44,6 +57,10 @@ const toggleLike = async () => {
     } finally {
         isLiking.value = false;
     }
+};
+
+const openImageModal = (image: any) => {
+    window.open(image.url, '_blank');
 };
 </script>
 
@@ -71,6 +88,24 @@ const toggleLike = async () => {
             
             <div class="mb-4">
                 <p class="text-gray-800 leading-relaxed">{{ content }}</p>
+                
+                <!-- Images -->
+                <div v-if="images && images.length > 0" class="mt-4">
+                    <div class="grid gap-2" :class="{
+                        'grid-cols-1': images.length === 1,
+                        'grid-cols-2': images.length === 2,
+                        'grid-cols-2 md:grid-cols-3': images.length >= 3
+                    }">
+                        <div v-for="image in images" :key="image.id" class="relative group">
+                            <img 
+                                :src="image.optimizations?.medium?.url || image.url"
+                                :alt="image.original_filename"
+                                class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                                @click="openImageModal(image)"
+                            />
+                        </div>
+                    </div>
+                </div>
                 
                 <div v-if="type === 'poll' && pollOptions" class="mt-4 space-y-2">
                     <div v-for="(option, index) in pollOptions" :key="index" class="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 cursor-pointer">

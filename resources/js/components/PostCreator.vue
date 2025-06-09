@@ -10,9 +10,11 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { BarChart3, Smile, Upload, X } from 'lucide-vue-next';
+import { BarChart3, Smile, X } from 'lucide-vue-next';
 import { ref } from 'vue';
 import axios from 'axios';
+
+// FilePond is globally registered in app.ts
 
 interface Post {
     id: number;
@@ -52,7 +54,8 @@ const isDialogOpen = ref(false);
 const uploadedImages = ref<UploadedImage[]>([]);
 const isUploading = ref(false);
 const showEmojiPicker = ref(false);
-const fileInputRef = ref<HTMLInputElement>();
+const filePondRef = ref();
+const filePondFiles = ref([]);
 
 const addPollOption = () => {
     if (pollOptions.value.length < 10) {
@@ -84,14 +87,30 @@ const closeDialog = () => {
     pollOptions.value = ['', ''];
     uploadedImages.value = [];
     showEmojiPicker.value = false;
+    filePondFiles.value = [];
 };
 
-const onFileSelect = (event: Event) => {
-    const target = event.target as HTMLInputElement;
-    const files = target.files;
-    if (files && files.length > 0) {
-        uploadImage(files[0]);
+const handleFilePondInit = () => {
+    console.log('FilePond has initialized');
+};
+
+const handleFilePondProcessFile = (error: any, file: any) => {
+    if (error) {
+        console.error('FilePond upload error:', error);
+        return;
     }
+    
+    console.log('FilePond file processed:', file);
+};
+
+const handleFilePondAddFile = (error: any, file: any) => {
+    if (error) {
+        console.error('FilePond add file error:', error);
+        return;
+    }
+    
+    // Upload the file immediately when added
+    uploadImage(file.file);
 };
 
 const uploadImage = async (file: File) => {
@@ -117,18 +136,11 @@ const uploadImage = async (file: File) => {
         console.error('Error uploading image:', error);
     } finally {
         isUploading.value = false;
-        if (fileInputRef.value) {
-            fileInputRef.value.value = '';
-        }
     }
 };
 
 const removeImage = (index: number) => {
     uploadedImages.value.splice(index, 1);
-};
-
-const triggerFileUpload = () => {
-    fileInputRef.value?.click();
 };
 
 const insertEmoji = (emoji: string) => {
@@ -166,6 +178,40 @@ const submitPost = async () => {
 
 const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳'];
 </script>
+
+<style scoped>
+/* Custom FilePond styling */
+.filepond--custom {
+    border: 2px dashed #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.filepond--custom .filepond--drop-label {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.filepond--custom .filepond--label-action {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+.filepond--custom .filepond--panel-root {
+    border-radius: 8px;
+    background: transparent;
+}
+
+.filepond--custom .filepond--item {
+    width: calc(50% - 0.5em);
+}
+
+@media (max-width: 768px) {
+    .filepond--custom .filepond--item {
+        width: 100%;
+    }
+}
+</style>
 
 <template>
     <Dialog v-model:open="isDialogOpen">
@@ -212,25 +258,7 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
                         ></textarea>
                     </div>
                 </div>
-                
-                <!-- Uploaded Images -->
-                <div v-if="uploadedImages.length > 0" class="grid grid-cols-2 gap-2">
-                    <div v-for="(image, index) in uploadedImages" :key="image.id" class="relative group">
-                        <img 
-                            :src="image.optimizations?.medium?.url || image.url" 
-                            :alt="image.original_filename"
-                            class="w-full h-32 object-cover rounded-lg"
-                        />
-                        <Button
-                            variant="destructive"
-                            size="sm"
-                            class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 p-0"
-                            @click="removeImage(index)"
-                        >
-                            <X class="w-3 h-3" />
-                        </Button>
-                    </div>
-                </div>
+            
                 
                 <!-- Poll Options -->
                 <div v-if="postType === 'poll'" class="space-y-2">
@@ -275,13 +303,26 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
                     </div>
                 </div>
                 
+                <!-- FilePond Image Upload -->
+                <div class="mb-4">
+                    <FilePond
+                        ref="filePondRef"
+                        name="images"
+                        label-idle='<span class="filepond--label-action">Browse</span> or drop images here'
+                        :allow-multiple="true"
+                        :max-files="5"
+                        accepted-file-types="image/jpeg, image/png, image/gif, image/webp"
+                        :files="filePondFiles"
+                        @init="handleFilePondInit"
+                        @addfile="handleFilePondAddFile"
+                        @processfile="handleFilePondProcessFile"
+                        class="filepond--custom"
+                    />
+                </div>
+
                 <!-- Action Buttons -->
                 <div class="flex items-center justify-between pt-4 border-t">
                     <div class="flex space-x-2">
-                        <Button variant="ghost" size="sm" @click="triggerFileUpload" :disabled="isUploading">
-                            <Upload class="w-4 h-4 mr-1" />
-                            {{ isUploading ? 'Uploading...' : 'Photo' }}
-                        </Button>
                         
                         <Button variant="ghost" size="sm" @click="showEmojiPicker = !showEmojiPicker">
                             <Smile class="w-4 h-4 mr-1" />
@@ -315,13 +356,5 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
             </DialogFooter>
         </DialogContent>
         
-        <!-- Hidden file input -->
-        <input
-            ref="fileInputRef"
-            type="file"
-            accept="image/*"
-            class="hidden"
-            @change="onFileSelect"
-        />
     </Dialog>
 </template> 

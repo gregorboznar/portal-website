@@ -55,6 +55,11 @@ class Post extends Model
         return $this->likes()->where('user_id', $user->id)->exists();
     }
 
+    public function images()
+    {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
     public function scopeWithLikesCount($query)
     {
         return $query->withCount('likes');
