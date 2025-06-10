@@ -1,0 +1,79 @@
+<script setup lang="ts">
+import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Pin, PinOff, Trash2, Flag } from 'lucide-vue-next';
+
+interface PostDropdownProps {
+    postId: number;
+    isPinned?: boolean;
+    canManage?: boolean;
+}
+
+const props = defineProps<PostDropdownProps>();
+
+const emit = defineEmits<{
+    'pin-toggled': [postId: number, isPinned: boolean];
+    'post-deleted': [postId: number];
+}>();
+
+const handlePin = async () => {
+    try {
+        const response = await fetch(`/api/posts/${props.postId}/pin`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            },
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            emit('pin-toggled', props.postId, data.isPinned);
+        }
+    } catch (error) {
+        console.error('Error toggling pin:', error);
+    }
+};
+
+const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/posts/${props.postId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            },
+        });
+        
+        if (response.ok) {
+            emit('post-deleted', props.postId);
+        }
+    } catch (error) {
+        console.error('Error deleting post:', error);
+    }
+};
+</script>
+
+<template>
+    <DropdownMenuGroup v-if="canManage">
+        <DropdownMenuItem @click="handlePin">
+            <Pin v-if="!isPinned" class="mr-2 h-4 w-4" />
+            <PinOff v-else class="mr-2 h-4 w-4" />
+            {{ isPinned ? 'Unpin Post' : 'Pin Post' }}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem @click="handleDelete" class="text-red-600 focus:text-red-600">
+            <Trash2 class="mr-2 h-4 w-4" />
+            Delete Post
+        </DropdownMenuItem>
+    </DropdownMenuGroup>
+    <DropdownMenuGroup v-if="!canManage">
+        <DropdownMenuItem>
+            <Flag class="mr-2 h-4 w-4" />
+            Report Post
+        </DropdownMenuItem>
+    </DropdownMenuGroup>
+</template>

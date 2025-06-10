@@ -23,6 +23,8 @@ class Post extends Model
         'likes_count',
         'comments_count',
         'views_count',
+        'is_pinned',
+        'pinned_at',
     ];
 
     protected static function boot()
@@ -39,6 +41,8 @@ class Post extends Model
     protected $casts = [
         'poll_options' => 'array',
         'poll_answers' => 'array',
+        'is_pinned' => 'boolean',
+        'pinned_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -74,5 +78,31 @@ class Post extends Model
     public function scopeWithLikesCount($query)
     {
         return $query->withCount('likes');
+    }
+
+    public function pin(): void
+    {
+        $this->update([
+            'is_pinned' => true,
+            'pinned_at' => now(),
+        ]);
+    }
+
+    public function unpin(): void
+    {
+        $this->update([
+            'is_pinned' => false,
+            'pinned_at' => null,
+        ]);
+    }
+
+    public function scopePinned($query)
+    {
+        return $query->where('is_pinned', true);
+    }
+
+    public function scopeNotPinned($query)
+    {
+        return $query->where('is_pinned', false);
     }
 }

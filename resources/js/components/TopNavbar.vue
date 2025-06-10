@@ -74,7 +74,6 @@ const navItems = computed(() => [
                 </template>
             </div>
 
-            <!-- User Profile Section -->
             <div class="flex items-center space-x-3">
                 <DropdownMenu>
                     <DropdownMenuTrigger as-child>

@@ -8,6 +8,9 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Heart, MessageCircle, Eye, MoreHorizontal } from 'lucide-vue-next';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import PostDropdownContent from '@/components/PostDropdownContent.vue';
+
 import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import axios from 'axios';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
@@ -37,6 +40,8 @@ interface FeedPostProps {
     comments: number;
     views: number;
     isLiked?: boolean;
+    isPinned?: boolean;
+    canManage?: boolean;
     type?: 'regular' | 'poll';
     pollOptions?: string[];
     images?: {
@@ -66,6 +71,12 @@ const isSubmittingComment = ref(false);
 const postElement = ref<HTMLElement>();
 const hasBeenViewed = ref(false);
 const currentViews = ref(props.views);
+const currentIsPinned = ref(props.isPinned || false);
+
+const emit = defineEmits<{
+    'post-deleted': [postId: number];
+    'post-pinned': [postId: number, isPinned: boolean];
+}>();
 
 const toggleLike = async () => {
     if (isLiking.value) return;
@@ -141,6 +152,15 @@ const submitComment = async () => {
     }
 };
 
+const handlePinToggled = (postId: number, isPinned: boolean) => {
+    currentIsPinned.value = isPinned;
+    emit('post-pinned', postId, isPinned);
+};
+
+const handlePostDeleted = (postId: number) => {
+    emit('post-deleted', postId);
+};
+
 const initPhotoSwipe = () => {
     const lightbox = new PhotoSwipeLightbox({
         gallery: `#${galleryId}`,
@@ -209,15 +229,33 @@ onUnmounted(() => {
                             </svg>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900">{{ author.name }}</h3>
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-semibold text-gray-900">{{ author.name }}</h3>
+                                <span v-if="currentIsPinned" class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
+                                    📌 Pinned
+                                </span>
+                            </div>
                             <p class="text-sm text-gray-500" v-if="author.company">{{ author.company }}</p>
                             <p class="text-sm text-gray-500">{{ timestamp }}</p>
                         </div>
                     </div>
                     
-                    <Button variant="ghost" size="sm" class="text-gray-400 hover:text-gray-600">
-                        <MoreHorizontal class="w-5 h-5" />
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger as-child>
+                            <Button variant="ghost" size="sm" class="text-gray-400 hover:text-gray-600">
+                                <MoreHorizontal class="w-5 h-5" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                             <PostDropdownContent 
+                                :post-id="postId"
+                                :is-pinned="currentIsPinned"
+                                :can-manage="canManage"
+                                @pin-toggled="handlePinToggled"
+                                @post-deleted="handlePostDeleted"
+                            />
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
                 
                 <div class="mb-4">
@@ -335,7 +373,12 @@ onUnmounted(() => {
                         </svg>
                     </div>
                     <div>
-                        <h3 class="font-semibold text-gray-900">{{ author.name }}</h3>
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-semibold text-gray-900">{{ author.name }}</h3>
+                            <span v-if="currentIsPinned" class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
+                                📌 Pinned
+                            </span>
+                        </div>
                         <p class="text-sm text-gray-500" v-if="author.company">{{ author.company }}</p>
                         <p class="text-sm text-gray-500">{{ timestamp }}</p>
                     </div>

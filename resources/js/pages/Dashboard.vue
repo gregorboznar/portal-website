@@ -25,6 +25,8 @@ interface Post {
     comments: number;
     views: number;
     isLiked: boolean;
+    isPinned?: boolean;
+    canManage?: boolean;
     images?: {
         id: number;
         url: string;
@@ -60,6 +62,22 @@ const fetchPosts = async () => {
 
 const handleNewPost = (newPost: Post) => {
     posts.value.unshift(newPost);
+};
+
+const handlePostDeleted = (postId: number) => {
+    const index = posts.value.findIndex(post => post.id === postId);
+    if (index !== -1) {
+        posts.value.splice(index, 1);
+    }
+};
+
+const handlePostPinned = (postId: number, isPinned: boolean) => {
+    const post = posts.value.find(post => post.id === postId);
+    if (post) {
+        post.isPinned = isPinned;
+        // Re-sort posts to move pinned posts to top
+        fetchPosts();
+    }
 };
 
 onMounted(() => {
@@ -104,9 +122,13 @@ onMounted(() => {
           :comments="post.comments"
           :views="post.views"
           :is-liked="post.isLiked"
+          :is-pinned="post.isPinned"
+          :can-manage="post.canManage"
           :type="post.type"
           :poll-options="post.poll_options"
           :images="post.images"
+          @post-deleted="handlePostDeleted"
+          @post-pinned="handlePostPinned"
         />
       </div>
     </div>

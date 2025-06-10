@@ -29,6 +29,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/api/posts', [PostController::class, 'index']);
     Route::post('/api/posts', [PostController::class, 'store']);
     Route::post('/api/posts/{post}/like', [PostController::class, 'toggleLike']);
+    Route::post('/api/posts/{post}/pin', [PostController::class, 'togglePin']);
+    Route::delete('/api/posts/{post}', [PostController::class, 'softDelete']);
     Route::get('/api/posts/{post}', [PostController::class, 'show']);
     Route::get('/api/posts/{post}/comments', [PostController::class, 'getComments']);
     Route::post('/api/posts/{post}/comments', [PostController::class, 'storeComment']);

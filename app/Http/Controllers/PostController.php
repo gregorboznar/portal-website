@@ -17,6 +17,8 @@ class PostController extends Controller
     {
         $posts = Post::with(['user', 'likes', 'images'])
             ->withCount('likes')
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('pinned_at')
             ->latest()
             ->get()
             ->map(function ($post) {
@@ -34,6 +36,8 @@ class PostController extends Controller
                     'comments' => $post->comments_count,
                     'views' => $post->views_count,
                     'isLiked' => Auth::check() ? $post->isLikedBy(Auth::user()) : false,
+                    'isPinned' => $post->is_pinned,
+                    'canManage' => Auth::check() && Auth::id() === $post->user_id,
                     'images' => $post->images->map(function ($image) {
                         return [
                             'id' => $image->id,
@@ -265,6 +269,45 @@ class PostController extends Controller
         return response()->json([
             'success' => true,
             'views_count' => $post->fresh()->views_count,
+        ]);
+    }
+
+    public function togglePin(Post $post): JsonResponse
+    {
+        $user = Auth::user();
+
+        if ($user->id !== $post->user_id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        if ($post->is_pinned) {
+            $post->unpin();
+            $message = 'Post unpinned successfully';
+        } else {
+            $post->pin();
+            $message = 'Post pinned successfully';
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'isPinned' => $post->fresh()->is_pinned,
+        ]);
+    }
+
+    public function softDelete(Post $post): JsonResponse
+    {
+        $user = Auth::user();
+
+        if ($user->id !== $post->user_id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $post->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Post deleted successfully',
         ]);
     }
 }
