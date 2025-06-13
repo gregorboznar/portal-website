@@ -39,12 +39,18 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
+        $user = $request->user();
+        if ($user) {
+            $profileImage = $user->images()->where('type', 'profile')->latest()->first();
+            $user->profile_image = $profileImage ? asset('storage/' . $profileImage->optimizations['medium']['path']) : null;
+        }
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
             'ziggy' => [
                 ...(new Ziggy)->toArray(),

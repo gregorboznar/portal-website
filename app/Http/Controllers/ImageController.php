@@ -121,4 +121,26 @@ class ImageController extends Controller
       ], 500);
     }
   }
+
+  public function deleteProfile(Request $request): JsonResponse
+  {
+    try {
+      $user = $request->user();
+      $profileImage = $user->images()->where('type', 'profile')->latest()->first();
+
+      if ($profileImage) {
+        $this->imageUploadService->delete($profileImage);
+      }
+
+      return response()->json([
+        'success' => true,
+        'message' => 'Profile image deleted successfully',
+      ]);
+    } catch (\Exception $e) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Failed to delete profile image',
+      ], 500);
+    }
+  }
 }

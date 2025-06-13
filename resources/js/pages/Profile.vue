@@ -9,13 +9,11 @@
       </div>
       
       <!-- Logo overlay -->
-      <div class="absolute inset-0 flex items-center justify-center">
-        <div class="text-center">
-          <div class="w-24 h-24 mx-auto mb-4 bg-yellow-400 rounded-full flex items-center justify-center">
-            <span class="text-4xl font-bold text-green-800">TG</span>
-          </div>
-          <h1 class="text-xl font-semibold text-green-800 tracking-wider">THE TALMAN GROUP</h1>
-        </div>
+      <div class="absolute inset-0 flex items-center justify-center bg-green">
+       
+   
+          <img :src="talmanLogo" alt="Talman Group Logo" class="w-[10rem]">
+     
       </div>
 
              <!-- Change Cover Photo Button -->
@@ -27,14 +25,7 @@
            :allow-multiple="false"
            accepted-file-types="image/jpeg, image/jpg, image/png"
            max-file-size="10MB"
-           :server="{
-             process: {
-               url: '/api/images/upload-cover',
-               method: 'POST',
-               onload: handleCoverUploadResponse,
-               onerror: handleUploadError
-             }
-           }"
+           :server="coverServerConfig"
            class="cover-filepond"
            :image-preview-height="60"
            image-resize-target-width="1200"
@@ -46,14 +37,13 @@
     </div>
 
     <!-- Profile Content -->
-    <div class="max-w-6xl mx-auto px-4 -mt-20 relative z-10">
+    <div class="max-w-6xl mx-auto px-4 relative z-10">
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Left Sidebar -->
         <div class="lg:w-1/3">
           <!-- Profile Card -->
           <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div class="flex flex-col items-center">
-                             <!-- Profile Photo -->
                <div class="relative mb-4">
                  <div v-if="user.profile_image && !isOwnProfile" class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
                    <img 
@@ -70,22 +60,50 @@
                  </div>
                  
                  <!-- Profile Photo Upload with FilePond for own profile -->
-                 <div v-if="isOwnProfile" class="w-32 h-32">
+                 <div v-if="isOwnProfile" class="">
+                   <!-- Show existing profile image with overlay controls if exists -->
+                   <div v-if="user.profile_image" class="relative w-36 h-36 rounded-full overflow-hidden border-4 border-white shadow-lg group">
+                     <img 
+                       :src="user.profile_image" 
+                       :alt="user.name"
+                       class="w-full h-full object-cover"
+                     >
+                     <!-- Overlay controls -->
+                     <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                       <div class="flex gap-2">
+                         <button 
+                           @click="triggerProfileUpload"
+                           class="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100 transition-colors"
+                           title="Change photo"
+                         >
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                           </svg>
+                         </button>
+                         <button 
+                           @click="handleProfileImageRemove"
+                           class="p-2 bg-red-500 rounded-full text-white hover:bg-red-600 transition-colors"
+                           title="Delete photo"
+                         >
+                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                           </svg>
+                         </button>
+                       </div>
+                     </div>
+                   </div>
+                   
+                   <!-- FilePond for upload when no image exists -->
                    <file-pond
+                     v-else
                      ref="profileFilePond"
                      name="profile_image"
                      label-idle="Drop image here or<br/>click to browse.<br/><span class='text-xs'>3MB max size</span>"
                      :allow-multiple="false"
                      accepted-file-types="image/jpeg, image/jpg, image/png"
                      max-file-size="3MB"
-                     :server="{
-                       process: {
-                         url: '/api/images/upload-profile',
-                         method: 'POST',
-                         onload: handleProfileUploadResponse,
-                         onerror: handleUploadError
-                       }
-                     }"
+                     :server="profileServerConfig"
                      class="profile-filepond"
                      :image-preview-height="128"
                      :image-crop-aspect-ratio="1"
@@ -96,6 +114,15 @@
                      style-progress-indicator-position="right bottom"
                      style-button-remove-item-position="left bottom"
                      style-button-process-item-position="right bottom"
+                   />
+                   
+                   <!-- Hidden file input for changing existing photo -->
+                   <input 
+                     ref="hiddenFileInput"
+                     type="file"
+                     accept="image/jpeg,image/jpg,image/png"
+                     class="hidden"
+                     @change="handleFileChange"
                    />
                  </div>
                </div>
@@ -293,16 +320,20 @@
 
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import talmanLogo from '@/assets/images/talman-logo.webp';
 import type { BreadcrumbItem } from '@/types';
-
 interface Props {
   user: any;
   isOwnProfile: boolean;
 }
 
+
 const props = defineProps<Props>();
+
+console.log('isOwnProfile value:', props.isOwnProfile);
+console.log('user', props.user);
 
 const breadcrumbs: BreadcrumbItem[] = [
   {
@@ -339,11 +370,13 @@ const updateProfile = () => {
 
 const coverFilePond = ref();
 const profileFilePond = ref();
+const hiddenFileInput = ref();
 
 const handleProfileUploadResponse = (response: string) => {
+  console.log('Upload response:', response);
   const data = JSON.parse(response);
   if (data.success) {
-    // Reload the page to reflect the new profile image
+    console.log('Upload successful, reloading...');
     router.reload({ only: ['user'] });
   }
   return response;
@@ -352,7 +385,6 @@ const handleProfileUploadResponse = (response: string) => {
 const handleCoverUploadResponse = (response: string) => {
   const data = JSON.parse(response);
   if (data.success) {
-    // Reload the page to reflect the new cover image
     router.reload({ only: ['user'] });
   }
   return response;
@@ -360,12 +392,103 @@ const handleCoverUploadResponse = (response: string) => {
 
 const handleUploadError = (error: any) => {
   console.error('Upload error:', error);
-  // You can add user notification here
 };
+
+const triggerProfileUpload = () => {
+  hiddenFileInput.value?.click();
+};
+
+const handleFileChange = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  
+  if (file) {
+    uploadProfileImage(file);
+  }
+};
+
+const uploadProfileImage = async (file: File) => {
+  try {
+    const formData = new FormData();
+    formData.append('profile_image', file);
+    
+    const csrfToken = getCsrfToken();
+    const headers: Record<string, string> = {};
+    
+    if (csrfToken) {
+      headers['X-CSRF-TOKEN'] = csrfToken;
+    }
+    
+    const response = await fetch('/api/images/upload-profile', {
+      method: 'POST',
+      headers,
+      body: formData
+    });
+    
+    const data = await response.json();
+    if (data.success) {
+      router.reload({ only: ['user'] });
+    }
+  } catch (error) {
+    console.error('Error uploading profile image:', error);
+  }
+};
+
+const handleProfileImageRemove = async () => {
+  try {
+    const csrfToken = getCsrfToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (csrfToken) {
+      headers['X-CSRF-TOKEN'] = csrfToken;
+    }
+    
+    const response = await fetch('/api/images/delete-profile', {
+      method: 'DELETE',
+      headers
+    });
+    
+    if (response.ok) {
+      router.reload({ only: ['user'] });
+    }
+  } catch (error) {
+    console.error('Error deleting profile image:', error);
+  }
+};
+
+const getCsrfToken = () => {
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  return meta ? meta.getAttribute('content') : '';
+};
+
+const profileServerConfig = computed(() => ({
+  process: {
+    url: '/api/images/upload-profile',
+    method: 'POST',
+    onload: handleProfileUploadResponse,
+    onerror: handleUploadError,
+    headers: {
+      'X-CSRF-TOKEN': getCsrfToken()
+    }
+  }
+}));
+
+const coverServerConfig = computed(() => ({
+  process: {
+    url: '/api/images/upload-cover',
+    method: 'POST',
+    onload: handleCoverUploadResponse,
+    onerror: handleUploadError,
+    headers: {
+      'X-CSRF-TOKEN': getCsrfToken()
+    }
+  }
+}));
 
 const submitPost = () => {
   if (newPost.value.trim()) {
-    // Handle post submission
     newPost.value = '';
   }
 };

@@ -154,6 +154,10 @@
       'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
       'Noto Color Emoji';
   }
+  .bg-green {
+    background-color: var(--color-green);
+    color: var(--color-white);
+  }
 }
 
 :root {

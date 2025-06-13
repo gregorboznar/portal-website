@@ -134,6 +134,8 @@ const loadComments = async () => {
     }
 };
 
+const currentComments = ref(props.comments)
+
 const submitComment = async () => {
     if (!commentText.value.trim() || isSubmittingComment.value) return;
     
@@ -145,6 +147,8 @@ const submitComment = async () => {
         
         postComments.value.push(response.data.data);
         commentText.value = '';
+
+        currentComments.value++;
     } catch (error) {
         console.error('Error submitting comment:', error);
     } finally {
@@ -317,7 +321,7 @@ onUnmounted(() => {
                         @click="openPostDialog"
                     >
                         <MessageCircle class="w-5 h-5" />
-                        <span>{{ comments }}</span>
+                        <span>{{ currentComments }}</span>
                     </Button>
                     
                     <Button variant="ghost" size="sm" class="flex items-center space-x-2 text-gray-600">

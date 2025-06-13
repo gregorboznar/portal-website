@@ -18,6 +18,7 @@ interface User {
     email: string;
     avatar?: string;
     company?: string;
+    profile_image?: string;
 }
 
 interface AuthData {
@@ -75,12 +76,16 @@ const navItems = computed(() => [
             </div>
 
             <div class="flex items-center space-x-3">
-                            <Avatar class="h-8 w-8">
-                                <AvatarImage v-if="auth.user.avatar" :src="auth.user.avatar" :alt="auth.user.name" />
-                                <AvatarFallback class="bg-gray-300 text-gray-700 text-sm font-medium">
-                                    {{ getInitials(auth.user?.name) }}
-                                </AvatarFallback>
-                            </Avatar>
+                <Avatar class="h-8 w-8">
+            <AvatarImage 
+             v-if="auth.user.profile_image" 
+                :src="auth.user.profile_image" 
+                :alt="auth.user.name" 
+            />
+             <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
+                {{ getInitials(auth.user?.name) }}
+            </AvatarFallback>
+            </Avatar>
                             <div class="hidden md:block text-left">
                                 <div class="text-sm font-semibold text-gray-900">{{ auth.user.name }}</div>
                                 <div class="text-xs text-gray-500">{{ auth.user.company || 'Company' }}</div>
