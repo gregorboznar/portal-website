@@ -63,4 +63,62 @@ class ImageController extends Controller
 
     return $formatted;
   }
+
+  public function uploadProfile(Request $request): JsonResponse
+  {
+    $request->validate([
+      'profile_image' => 'required|image|max:10240',
+    ]);
+
+    try {
+      $user = $request->user();
+      $image = $this->imageUploadService->uploadForModel($request->file('profile_image'), $user);
+      $image->update(['type' => 'profile']);
+
+      $imageData = [
+        'id' => $image->id,
+        'url' => asset('storage/' . $image->optimizations['medium']['path']),
+        'type' => 'profile',
+      ];
+
+      return response()->json([
+        'success' => true,
+        'image' => $imageData,
+      ]);
+    } catch (\Exception $e) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Failed to upload profile image',
+      ], 500);
+    }
+  }
+
+  public function uploadCover(Request $request): JsonResponse
+  {
+    $request->validate([
+      'cover_image' => 'required|image|max:10240',
+    ]);
+
+    try {
+      $user = $request->user();
+      $image = $this->imageUploadService->uploadForModel($request->file('cover_image'), $user);
+      $image->update(['type' => 'cover']);
+
+      $imageData = [
+        'id' => $image->id,
+        'url' => asset('storage/' . $image->optimizations['large']['path']),
+        'type' => 'cover',
+      ];
+
+      return response()->json([
+        'success' => true,
+        'image' => $imageData,
+      ]);
+    } catch (\Exception $e) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Failed to upload cover image',
+      ], 500);
+    }
+  }
 }

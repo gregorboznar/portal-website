@@ -218,7 +218,10 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
                             </svg>
                         </div>
                         <div class="flex-1">
-                            <div class="w-full text-lg text-gray-500 py-3">
+                            
+                        </div>
+                        <div class="flex h-10 items-center w-full bg-input rounded-full px-4 text-sm focus:outline-none focus:ring-0 cursor-pointer bg-bg">   
+                            <div class="w-full text-gray-500 py-3">
                                 What are you thinking?
                             </div>
                         </div>

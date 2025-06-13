@@ -20,6 +20,7 @@ class Image extends Model
         'alt_text',
         'imageable_type',
         'imageable_id',
+        'type',
     ];
 
     protected static function boot()

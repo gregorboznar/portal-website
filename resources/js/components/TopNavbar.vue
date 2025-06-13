@@ -75,9 +75,6 @@ const navItems = computed(() => [
             </div>
 
             <div class="flex items-center space-x-3">
-                <DropdownMenu>
-                    <DropdownMenuTrigger as-child>
-                        <Button variant="ghost" class="flex items-center space-x-3 px-3 py-2 hover:bg-gray-50 rounded-lg">
                             <Avatar class="h-8 w-8">
                                 <AvatarImage v-if="auth.user.avatar" :src="auth.user.avatar" :alt="auth.user.name" />
                                 <AvatarFallback class="bg-gray-300 text-gray-700 text-sm font-medium">
@@ -88,6 +85,10 @@ const navItems = computed(() => [
                                 <div class="text-sm font-semibold text-gray-900">{{ auth.user.name }}</div>
                                 <div class="text-xs text-gray-500">{{ auth.user.company || 'Company' }}</div>
                             </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger as-child>
+                        <Button variant="ghost" class="flex items-center space-x-3 px-3 py-2 hover:bg-gray-50 rounded-lg">
+                         
                             <MoreHorizontal class="h-4 w-4 text-gray-400" />
                         </Button>
                     </DropdownMenuTrigger>

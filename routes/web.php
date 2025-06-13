@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -12,6 +13,8 @@ Route::get('/', function () {
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('profile/{user}', [ProfileController::class, 'show'])->middleware(['auth', 'verified'])->name('profile');
 
 Route::get('friends', function () {
     return Inertia::render('Friends');
@@ -36,6 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/api/posts/{post}/comments', [PostController::class, 'storeComment']);
     Route::post('/api/posts/{post}/view', [PostController::class, 'trackView']);
     Route::post('/api/images/upload', [ImageController::class, 'upload']);
+    Route::post('/api/images/upload-profile', [ImageController::class, 'uploadProfile']);
+    Route::post('/api/images/upload-cover', [ImageController::class, 'uploadCover']);
 
     // Debug route - remove after debugging
     Route::get('/debug/image/{id}', function ($id) {

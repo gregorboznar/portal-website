@@ -39,6 +39,11 @@ class User extends Authenticatable
         });
     }
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -70,5 +75,20 @@ class User extends Authenticatable
     public function likedPosts(): BelongsToMany
     {
         return $this->belongsToMany(Post::class, 'post_likes');
+    }
+
+    public function images()
+    {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function profileImage()
+    {
+        return $this->images()->where('type', 'profile')->latest()->first();
+    }
+
+    public function coverImage()
+    {
+        return $this->images()->where('type', 'cover')->latest()->first();
     }
 }
