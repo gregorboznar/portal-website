@@ -1,8 +1,8 @@
 <template>
   <AppLayout :breadcrumbs="breadcrumbs">
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-bg">
     <!-- Cover Photo Section -->
-    <div class="relative h-80 bg-gradient-to-r from-green-500 to-green-600">
+    <div class="relative h-80 ">
       <!-- Cover Image -->
       <div v-if="user.cover_image" class="absolute inset-0">
         <img :src="user.cover_image" alt="Cover" class="w-full h-full object-cover">
@@ -35,16 +35,9 @@
          />
        </div>
     </div>
-
-    <!-- Profile Content -->
-    <div class="max-w-6xl mx-auto px-4 relative z-10">
-      <div class="flex flex-col lg:flex-row gap-6">
-        <!-- Left Sidebar -->
-        <div class="lg:w-1/3">
-          <!-- Profile Card -->
-          <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div class="flex flex-col items-center">
-               <div class="relative mb-4">
+    <div class="relative bg-white flex flex-col  pt-4 rounded-b-lg gap-8 | sm:flex-row sm:gap-0 sm:pt-6 ">
+      <div>
+          <div class="absolute mb-4 bottom-[4rem] left-[1rem]">
                  <div v-if="user.profile_image && !isOwnProfile" class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
                    <img 
                      :src="user.profile_image" 
@@ -126,14 +119,16 @@
                    />
                  </div>
                </div>
-
-              <!-- User Info -->
-              <h2 class="text-xl font-bold text-gray-900 mb-1">{{ user.name }}</h2>
+      </div>
+     
+      <div class="ml-48 flex justify-between w-full">
+         <div>
+             <h2 class="text-xl font-bold text-gray-900 mb-1">{{ user.name }}</h2>
               <p class="text-gray-600 mb-2">{{ user.company || 'Company not specified' }}</p>
               <p class="text-sm text-gray-500 mb-4">AVAILABLE TICKETS: 0 / 0</p>
-              
-              <!-- Edit Profile Button -->
-              <button 
+         </div> 
+          <div>
+            <button 
                 v-if="isOwnProfile"
                 @click="showEditModal = true"
                 class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
@@ -143,31 +138,23 @@
                 </svg>
                 Edit profile
               </button>
-            </div>
-          </div>
+      </div>
+      </div>
+      
+    </div>
 
-          <!-- About Section -->
-          <div class="bg-white rounded-lg shadow-lg p-6">
-            <div class="flex items-center gap-2 mb-4">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-              </svg>
-              <h3 class="text-lg font-semibold text-gray-900">About me</h3>
-            </div>
-            
-            <div class="space-y-3">
-              <div>
-                <h4 class="font-semibold text-gray-900">CEO at {{ user.company || 'Bplanet d.o.o.' }}</h4>
-                <p class="text-gray-600 text-sm mt-2">
-                  Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-                </p>
-              </div>
-              
-              <div class="pt-4 border-t border-gray-200">
-                <p class="text-sm text-gray-500">Member since January 1970</p>
-              </div>
-            </div>
-          </div>
+    <!-- Profile Content -->
+    <div class="max-w-6xl mx-auto relative z-10 mt-4">
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Left Sidebar -->
+        <div class="lg:w-1/3">
+         
+
+          <AboutSection 
+  :company="user.company" 
+  :description="user.description" 
+  :member-since="user.memberSince" 
+/>
         </div>
 
         <!-- Main Content -->
@@ -322,6 +309,7 @@
 import { router } from '@inertiajs/vue3';
 import { ref, reactive, computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import AboutSection from '@/components/AboutSection.vue';
 import talmanLogo from '@/assets/images/talman-logo.webp';
 import type { BreadcrumbItem } from '@/types';
 interface Props {
