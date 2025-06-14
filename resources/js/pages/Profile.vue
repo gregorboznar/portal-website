@@ -37,7 +37,7 @@
     </div>
     <div class="relative bg-white flex flex-col  pt-4 rounded-b-lg gap-8 | sm:flex-row sm:gap-0 sm:pt-6 ">
       <div>
-          <div class="absolute mb-4 bottom-[4rem] left-[1rem]">
+          <div class="absolute mb-4 bottom-[2rem] left-[1rem]">
                  <div v-if="user.profile_image && !isOwnProfile" class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
                    <img 
                      :src="user.profile_image" 
@@ -144,7 +144,7 @@
     </div>
 
     <!-- Profile Content -->
-    <div class="max-w-6xl mx-auto relative z-10 mt-4">
+    <div class="max-w-6xl mx-auto px-4 relative z-10">
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Left Sidebar -->
         <div class="lg:w-1/3">

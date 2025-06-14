@@ -7,14 +7,32 @@ import {
     DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { BarChart3, Smile, X } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { BarChart3, Smile } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
 import axios from 'axios';
+import { usePage } from '@inertiajs/vue3';
+import { getInitials } from '@/composables/useInitials';
+import PictureIcon from '@/assets/icons/picture.svg'
+import EventIcon from '@/assets/icons/events.svg'
+import PollIcon from '@/assets/icons/poll.svg'
 
 // FilePond is globally registered in app.ts
+
+interface User {
+    id: number;
+    name: string;
+    email: string;
+    avatar?: string;
+    company?: string;
+    profile_image?: string;
+}
+
+interface AuthData {
+    user: User;
+}
 
 interface Post {
     id: number;
@@ -45,6 +63,9 @@ interface UploadedImage {
 const emit = defineEmits<{
     'post-created': [post: Post]
 }>();
+
+const page = usePage();
+const auth = computed(() => page.props.auth as AuthData);
 
 const postText = ref('');
 const isPosting = ref(false);
@@ -78,6 +99,26 @@ const togglePoll = () => {
 const openDialog = () => {
     isDialogOpen.value = true;
 };
+
+const openDialogWithPhoto = () => {
+    isDialogOpen.value = true;
+    
+    setTimeout(() => {
+        if (filePondRef.value) {
+            filePondRef.value.browse();
+        }
+    }, 100);
+};
+
+const openDialogWithPoll = () => {
+    isDialogOpen.value = true;
+    postType.value = 'poll';
+    if (pollOptions.value.length === 0) {
+        pollOptions.value = ['', ''];
+    }
+};
+
+
 
 const closeDialog = () => {
     isDialogOpen.value = false;
@@ -132,10 +173,6 @@ const uploadImage = async (file: File) => {
     }
 };
 
-const removeImage = (index: number) => {
-    uploadedImages.value.splice(index, 1);
-};
-
 const insertEmoji = (emoji: string) => {
     postText.value += emoji;
     showEmojiPicker.value = false;
@@ -172,67 +209,59 @@ const submitPost = async () => {
 const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🤩', '🥳'];
 </script>
 
-<style scoped>
-/* Custom FilePond styling */
-.filepond--custom {
-    border: 2px dashed #e5e7eb;
-    border-radius: 8px;
-    background: #f9fafb;
-}
-
-.filepond--custom .filepond--drop-label {
-    color: #6b7280;
-    font-size: 14px;
-}
-
-.filepond--custom .filepond--label-action {
-    color: #3b82f6;
-    text-decoration: underline;
-}
-
-.filepond--custom .filepond--panel-root {
-    border-radius: 8px;
-    background: transparent;
-}
-
-.filepond--custom .filepond--item {
-    width: calc(50% - 0.5em);
-}
-
-@media (max-width: 768px) {
-    .filepond--custom .filepond--item {
-        width: 100%;
-    }
-}
-</style>
 
 <template>
     <Dialog v-model:open="isDialogOpen">
-        <DialogTrigger as-child>
-            <Card class="w-full cursor-pointer hover:bg-gray-50 transition-colors" @click="openDialog">
+        
+            <Card class="w-full hover:white transition-colors">
                 <CardContent class="p-4">
-                    <div class="flex items-start space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            
-                        </div>
-                        <div class="flex h-10 items-center w-full bg-input rounded-full px-4 text-sm focus:outline-none focus:ring-0 cursor-pointer bg-bg">   
-                            <div class="w-full text-gray-500 py-3">
-                                What are you thinking?
+                    <div class="flex items-start space-x-2 flex-col">
+                        <div class="flex items-center space-x-2 w-full">
+                        <Avatar class="w-10 h-10 rounded-full overflow-hidden hover:brightness-110 transition duration-500">
+                            <AvatarImage 
+                                v-if="auth.user.profile_image" 
+                                :src="auth.user.profile_image" 
+                                :alt="auth.user.name" 
+                            />
+                            <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
+                                {{ getInitials(auth.user?.name) }}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div class="flex-1"></div>
+                        <DialogTrigger as-child class="cursor-pointer" @click="openDialog">
+                            <div class="flex h-10 items-center w-full bg-input rounded-full text-sm focus:outline-none focus:ring-0 cursor-pointer bg-bg">
+                                <div class="w-full text-gray-500 py-3 px-4">
+                                    What are you thinking?
+                                </div>
                             </div>
+                        </DialogTrigger>
                         </div>
+                       
+                            <div class="flex items-center justify-between pt-2 border-t mt-4 w-full">
+                                <div class="flex space-x-6">
+                                    <Button variant="ghost" size="sm" @click="openDialogWithPhoto">
+                                   <PictureIcon class="w-5 h-5" />
+                                      <p class="text-sm">Add photo</p> 
+                                    </Button>
+                                     <Button variant="ghost" size="sm" >
+                                        <EventIcon class="w-5 h-5" />
+                                        <p class="text-sm">Event</p>
+                                    </Button>
+                                    <Button variant="ghost" size="sm" @click="openDialogWithPoll">
+                                        <PollIcon class="w-5 h-5" />
+                                        <p class="text-sm">Poll</p>
+                                    </Button>
+                                </div>
+                            </div>
+                        
                     </div>
                 </CardContent>
             </Card>
-        </DialogTrigger>
+        
         
         <DialogContent class="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-                <DialogTitle>Create Post</DialogTitle>
+                <h1>Create Post</h1>
                 <DialogDescription>
                     Share your thoughts, add images, create polls, and more.
                 </DialogDescription>
