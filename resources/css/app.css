@@ -260,6 +260,14 @@
     button {
       @apply cursor-pointer;
   }
+
+  .p-min {
+    font-family: Poppins, sans-serif;
+    font-size: 0.75rem;
+    line-height: 1.25;
+    --tw-text-opacity: 1;
+    color: rgb(131 131 131 / var(--tw-text-opacity, 1));
+}
 }
 
 /*

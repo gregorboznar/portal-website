@@ -262,18 +262,31 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
         <DialogContent class="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
             <DialogHeader>
                 <h1>Create Post</h1>
-                <DialogDescription>
+             <!--    <DialogDescription>
                     Share your thoughts, add images, create polls, and more.
-                </DialogDescription>
+                </DialogDescription> -->
             </DialogHeader>
             
             <div class="space-y-4">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                        </svg>
+                <div class="flex items-start space-x-3 flex-col gap-2 w-full border-t">
+                    <div class="flex gap-2 w-full mt-4">
+                        <Avatar class="w-12 h-12 rounded-full overflow-hidden hover:brightness-110 transition duration-500">
+                            <AvatarImage 
+                                v-if="auth.user.profile_image" 
+                                :src="auth.user.profile_image" 
+                                :alt="auth.user.name" 
+                            />
+                            <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
+                                {{ getInitials(auth.user?.name) }}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium">{{ auth.user.name }}</p>
+                            <p class="text-xs text-gray-500">{{ auth.user.company }}</p>
+                        </div>
                     </div>
+                    
+               
                     <div class="flex-1">
                         <textarea
                             v-model="postText"
@@ -308,7 +321,7 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
                         variant="ghost"
                         size="sm"
                         @click="addPollOption"
-                        class="text-blue-500 hover:text-blue-700"
+                        class="text-green hover:text-green"
                     >
                         + Add option
                     </Button>
@@ -357,7 +370,7 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
                         <Button 
                             variant="ghost" 
                             size="sm"
-                            :class="{ 'bg-blue-50 text-blue-600': postType === 'poll' }"
+                            :class="{ 'bg-bg text-green': postType === 'poll' }"
                             @click="togglePoll"
                         >
                             <BarChart3 class="w-4 h-4 mr-1" />
@@ -374,7 +387,7 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
                 <Button 
                     @click="submitPost"
                     :disabled="(!postText.trim() && uploadedImages.length === 0) || isPosting"
-                    class="bg-blue-600 hover:bg-blue-700 text-white"
+                    class="bg-green hover:bg-green-700 hover:opacity-90 text-white"
                 >
                     {{ isPosting ? 'Posting...' : 'Post' }}
                 </Button>

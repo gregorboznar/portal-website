@@ -8,6 +8,10 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Heart, MessageCircle, Eye, MoreHorizontal } from 'lucide-vue-next';
+import FlashIcon from '@/assets/icons/flash.svg'
+import FlashIcon2 from '@/assets/icons/flash-2.svg'
+import CommentIcon from '@/assets/icons/comment.svg'
+import EyeIcon from '@/assets/icons/eye.svg'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import PostDropdownContent from '@/components/PostDropdownContent.vue';
 
@@ -304,15 +308,16 @@ onUnmounted(() => {
                 
                 <div class="flex items-center space-x-6 pt-3 border-t border-gray-100">
                     <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        class="flex items-center space-x-2 text-gray-600 hover:text-red-600"
-                        @click="toggleLike"
-                        :disabled="isLiking"
-                    >
-                        <Heart class="w-5 h-5" :class="{ 'fill-red-500 text-red-500': currentIsLiked }" />
-                        <span>{{ currentLikes }}</span>
-                    </Button>
+    variant="ghost" 
+    size="sm" 
+    class="flex items-center space-x-2 text-gray-600 hover:text-red-600"
+    @click="toggleLike"
+    :disabled="isLiking"
+>
+    <FlashIcon v-if="currentIsLiked" class="w-6 h-6 fill-red-500 text-red-500" />
+    <FlashIcon2 v-else class="w-6 h-6" />
+    <span class="p-min">{{ currentLikes }}</span>
+</Button>
                     
                     <Button 
                         variant="ghost" 
@@ -320,13 +325,13 @@ onUnmounted(() => {
                         class="flex items-center space-x-2 text-gray-600 hover:text-blue-600"
                         @click="openPostDialog"
                     >
-                        <MessageCircle class="w-5 h-5" />
-                        <span>{{ currentComments }}</span>
+                        <CommentIcon class="w-6 h-6" />
+                        <span class="p-min">{{ currentComments }}</span>
                     </Button>
                     
                     <Button variant="ghost" size="sm" class="flex items-center space-x-2 text-gray-600">
-                        <Eye class="w-5 h-5" />
-                        <span>{{ currentViews }}</span>
+                        <EyeIcon class="w-6 h-6" />
+                        <span class="p-min">{{ currentViews }}</span>
                     </Button>
                 </div>
                 
