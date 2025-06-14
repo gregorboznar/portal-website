@@ -12,6 +12,7 @@ import FlashIcon from '@/assets/icons/flash.svg'
 import FlashIcon2 from '@/assets/icons/flash-2.svg'
 import CommentIcon from '@/assets/icons/comment.svg'
 import EyeIcon from '@/assets/icons/eye.svg'
+import PinIcon from '@/assets/icons/pin.svg'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import PostDropdownContent from '@/components/PostDropdownContent.vue';
 
@@ -239,22 +240,23 @@ onUnmounted(() => {
                         <div>
                             <div class="flex items-center gap-2">
                                 <h3 class="font-semibold text-gray-900">{{ author.name }}</h3>
-                                <span v-if="currentIsPinned" class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
-                                    📌 Pinned
-                                </span>
+                                
                             </div>
                             <p class="text-sm text-gray-500" v-if="author.company">{{ author.company }}</p>
                             <p class="text-sm text-gray-500">{{ timestamp }}</p>
                         </div>
                     </div>
-                    
+                    <div class="flex items-center gap-2">
+                       
+                                <PinIcon v-if="currentIsPinned" class="w-6 h-6" />
+                    </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger as-child>
                             <Button variant="ghost" size="sm" class="text-gray-400 hover:text-gray-600">
                                 <MoreHorizontal class="w-5 h-5" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent>
+                        <DropdownMenuContent align="end">
                              <PostDropdownContent 
                                 :post-id="postId"
                                 :is-pinned="currentIsPinned"

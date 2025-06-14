@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Pin, PinOff, Trash2, Flag } from 'lucide-vue-next';
+import { DropdownMenuGroup, DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { PinOff, Flag } from 'lucide-vue-next';
 
 import PinIcon from '@/assets/icons/pin.svg'
 import DeleteIcon from '@/assets/icons/delete.svg'
@@ -64,13 +64,13 @@ const handleDelete = async () => {
 
 <template>
     <DropdownMenuGroup v-if="canManage">
-        <DropdownMenuItem @click="handlePin">
+        <DropdownMenuItem @click="handlePin" class="cursor-pointer">
             <PinIcon v-if="!isPinned" class="mr-2 h-4 w-4" />
             <PinOff v-else class="mr-2 h-4 w-4" />
             {{ isPinned ? 'Unpin Post' : 'Pin Post' }}
         </DropdownMenuItem>
    <!--      <DropdownMenuSeparator /> -->
-        <DropdownMenuItem @click="handleDelete" class="text-red-600 focus:text-red-600">
+        <DropdownMenuItem @click="handleDelete" class="text-red-600 focus:text-red-600 cursor-pointer">
             <DeleteIcon class="mr-2 h-4 w-4" />
             Delete Post
         </DropdownMenuItem>
