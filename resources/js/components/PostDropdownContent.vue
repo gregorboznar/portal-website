@@ -63,10 +63,10 @@ const handleDelete = async () => {
 </script>
 
 <template>
-    <DropdownMenuGroup v-if="canManage">
+    <DropdownMenuGroup >
         <DropdownMenuItem @click="handlePin" class="cursor-pointer">
             <PinIcon v-if="!isPinned" class="mr-2 h-4 w-4" />
-            <PinOff v-else class="mr-2 h-4 w-4" />
+            <PinIcon v-else class="mr-2 h-4 w-4" />
             {{ isPinned ? 'Unpin Post' : 'Pin Post' }}
         </DropdownMenuItem>
    <!--      <DropdownMenuSeparator /> -->
@@ -75,10 +75,5 @@ const handleDelete = async () => {
             Delete Post
         </DropdownMenuItem>
     </DropdownMenuGroup>
-    <DropdownMenuGroup v-if="!canManage">
-        <DropdownMenuItem>
-            <Flag class="mr-2 h-4 w-4" />
-            Report Post
-        </DropdownMenuItem>
-    </DropdownMenuGroup>
+
 </template>

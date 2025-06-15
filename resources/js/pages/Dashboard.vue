@@ -72,11 +72,22 @@ const handlePostDeleted = (postId: number) => {
 };
 
 const handlePostPinned = (postId: number, isPinned: boolean) => {
-    const post = posts.value.find(post => post.id === postId);
-    if (post) {
-        post.isPinned = isPinned;
-        // Re-sort posts to move pinned posts to top
-        fetchPosts();
+    const postIndex = posts.value.findIndex(post => post.id === postId);
+    if (postIndex !== -1) {
+      
+        const updatedPost = { ...posts.value[postIndex], isPinned };
+        posts.value[postIndex] = updatedPost;
+
+        posts.value.sort((a, b) => {
+            // First, sort by pinned status (pinned posts first)
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+            
+            // If both have same pinned status, maintain original order (most recent first)
+            // Since we don't have pinned_at timestamp on frontend, we'll use the post ID as proxy
+            // Higher ID means more recent post
+            return b.id - a.id;
+        });
     }
 };
 

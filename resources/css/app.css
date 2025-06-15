@@ -259,14 +259,41 @@
     }
     button {
       @apply cursor-pointer;
-  }
-
+    }
+    h3 {
+      font-family: PlayfairDisplay-Bold, serif;
+      font-weight: 600;
+      font-size:0.875rem;
+      line-height: 1.25;
+    }
+    h4 {
+      font-family: Poppins, sans-serif;
+      font-size: 0.75rem;
+      line-height: 1.25rem;
+      --tw-text-opacity: 1;
+    }
   .p-min {
     font-family: Poppins, sans-serif;
     font-size: 0.75rem;
     line-height: 1.25;
     --tw-text-opacity: 1;
     color: rgb(131 131 131 / var(--tw-text-opacity, 1));
+  }
+   .green-text {
+    color: var(--color-green);
+    font-family: Poppins, sans-serif;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    --tw-text-opacity: 1;
+    
+   }
+   .min-text {
+  font-family: Poppins, sans-serif;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  line-height: 1.25;
+  --tw-text-opacity: 1;
+  color: rgb(131 131 131 / var(--tw-text-opacity, 1));
 }
 }
 

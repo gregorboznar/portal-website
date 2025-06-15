@@ -9,7 +9,7 @@ use App\Models\PostView;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+
 
 class PostController extends Controller
 {
@@ -27,6 +27,7 @@ class PostController extends Controller
                     'author' => [
                         'name' => $post->user->name,
                         'company' => $post->user->company,
+                        'profile_image' => $this->getUserProfileImage($post->user),
                     ],
                     'content' => $post->content,
                     'type' => $post->type,
@@ -88,6 +89,7 @@ class PostController extends Controller
             'author' => [
                 'name' => $post->user->name,
                 'company' => $post->user->company,
+                'profile_image' => $this->getUserProfileImage($post->user),
             ],
             'content' => $post->content,
             'type' => $post->type,
@@ -142,6 +144,7 @@ class PostController extends Controller
             'author' => [
                 'name' => $post->user->name,
                 'company' => $post->user->company,
+                'profile_image' => $this->getUserProfileImage($post->user),
             ],
             'content' => $post->content,
             'type' => $post->type,
@@ -276,9 +279,7 @@ class PostController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->id !== $post->user_id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
+
 
         if ($post->is_pinned) {
             $post->unpin();
@@ -309,5 +310,11 @@ class PostController extends Controller
             'success' => true,
             'message' => 'Post deleted successfully',
         ]);
+    }
+
+    private function getUserProfileImage($user): ?string
+    {
+        $profileImage = $user->images()->where('type', 'profile')->latest()->first();
+        return $profileImage ? asset('storage/' . $profileImage->optimizations['medium']['path']) : null;
     }
 }

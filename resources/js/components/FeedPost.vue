@@ -7,7 +7,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Heart, MessageCircle, Eye, MoreHorizontal } from 'lucide-vue-next';
+import {  MoreHorizontal } from 'lucide-vue-next';
 import FlashIcon from '@/assets/icons/flash.svg'
 import FlashIcon2 from '@/assets/icons/flash-2.svg'
 import CommentIcon from '@/assets/icons/comment.svg'
@@ -15,8 +15,9 @@ import EyeIcon from '@/assets/icons/eye.svg'
 import PinIcon from '@/assets/icons/pin.svg'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import PostDropdownContent from '@/components/PostDropdownContent.vue';
-
-import { ref, onMounted, onUnmounted, nextTick } from 'vue';
+import { getInitials } from '@/composables/useInitials';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import axios from 'axios';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
@@ -38,7 +39,8 @@ interface FeedPostProps {
         name: string;
         company?: string;
         avatar?: string;
-    };
+        profile_image?: string;
+    }; 
     content: string;
     timestamp: string;
     likes: number;
@@ -170,6 +172,11 @@ const handlePostDeleted = (postId: number) => {
     emit('post-deleted', postId);
 };
 
+
+watch(() => props.isPinned, (newValue) => {
+    currentIsPinned.value = newValue || false;
+});
+
 const initPhotoSwipe = () => {
     const lightbox = new PhotoSwipeLightbox({
         gallery: `#${galleryId}`,
@@ -232,23 +239,29 @@ onUnmounted(() => {
             <CardContent class="p-4">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex items-start space-x-3">
-                        <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
+                        <Avatar class="w-12 h-12 rounded-full overflow-hidden hover:brightness-110 transition duration-500">
+                            <AvatarImage 
+                                v-if="author.profile_image" 
+                                :src="author.profile_image" 
+                                :alt="author.name" 
+                            />
+                            <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
+                                {{ getInitials(author?.name) }}
+                            </AvatarFallback>
+                        </Avatar>
                         <div>
                             <div class="flex items-center gap-2">
-                                <h3 class="font-semibold text-gray-900">{{ author.name }}</h3>
+                                <h3 class="font-semibold ">{{ author.name }}</h3>
                                 
                             </div>
-                            <p class="text-sm text-gray-500" v-if="author.company">{{ author.company }}</p>
-                            <p class="text-sm text-gray-500">{{ timestamp }}</p>
+                            <p class="green-text" v-if="author.company">{{ author.company }}</p>
+                            <p class="min-text">{{ timestamp }}</p>
                         </div>
                     </div>
+                   <div class="flex items-center ">
                     <div class="flex items-center gap-2">
                        
-                                <PinIcon v-if="currentIsPinned" class="w-6 h-6" />
+                                <PinIcon v-if="currentIsPinned" class="w-4 h-4" />
                     </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger as-child>
@@ -266,6 +279,9 @@ onUnmounted(() => {
                             />
                         </DropdownMenuContent>
                     </DropdownMenu>
+                   </div>
+
+                   
                 </div>
                 
                 <div class="mb-4">
