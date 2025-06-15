@@ -14,6 +14,16 @@ import CommentIcon from '@/assets/icons/comment.svg'
 import EyeIcon from '@/assets/icons/eye.svg'
 import PinIcon from '@/assets/icons/pin.svg'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { 
+    AlertDialog, 
+    AlertDialogAction, 
+    AlertDialogCancel, 
+    AlertDialogContent, 
+    AlertDialogDescription, 
+    AlertDialogFooter, 
+    AlertDialogHeader, 
+    AlertDialogTitle 
+} from '@/components/ui/alert-dialog';
 import PostDropdownContent from '@/components/PostDropdownContent.vue';
 import { getInitials } from '@/composables/useInitials';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -21,6 +31,7 @@ import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import axios from 'axios';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
+import FeedIcon from '@/assets/icons/feed.svg'
 
 interface Comment {
     id: number;
@@ -67,6 +78,7 @@ const props = defineProps<FeedPostProps>();
 const commentText = ref('');
 const showComments = ref(false);
 const showPostDialog = ref(false);
+const showDeleteDialog = ref(false);
 const currentLikes = ref(props.likes);
 const currentIsLiked = ref(props.isLiked || false);
 const isLiking = ref(false);
@@ -166,10 +178,37 @@ const submitComment = async () => {
 const handlePinToggled = (postId: number, isPinned: boolean) => {
     currentIsPinned.value = isPinned;
     emit('post-pinned', postId, isPinned);
+
+    
 };
 
 const handlePostDeleted = (postId: number) => {
     emit('post-deleted', postId);
+};
+
+const handleDeleteRequested = () => {
+    showDeleteDialog.value = true;
+};
+
+const handleDeleteConfirm = async () => {
+    try {
+        const response = await fetch(`/api/posts/${props.postId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            },
+        });
+      
+        if (response.ok) {
+            emit('post-deleted', props.postId);
+            window.location.reload();
+        }
+    } catch (error) {
+        console.error('Error deleting post:', error);
+    } finally {
+        showDeleteDialog.value = false;
+    }
 };
 
 
@@ -276,6 +315,7 @@ onUnmounted(() => {
                                 :can-manage="canManage"
                                 @pin-toggled="handlePinToggled"
                                 @post-deleted="handlePostDeleted"
+                                @delete-requested="handleDeleteRequested"
                             />
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -379,21 +419,19 @@ onUnmounted(() => {
         <DialogContent class="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             <DialogHeader>
                 <DialogTitle class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
+              
+                        <FeedIcon class="w-6 h-6 text-gray-600" />
+                 
                     <div>
-                        <div class="font-semibold text-gray-900">Post by {{ author.name }}</div>
-                        <div class="text-sm text-gray-500" v-if="author.company">{{ author.company }}</div>
+                        <h1 class="font-semibold text-gray-900">Post by {{ author.name }}</h1>
+                        
                     </div>
                 </DialogTitle>
             </DialogHeader>
             
             <div class="flex-1 overflow-y-auto">
                 <!-- Post Header -->
-                <div class="flex items-start space-x-3 mb-4">
+                <div class="flex items-start space-x-3 mb-4 border-t w-full">
                     <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
                         <svg class="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
@@ -401,13 +439,11 @@ onUnmounted(() => {
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h3 class="font-semibold text-gray-900">{{ author.name }}</h3>
-                            <span v-if="currentIsPinned" class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-full">
-                                📌 Pinned
-                            </span>
+                            <h3 >{{ author.name }}</h3>
+                            
                         </div>
-                        <p class="text-sm text-gray-500" v-if="author.company">{{ author.company }}</p>
-                        <p class="text-sm text-gray-500">{{ timestamp }}</p>
+                        <p class="green-text" v-if="author.company">{{ author.company }}</p>
+                        <p class="min-text">{{ timestamp }}</p>
                     </div>
                 </div>
 
@@ -501,4 +537,22 @@ onUnmounted(() => {
             </div>
         </DialogContent>
     </Dialog>
+
+    <!-- Delete Confirmation Dialog -->
+    <AlertDialog v-model:open="showDeleteDialog">
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your post and remove it from our servers.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction @click="handleDeleteConfirm" class="bg-red-600 hover:bg-red-700">
+                    Delete Post
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
 </template> 

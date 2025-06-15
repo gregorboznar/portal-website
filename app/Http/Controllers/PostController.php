@@ -288,7 +288,9 @@ class PostController extends Controller
             $post->pin();
             $message = 'Post pinned successfully';
         }
-
+        // // rel the page
+        // return redirect()->back();
+        // return redirect()->back();
         return response()->json([
             'success' => true,
             'message' => $message,
@@ -299,10 +301,6 @@ class PostController extends Controller
     public function softDelete(Post $post): JsonResponse
     {
         $user = Auth::user();
-
-        if ($user->id !== $post->user_id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
 
         $post->delete();
 
