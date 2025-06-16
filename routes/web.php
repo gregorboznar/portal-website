@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/api/images/upload-profile', [ImageController::class, 'uploadProfile']);
     Route::post('/api/images/upload-cover', [ImageController::class, 'uploadCover']);
     Route::delete('/api/images/delete-profile', [ImageController::class, 'deleteProfile']);
+    Route::delete('/api/images/delete-cover', [ImageController::class, 'deleteCover']);
 
     // Debug route - remove after debugging
     Route::get('/debug/image/{id}', function ($id) {

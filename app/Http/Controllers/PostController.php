@@ -202,6 +202,7 @@ class PostController extends Controller
                     'user' => [
                         'id' => $comment->user->id,
                         'name' => $comment->user->name,
+                        'profile_image' => $this->getUserProfileImage($comment->user),
                     ],
                 ];
             });
@@ -235,6 +236,7 @@ class PostController extends Controller
                 'user' => [
                     'id' => $comment->user->id,
                     'name' => $comment->user->name,
+                    'profile_image' => $this->getUserProfileImage($comment->user),
                 ],
             ]
         ]);

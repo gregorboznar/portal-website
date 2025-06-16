@@ -2,40 +2,42 @@
   <AppLayout :breadcrumbs="breadcrumbs">
   <div class="min-h-screen bg-bg">
     <!-- Cover Photo Section -->
-    <div class="relative h-80 ">
-      <!-- Cover Image -->
-      <div v-if="user.cover_image" class="absolute inset-0">
+    <div class="relative h-80">
+      <!-- Cover image if exists -->
+      <div v-if="user.cover_image" class="absolute inset-0 group">
         <img :src="user.cover_image" alt="Cover" class="w-full h-full object-cover">
+        
+        <!-- Delete cover photo button - only for own profile -->
+        <div v-if="isOwnProfile" class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <button 
+            @click="handleCoverImageRemove"
+            class="p-2 bg-red-500 rounded-full text-white hover:bg-red-600 transition-colors shadow-lg"
+            title="Delete cover photo"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+          </button>
+        </div>
       </div>
       
-      <!-- Logo overlay -->
-      <div class="absolute inset-0 flex items-center justify-center bg-green">
-       
-   
-          <img :src="talmanLogo" alt="Talman Group Logo" class="w-[10rem]">
-     
+      <!-- Logo overlay when no cover image -->
+      <div v-else class="absolute inset-0 flex items-center justify-center bg-green rounded-t-lg">
+        <img :src="TalmanLogo" alt="Talman Group Logo" class="w-[10rem]">
       </div>
 
-             <!-- Change Cover Photo Button -->
-       <div v-if="isOwnProfile" class="absolute top-4 right-4">
-         <file-pond
-           ref="coverFilePond"
-           name="cover_image"
-           label-idle="🖼️ Change cover photo"
-           :allow-multiple="false"
-           accepted-file-types="image/jpeg, image/jpg, image/png"
-           max-file-size="10MB"
-           :server="coverServerConfig"
-           class="cover-filepond"
-           :image-preview-height="60"
-           image-resize-target-width="1200"
-           image-resize-target-height="400"
-           style-button-remove-item-position="center bottom"
-           style="height: 40px; width: 200px;"
-         />
-       </div>
+      <!-- Change Cover Photo Button -->
+      <div v-if="isOwnProfile" class="absolute bottom-4 right-4">
+        <button 
+          @click="showCoverUploadModal = true"
+          class="bg-white rounded-lg px-4 py-3 flex items-center gap-3 shadow-lg  transition-shadow border border-gray-200"
+        >
+          <PictureIcon class="w-5 h-5" />
+          <span class="text-gray-700 font-medium">Change cover photo</span>
+        </button>
+      </div>
     </div>
-    <div class="relative bg-white flex flex-col  pt-4 rounded-b-lg gap-8 | sm:flex-row sm:gap-0 sm:pt-6 ">
+    <div class="relative bg-white flex flex-col   pb-6 rounded-b-lg gap-8 | sm:flex-row sm:gap-0 sm:pt-6 ">
       <div>
           <div class="absolute mb-4 bottom-[2rem] left-[1rem]">
                  <div v-if="user.profile_image && !isOwnProfile" class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
@@ -63,7 +65,7 @@
                      >
                      <!-- Overlay controls -->
                      <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                       <div class="flex gap-2 mt-4 w-full">
+                       <div class="flex gap-2 mt-4 w-full items-center justify-center">
                          <button 
                            @click="triggerProfileUpload"
                            class="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100 transition-colors"
@@ -123,9 +125,9 @@
      
       <div class="ml-48 flex justify-between w-full">
          <div>
-             <h2 class="text-xl font-bold text-gray-900 mb-1">{{ user.name }}</h2>
-              <p class="text-gray-600 mb-2">{{ user.company || 'Company not specified' }}</p>
-              <p class="text-sm text-gray-500 mb-4">AVAILABLE TICKETS: 0 / 0</p>
+             <h1 class="">{{ user.name }}</h1>
+              <p class="text-green">{{ user.company || 'Company not specified' }}</p>
+             <!--  <p class="text-sm text-gray-500 mb-4">AVAILABLE TICKETS: 0 / 0</p> -->
          </div> 
           <div>
             <button 
@@ -144,10 +146,10 @@
     </div>
 
     <!-- Profile Content -->
-    <div class="max-w-6xl mx-auto px-4 relative z-10">
+    <div class="max-w-6xl mx-auto  relative z-10">
       <div class="flex flex-col lg:flex-row gap-6">
         <!-- Left Sidebar -->
-        <div class="lg:w-1/3">
+        <div class="lg:w-1/3 mt-4">
          
 
           <AboutSection 
@@ -158,90 +160,39 @@
         </div>
 
         <!-- Main Content -->
-        <div class="lg:w-2/3">
+        <div class="lg:w-2/3 mt-[3.7rem]">
           <!-- Post Creation -->
-          <div v-if="isOwnProfile" class="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-full overflow-hidden">
-                <img 
-                  v-if="user.profile_image" 
-                  :src="user.profile_image" 
-                  :alt="user.name"
-                  class="w-full h-full object-cover"
-                >
-                <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
-                  <span class="text-sm text-gray-600">{{ getInitials(user.name) }}</span>
-                </div>
-              </div>
-              <div class="flex-1">
-                <textarea 
-                  v-model="newPost" 
-                  placeholder="What are you thinking?"
-                  class="w-full border-none resize-none focus:outline-none text-gray-700"
-                  rows="3"
-                ></textarea>
-                
-                <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-200">
-                  <div class="flex items-center gap-4">
-                    <button class="flex items-center gap-2 text-gray-600 hover:text-green-600">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                      Add Photo
-                    </button>
-                    <button class="flex items-center gap-2 text-gray-600 hover:text-green-600">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                      Event
-                    </button>
-                    <button class="flex items-center gap-2 text-gray-600 hover:text-green-600">
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                      </svg>
-                      Add Poll
-                    </button>
-                  </div>
-                  <button 
-                    @click="submitPost"
-                    :disabled="!newPost.trim()"
-                    class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Post
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div v-if="isOwnProfile" class="mb-6 ">
+            <PostCreator @post-created="handleNewPost" />
           </div>
 
-          <!-- Sample Post -->
-          <div class="bg-white rounded-lg shadow-lg p-6">
-            <div class="flex items-start gap-3 mb-4">
-              <div class="w-10 h-10 rounded-full overflow-hidden">
-                <img 
-                  v-if="user.profile_image" 
-                  :src="user.profile_image" 
-                  :alt="user.name"
-                  class="w-full h-full object-cover"
-                >
-                <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
-                  <span class="text-sm text-gray-600">{{ getInitials(user.name) }}</span>
-                </div>
-              </div>
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                  <h4 class="font-semibold text-gray-900">{{ user.name }}</h4>
-                  <span class="text-sm text-gray-500">{{ user.company || 'Bplanet d.o.o.' }}</span>
-                </div>
-                <p class="text-sm text-gray-500 mb-3">10 June at 12:15 AM ✓</p>
-                <p class="text-gray-700">slika</p>
-              </div>
-              <button class="text-gray-400 hover:text-gray-600">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                </svg>
-              </button>
-            </div>
+          <!-- Posts Feed -->
+          <div v-if="loading" class="space-y-6">
+            <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
+            <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
+            <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
+          </div>
+
+          <div v-else class="space-y-6">
+            <FeedPost
+              v-for="post in posts"
+              :key="post.id"
+              :post-id="post.id"
+              :author="post.author"
+              :content="post.content"
+              :timestamp="post.timestamp"
+              :likes="post.likes"
+              :comments="post.comments"
+              :views="post.views"
+              :is-liked="post.isLiked"
+              :is-pinned="post.isPinned"
+              :can-manage="post.canManage"
+              :type="post.type"
+              :poll-options="post.poll_options"
+              :images="post.images"
+              @post-deleted="handlePostDeleted"
+              @post-pinned="handlePostPinned"
+            />
           </div>
         </div>
       </div>
@@ -301,6 +252,34 @@
         </form>
       </div>
     </div>
+
+    <!-- Cover Upload Modal -->
+    <div v-if="showCoverUploadModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-semibold mb-4">Upload Cover Photo</h3>
+        <file-pond
+          ref="coverFilePond"
+          name="cover_image"
+          label-idle="Drop image here or click to browse"
+          :allow-multiple="false"
+          accepted-file-types="image/jpeg, image/jpg, image/png"
+          max-file-size="10MB"
+          :server="coverServerConfig"
+          class="cover-upload-filepond"
+          :image-preview-height="200"
+          image-resize-target-width="1200"
+          image-resize-target-height="400"
+        />
+        <div class="flex justify-end gap-3 mt-4">
+          <button 
+            @click="showCoverUploadModal = false"
+            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
   </AppLayout>
 </template>
@@ -310,13 +289,16 @@ import { router } from '@inertiajs/vue3';
 import { ref, reactive, computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import AboutSection from '@/components/AboutSection.vue';
-import talmanLogo from '@/assets/images/talman-logo.webp';
+import PostCreator from '@/components/PostCreator.vue';
+import FeedPost from '@/components/FeedPost.vue';
+import TalmanLogo from '@/assets/images/talman-logo.webp';
+import PictureIcon from '@/assets/icons/picture.svg';
 import type { BreadcrumbItem } from '@/types';
+
 interface Props {
   user: any;
   isOwnProfile: boolean;
 }
-
 
 const props = defineProps<Props>();
 
@@ -331,7 +313,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const showEditModal = ref(false);
-const newPost = ref('');
+const showCoverUploadModal = ref(false);
+const posts = ref<any[]>([]);
+const loading = ref(false);
 
 const form = reactive({
   name: props.user?.name || '',
@@ -373,6 +357,7 @@ const handleProfileUploadResponse = (response: string) => {
 const handleCoverUploadResponse = (response: string) => {
   const data = JSON.parse(response);
   if (data.success) {
+    showCoverUploadModal.value = false;
     router.reload({ only: ['user'] });
   }
   return response;
@@ -475,9 +460,44 @@ const coverServerConfig = computed(() => ({
   }
 }));
 
-const submitPost = () => {
-  if (newPost.value.trim()) {
-    newPost.value = '';
+const handleCoverImageRemove = async () => {
+  try {
+    const csrfToken = getCsrfToken();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (csrfToken) {
+      headers['X-CSRF-TOKEN'] = csrfToken;
+    }
+    
+    const response = await fetch('/api/images/delete-cover', {
+      method: 'DELETE',
+      headers
+    });
+    
+    if (response.ok) {
+      router.reload({ only: ['user'] });
+    }
+  } catch (error) {
+    console.error('Error deleting cover image:', error);
+  }
+};
+
+
+
+const handleNewPost = (post: any) => {
+  posts.value.unshift(post);
+};
+
+const handlePostDeleted = (postId: number) => {
+  posts.value = posts.value.filter(post => post.id !== postId);
+};
+
+const handlePostPinned = (postId: number, isPinned: boolean) => {
+  const post = posts.value.find(p => p.id === postId);
+  if (post) {
+    post.isPinned = isPinned;
   }
 };
 </script>

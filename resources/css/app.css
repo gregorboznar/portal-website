@@ -309,6 +309,74 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* FilePond Component Styles */
 .filepond--credits {
   display: none !important;
+}
+
+/* Cover upload modal FilePond styling */
+.cover-upload-filepond .filepond--root {
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 2px dashed #d1d5db;
+}
+
+.cover-upload-filepond .filepond--drop-label {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cover-upload-filepond .filepond--panel-root {
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+/* Profile photo FilePond styling */
+.profile-filepond .filepond--root {
+  width: 128px !important;
+  height: 128px !important;
+  border-radius: 50% !important;
+  border: 4px solid white !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  background: #f3f4f6;
+}
+
+.profile-filepond .filepond--panel-root {
+  border-radius: 50% !important;
+  background: #f3f4f6;
+  border: none;
+}
+
+.profile-filepond .filepond--drop-label {
+  color: #6b7280;
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+  padding: 1rem;
+}
+
+.profile-filepond .filepond--drip {
+  display: none;
+}
+
+.profile-filepond .filepond--item {
+  border-radius: 50%;
+}
+
+.profile-filepond .filepond--item-panel {
+  border-radius: 50% !important;
+}
+
+.profile-filepond .filepond--image-preview {
+  border-radius: 50% !important;
+}
+
+.profile-filepond .filepond--image-preview-wrapper {
+  border-radius: 50% !important;
+}
+
+.profile-filepond .filepond--image-preview-overlay {
+  border-radius: 50% !important;
 }

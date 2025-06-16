@@ -10,7 +10,7 @@ import CircleGreenIcon from '@/assets/icons/circle.svg'
 import UserMenuContent from '@/components/UserMenuContent.vue';
 import { getInitials } from '@/composables/useInitials';
 import { Link, usePage } from '@inertiajs/vue3';
-import { Home, Bell, Search, MoreHorizontal } from 'lucide-vue-next';
+import { MoreHorizontal } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 interface User {
@@ -19,6 +19,7 @@ interface User {
     avatar?: string;
     company?: string;
     profile_image?: string;
+    slug?: string;
 }
 
 interface AuthData {
@@ -76,24 +77,28 @@ const navItems = computed(() => [
             </div>
 
             <div class="flex items-center space-x-3">
-                <Avatar class="h-8 w-8">
-            <AvatarImage 
-             v-if="auth.user.profile_image" 
-                :src="auth.user.profile_image" 
-                :alt="auth.user.name" 
-            />
-             <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
-                {{ getInitials(auth.user?.name) }}
-            </AvatarFallback>
-            </Avatar>
-                            <div class="hidden md:block text-left">
-                                <div class="text-sm font-semibold text-gray-900">{{ auth.user.name }}</div>
-                                <div class="text-xs text-gray-500">{{ auth.user.company || 'Company' }}</div>
-                            </div>
+                <Link :href="`/profile/${auth.user.slug}`" class="flex items-center space-x-3">
+                <Avatar class="h-8 w-8 hover:opacity-80 transition duration-500">
+                    <AvatarImage 
+                        v-if="auth.user.profile_image" 
+                        :src="auth.user.profile_image" 
+                        :alt="auth.user.name" 
+                    />
+                    <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
+                        {{ getInitials(auth.user?.name) }}
+                    </AvatarFallback>
+                </Avatar>
+                <div class="hidden md:block text-left">
+                    <div class="text-sm font-semibold text-gray-900">{{ auth.user.name }}</div>
+                    <div class="text-xs text-gray-500">{{ auth.user.company || 'Company' }}</div>
+                </div>
+                </Link>
                 <DropdownMenu>
                     <DropdownMenuTrigger as-child>
-                        <Button variant="ghost" class="flex items-center space-x-3 px-3 py-2 hover:bg-gray-50 rounded-lg">
-                         
+                        <Button 
+                            variant="ghost" 
+                            class="flex items-center space-x-3 px-3 py-2 hover:bg-gray-50 rounded-lg"
+                        >
                             <MoreHorizontal class="h-4 w-4 text-gray-400" />
                         </Button>
                     </DropdownMenuTrigger>

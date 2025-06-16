@@ -143,4 +143,26 @@ class ImageController extends Controller
       ], 500);
     }
   }
+
+  public function deleteCover(Request $request): JsonResponse
+  {
+    try {
+      $user = $request->user();
+      $coverImage = $user->images()->where('type', 'cover')->latest()->first();
+
+      if ($coverImage) {
+        $this->imageUploadService->delete($coverImage);
+      }
+
+      return response()->json([
+        'success' => true,
+        'message' => 'Cover image deleted successfully',
+      ]);
+    } catch (\Exception $e) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Failed to delete cover image',
+      ], 500);
+    }
+  }
 }

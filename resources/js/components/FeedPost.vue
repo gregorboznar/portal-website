@@ -32,6 +32,7 @@ import axios from 'axios';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
 import FeedIcon from '@/assets/icons/feed.svg'
+import PaperPlaneIcon from '@/assets/icons/paper-plane.svg'
 
 interface Comment {
     id: number;
@@ -41,6 +42,7 @@ interface Comment {
         id: number;
         name: string;
         avatar?: string;
+        profile_image?: string;
     };
 }
 
@@ -51,6 +53,7 @@ interface FeedPostProps {
         company?: string;
         avatar?: string;
         profile_image?: string;
+        slug: string;
     }; 
     content: string;
     timestamp: string;
@@ -278,6 +281,7 @@ onUnmounted(() => {
             <CardContent class="p-4">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex items-start space-x-3">
+                      <Link :href="`/profile/${author.slug}`" class="flex items-center space-x-3">
                         <Avatar class="w-12 h-12 rounded-full overflow-hidden hover:brightness-110 transition duration-500">
                             <AvatarImage 
                                 v-if="author.profile_image" 
@@ -296,6 +300,7 @@ onUnmounted(() => {
                             <p class="green-text" v-if="author.company">{{ author.company }}</p>
                             <p class="min-text">{{ timestamp }}</p>
                         </div>
+                        </Link>
                     </div>
                    <div class="flex items-center ">
                     <div class="flex items-center gap-2">
@@ -345,7 +350,7 @@ onUnmounted(() => {
                                 <img 
                                     :src="image.optimizations?.medium?.url || image.url"
                                     :alt="image.original_filename"
-                                    class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                                    class="w-full h-[25rem] object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                                 />
                             </a>
                         </div>
@@ -404,7 +409,7 @@ onUnmounted(() => {
                             <textarea
                                 v-model="commentText"
                                 placeholder="Write your comment..."
-                                class="w-full border border-gray-200 rounded-lg p-3 text-sm placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                class="w-full border border-gray-200 rounded-lg p-3 text-sm placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-green focus:border-transparent"
                                 rows="2"
                             ></textarea>
                         </div>
@@ -414,7 +419,7 @@ onUnmounted(() => {
         </Card>
     </div>
 
-    <!-- Post Detail Dialog -->
+  
     <Dialog v-model:open="showPostDialog">
         <DialogContent class="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             <DialogHeader>
@@ -423,19 +428,25 @@ onUnmounted(() => {
                         <FeedIcon class="w-6 h-6 text-gray-600" />
                  
                     <div>
-                        <h1 class="font-semibold text-gray-900">Post by {{ author.name }}</h1>
-                        
+                        <h1 class="">Post by {{ author.name }}</h1>
                     </div>
                 </DialogTitle>
             </DialogHeader>
             
             <div class="flex-1 overflow-y-auto">
                 <!-- Post Header -->
-                <div class="flex items-start space-x-3 mb-4 border-t w-full">
+                <div class="flex items-start space-x-3 mb-4 border-t w-full pt-4 mt-1">
                     <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                        <svg class="w-8 h-8 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                        </svg>
+                        <Avatar class="w-12 h-12 rounded-full overflow-hidden hover:brightness-110 transition duration-500">
+                            <AvatarImage 
+                                v-if="author.profile_image" 
+                                :src="author.profile_image" 
+                                :alt="author.name" 
+                            />
+                            <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
+                                {{ getInitials(author?.name) }}
+                            </AvatarFallback>
+                        </Avatar>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
@@ -447,11 +458,10 @@ onUnmounted(() => {
                     </div>
                 </div>
 
-                <!-- Post Content -->
+              
                 <div class="mb-6">
                     <p class="text-gray-800 leading-relaxed mb-4">{{ content }}</p>
-                    
-                    <!-- Images in Dialog -->
+                   
                     <div v-if="images && images.length > 0" class="mb-4" :id="dialogGalleryId">
                         <div class="grid gap-2" :class="{
                             'grid-cols-1': images.length === 1,
@@ -469,7 +479,7 @@ onUnmounted(() => {
                                 <img 
                                     :src="image.optimizations?.medium?.url || image.url"
                                     :alt="image.original_filename"
-                                    class="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                                    class="w-full h-[25rem] object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                                 />
                             </a>
                         </div>
@@ -478,9 +488,7 @@ onUnmounted(() => {
 
                 <!-- Comments Section -->
                 <div class="border-t border-gray-200 pt-4">
-                    <h4 class="font-semibold text-gray-900 mb-4">Comments</h4>
-                    
-                    <!-- Loading Comments -->
+                   
                     <div v-if="isLoadingComments" class="text-center py-4">
                         <div class="text-sm text-gray-500">Loading comments...</div>
                     </div>
@@ -488,14 +496,19 @@ onUnmounted(() => {
                     <!-- Comments List -->
                     <div v-else-if="postComments.length > 0" class="space-y-4 mb-6">
                         <div v-for="comment in postComments" :key="comment.id" class="flex items-start space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                                <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
+                           <Avatar class="w-10 h-10 rounded-full overflow-hidden hover:brightness-110 transition duration-500">
+                            <AvatarImage 
+                                v-if="comment.user?.profile_image" 
+                                :src="comment.user?.profile_image" 
+                                :alt="comment.user?.name" 
+                            />
+                            <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
+                                {{ getInitials(comment.user?.name) }}
+                            </AvatarFallback>
+                        </Avatar>
                             <div class="flex-1">
                                 <div class="bg-gray-50 rounded-lg p-3">
-                                    <div class="font-semibold text-sm text-gray-900">{{ comment.user?.name || 'Anonymous' }}</div>
+                                    <h3 class="">{{ comment.user?.name || 'Anonymous' }}</h3>
                                     <div class="text-sm text-gray-800 mt-1">{{ comment.content }}</div>
                                 </div>
                                 <div class="text-xs text-gray-500 mt-1">{{ comment.created_at }}</div>
@@ -510,27 +523,27 @@ onUnmounted(() => {
                     
                     <!-- Add Comment -->
                     <div class="flex items-start space-x-3">
-                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="flex-1 flex space-x-2">
-                            <textarea
-                                v-model="commentText"
-                                placeholder="Write your comment..."
-                                class="flex-1 border border-gray-200 rounded-lg p-3 text-sm placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                rows="2"
+                     
+                        <div class="flex-1 flex space-x-2 relative">
+                         
+                            <input type="text" v-model="commentText" class="w-full bg-input rounded-full px-4 py-2 pr-28 text-sm outline-none border border-transparent focus:border-green focus:ring-0"
+                                rows="1"
                                 @keydown.enter.prevent="submitComment"
-                            ></textarea>
-                            <Button 
+                            >
+                             <div class="absolute right-5 top-1/2 -translate-y-1/2 flex gap-2">
+                                
+                                <button @click="submitComment" :disabled="!commentText.trim() || isSubmittingComment" class="hover:opacity-80">
+                                    <PaperPlaneIcon class="w-4 h-4" alt="Send Comment" />
+                                </button>
+                            </div>
+                          <!--   <Button 
                                 @click="submitComment" 
                                 :disabled="!commentText.trim() || isSubmittingComment"
                                 size="sm"
                                 class="self-end"
                             >
                                 {{ isSubmittingComment ? 'Posting...' : 'Post' }}
-                            </Button>
+                            </Button> -->
                         </div>
                     </div>
                 </div>
