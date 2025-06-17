@@ -8,6 +8,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import {  MoreHorizontal } from 'lucide-vue-next';
+import { Link } from '@inertiajs/vue3';
 import FlashIcon from '@/assets/icons/flash.svg'
 import FlashIcon2 from '@/assets/icons/flash-2.svg'
 import CommentIcon from '@/assets/icons/comment.svg'

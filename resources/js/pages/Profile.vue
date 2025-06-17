@@ -39,7 +39,7 @@
     </div>
     <div class="relative bg-white flex flex-col   pb-6 rounded-b-lg gap-8 | sm:flex-row sm:gap-0 sm:pt-6 ">
       <div>
-          <div class="absolute mb-4 bottom-[2rem] left-[1rem]">
+          <div class="absolute mb-4 bottom-[1rem] left-[1rem]">
                  <div v-if="user.profile_image && !isOwnProfile" class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
                    <img 
                      :src="user.profile_image" 
