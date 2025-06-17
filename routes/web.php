@@ -14,7 +14,8 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('profile/{user}', [ProfileController::class, 'show'])->middleware(['auth', 'verified'])->name('profile');
+Route::get('profile/{user:slug}', [ProfileController::class, 'show'])->middleware(['auth', 'verified'])->name('profile');
+Route::get('edit-profile/{user:slug}', [ProfileController::class, 'edit'])->middleware(['auth', 'verified'])->name('edit-profile');
 
 Route::get('friends', function () {
     return Inertia::render('Friends');
@@ -43,6 +44,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/api/images/upload-cover', [ImageController::class, 'uploadCover']);
     Route::delete('/api/images/delete-profile', [ImageController::class, 'deleteProfile']);
     Route::delete('/api/images/delete-cover', [ImageController::class, 'deleteCover']);
+
+    // Profile management routes
+    Route::post('/api/update-profile', [ProfileController::class, 'update']);
+    Route::post('/api/update-profile/{uuid}', [ProfileController::class, 'update']);
+    Route::delete('/api/users/{uuid}', [ProfileController::class, 'destroy']);
+    Route::post('/api/toggle-displayed-badge', [ProfileController::class, 'toggleDisplayedBadge']);
+
 
     // Debug route - remove after debugging
     Route::get('/debug/image/{id}', function ($id) {

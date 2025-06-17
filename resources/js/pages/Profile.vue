@@ -123,24 +123,22 @@
                </div>
       </div>
      
-      <div class="ml-48 flex justify-between w-full">
-         <div>
-             <h1 class="">{{ user.name }}</h1>
-              <p class="text-green">{{ user.company || 'Company not specified' }}</p>
-             <!--  <p class="text-sm text-gray-500 mb-4">AVAILABLE TICKETS: 0 / 0</p> -->
-         </div> 
-          <div>
-            <button 
-                v-if="isOwnProfile"
-                @click="showEditModal = true"
-                class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-                Edit profile
-              </button>
-      </div>
+      <div class="ml-48 flex justify-between w-full mr-4">
+        <div>
+          <h1>{{ user.name }}</h1>
+          <p class="text-green">{{ user.company || 'Company not specified' }}</p>
+          <!-- <p class="text-sm text-gray-500 mb-4">AVAILABLE TICKETS: 0 / 0</p> -->
+        </div>
+        <div>
+          <Link 
+            v-if="isOwnProfile"
+            :href="route('edit-profile', user.slug)" 
+            class="px-4 py-2 bg-white border border-green font-semibold rounded-sm text-sm text-green hover:bg-gray-50 transition-all duration-300 flex items-center gap-2"
+          >
+            <UserCardIcon class="w-5 h-5" />
+            Edit profile
+          </Link>
+        </div>
       </div>
       
     </div>
@@ -293,7 +291,9 @@ import PostCreator from '@/components/PostCreator.vue';
 import FeedPost from '@/components/FeedPost.vue';
 import TalmanLogo from '@/assets/images/talman-logo.webp';
 import PictureIcon from '@/assets/icons/picture.svg';
+import UserCardIcon from '@/assets/icons/user-card.svg';
 import type { BreadcrumbItem } from '@/types';
+import { Link } from '@inertiajs/vue3';
 
 interface Props {
   user: any;
@@ -502,74 +502,3 @@ const handlePostPinned = (postId: number, isPinned: boolean) => {
 };
 </script>
 
-<style>
-.filepond--credits {
-  display: none !important;
-}
-
-/* Cover photo FilePond styling */
-.cover-filepond .filepond--root {
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-.cover-filepond .filepond--drop-label {
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.cover-filepond .filepond--panel-root {
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 8px;
-}
-
-/* Profile photo FilePond styling */
-.profile-filepond .filepond--root {
-  width: 128px !important;
-  height: 128px !important;
-  border-radius: 50% !important;
-  border: 4px solid white !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-  background: #f3f4f6;
-}
-
-.profile-filepond .filepond--panel-root {
-  border-radius: 50% !important;
-  background: #f3f4f6;
-  border: none;
-}
-
-.profile-filepond .filepond--drop-label {
-  color: #6b7280;
-  font-size: 12px;
-  text-align: center;
-  cursor: pointer;
-  padding: 1rem;
-}
-
-.profile-filepond .filepond--drip {
-  display: none;
-}
-
-.profile-filepond .filepond--item {
-  border-radius: 50%;
-}
-
-.profile-filepond .filepond--item-panel {
-  border-radius: 50% !important;
-}
-
-.profile-filepond .filepond--image-preview {
-  border-radius: 50% !important;
-}
-
-.profile-filepond .filepond--image-preview-wrapper {
-  border-radius: 50% !important;
-}
-
-.profile-filepond .filepond--image-preview-overlay {
-  border-radius: 50% !important;
-}
-</style>

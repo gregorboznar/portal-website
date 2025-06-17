@@ -23,9 +23,19 @@ class User extends Authenticatable
     protected $fillable = [
         'uuid',
         'name',
+        'firstname',
+        'lastname',
+        'slug',
         'email',
         'password',
         'company',
+        'position',
+        'about',
+        'social_media',
+        'total_tickets',
+        'remaining_tickets',
+        'role',
+        'displayed_badges',
     ];
 
     protected static function boot()
@@ -36,7 +46,35 @@ class User extends Authenticatable
             if (empty($model->uuid)) {
                 $model->uuid = (string) Str::uuid();
             }
+            if (empty($model->slug)) {
+                $model->slug = static::generateUniqueSlug($model);
+            }
         });
+
+        static::updating(function ($model) {
+            // Update slug if name fields change
+            if ($model->isDirty(['firstname', 'lastname', 'name']) && empty($model->slug)) {
+                $model->slug = static::generateUniqueSlug($model);
+            }
+        });
+    }
+
+    protected static function generateUniqueSlug($user)
+    {
+        $name = $user->firstname && $user->lastname
+            ? "{$user->firstname} {$user->lastname}"
+            : ($user->name ?: 'user');
+
+        $baseSlug = Str::slug($name);
+        $slug = $baseSlug;
+        $counter = 1;
+
+        while (static::where('slug', $slug)->where('id', '!=', $user->id ?? 0)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 
     public function getRouteKeyName()
@@ -64,6 +102,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'social_media' => 'array',
+            'displayed_badges' => 'array',
         ];
     }
 
