@@ -207,14 +207,14 @@ class ProfileController extends Controller
         // Update user
         $targetUser->update($validated);
 
-        return response()->json(['success' => true, 'message' => 'Profile updated successfully']);
+        return redirect()->back()->with('success', 'Profile updated successfully');
     }
 
     public function destroy(Request $request)
     {
         $currentUser = Auth::user();
 
-        // Handle UUID parameter from route
+
         if ($request->route('uuid')) {
             $uuid = $request->route('uuid');
             $user = User::where('uuid', $uuid)->firstOrFail();
@@ -229,10 +229,10 @@ class ProfileController extends Controller
         }
 
         try {
-            // Delete user's images
+
             $user->images()->delete();
 
-            // Delete user
+
             $user->delete();
 
             return response()->json(['success' => true, 'message' => 'User deleted successfully']);

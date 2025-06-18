@@ -45,13 +45,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/api/images/delete-profile', [ImageController::class, 'deleteProfile']);
     Route::delete('/api/images/delete-cover', [ImageController::class, 'deleteCover']);
 
-    // Profile management routes
-    Route::post('/api/update-profile', [ProfileController::class, 'update']);
-    Route::post('/api/update-profile/{uuid}', [ProfileController::class, 'update']);
-    Route::delete('/api/users/{uuid}', [ProfileController::class, 'destroy']);
-    Route::post('/api/toggle-displayed-badge', [ProfileController::class, 'toggleDisplayedBadge']);
-
-
     // Debug route - remove after debugging
     Route::get('/debug/image/{id}', function ($id) {
         $image = \App\Models\Image::find($id);
@@ -63,6 +56,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'post_with_images' => $post ? $post->load('images') : null,
         ]);
     });
+});
+
+// Profile management routes - separate group to handle CSRF properly
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/api/update-profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/api/update-profile/{uuid}', [ProfileController::class, 'update'])->name('profile.update.uuid');
+    Route::delete('/api/users/{uuid}', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/api/toggle-displayed-badge', [ProfileController::class, 'toggleDisplayedBadge'])->name('profile.toggle-badge');
 });
 
 require __DIR__ . '/settings.php';

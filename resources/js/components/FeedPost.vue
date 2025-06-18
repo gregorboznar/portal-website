@@ -15,17 +15,8 @@ import CommentIcon from '@/assets/icons/comment.svg'
 import EyeIcon from '@/assets/icons/eye.svg'
 import PinIcon from '@/assets/icons/pin.svg'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { 
-    AlertDialog, 
-    AlertDialogAction, 
-    AlertDialogCancel, 
-    AlertDialogContent, 
-    AlertDialogDescription, 
-    AlertDialogFooter, 
-    AlertDialogHeader, 
-    AlertDialogTitle 
-} from '@/components/ui/alert-dialog';
 import PostDropdownContent from '@/components/PostDropdownContent.vue';
+import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog.vue';
 import { getInitials } from '@/composables/useInitials';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue';
@@ -83,6 +74,7 @@ const commentText = ref('');
 const showComments = ref(false);
 const showPostDialog = ref(false);
 const showDeleteDialog = ref(false);
+const isDeletingPost = ref(false);
 const currentLikes = ref(props.likes);
 const currentIsLiked = ref(props.isLiked || false);
 const isLiking = ref(false);
@@ -196,6 +188,7 @@ const handleDeleteRequested = () => {
 
 const handleDeleteConfirm = async () => {
     try {
+        isDeletingPost.value = true;
         const response = await fetch(`/api/posts/${props.postId}`, {
             method: 'DELETE',
             headers: {
@@ -211,6 +204,7 @@ const handleDeleteConfirm = async () => {
     } catch (error) {
         console.error('Error deleting post:', error);
     } finally {
+        isDeletingPost.value = false;
         showDeleteDialog.value = false;
     }
 };
@@ -552,21 +546,13 @@ onUnmounted(() => {
         </DialogContent>
     </Dialog>
 
-    <!-- Delete Confirmation Dialog -->
-    <AlertDialog v-model:open="showDeleteDialog">
-        <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete your post and remove it from our servers.
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction @click="handleDeleteConfirm" class="bg-red-600 hover:bg-red-700">
-                    Delete Post
-                </AlertDialogAction>
-            </AlertDialogFooter>
-        </AlertDialogContent>
-    </AlertDialog>
+   
+    <ConfirmDeleteDialog
+        v-model:open="showDeleteDialog"
+        title="Delete Post"
+        description="This action cannot be undone. This will permanently delete your post and remove it from our servers."
+        confirm-text="Delete Post"
+        :is-loading="isDeletingPost"
+        @confirm="handleDeleteConfirm"
+    />
 </template> 

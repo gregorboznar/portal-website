@@ -16,6 +16,9 @@ class PostController extends Controller
     public function index()
     {
         $posts = Post::with(['user', 'likes', 'images'])
+            ->whereHas('user', function ($query) {
+                $query->whereNull('deleted_at');
+            })
             ->withCount('likes')
             ->orderByDesc('is_pinned')
             ->orderByDesc('pinned_at')

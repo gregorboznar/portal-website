@@ -1,6 +1,14 @@
 <template>
   <AppLayout :breadcrumbs="breadcrumbs">
  
+    <!-- Success Message -->
+    <div 
+      v-if="successMessage" 
+      class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
+    >
+      {{ successMessage }}
+    </div>
+
     <form @submit.prevent="handleSubmit" class="space-y-3" autocomplete="off">
       <!-- Header Section -->
       <div class="flex justify-between items-center mb-4">
@@ -22,8 +30,8 @@
           <div class="flex flex-col gap-2 w-full sm:gap-4 sm:flex-row sm:justify-end sm:w-auto">
             <button 
               type="button" 
-              @click="showDeleteModal = true"
-              v-if="hasPermission && user.role !== 'god'"
+              @click="handleDeleteClick"
+              v-if="hasPermission"
               class="md:flex hidden w-full h-9 bg-white text-black py-2 rounded-md font-semibold border border-reddish-pink transition-colors duration-200 ease-in-out justify-center items-center text-sm sm:w-[10rem]"
             >
               <DeleteIcon class="w-[0.8rem] h-[0.8rem] mr-2" />
@@ -31,10 +39,10 @@
             </button>
             <button 
               type="submit" 
-              :disabled="loading"
+              :disabled="form.processing"
               class="flex w-full h-9 bg-green text-white py-2 rounded-md font-semibold hover:bg-lightgreen transition-colors duration-200 ease-in-out justify-center items-center text-sm sm:w-[10rem] disabled:opacity-50"
             >
-              {{ loading ? 'Saving...' : 'Save changes' }}
+              {{ form.processing ? 'Saving...' : 'Save changes' }}
             </button>
           </div>
         </div>
@@ -63,18 +71,18 @@
                     @addfile="handleImageUpload"
                     @removefile="removeImage"
                     class="absolute inset-0 w-full h-full"
-                    :class="{ 'opacity-0': form.profile_image_preview }"
+                    :class="{ 'opacity-0': profileImagePreview }"
                     :style-load-indicator-position="'center bottom'"
                     :style-progress-indicator-position="'center bottom'"
                   />
                   <img 
-                    v-if="form.profile_image_preview"
-                    :src="form.profile_image_preview" 
+                    v-if="profileImagePreview"
+                    :src="profileImagePreview" 
                     class="w-full h-full object-cover rounded-full"
                     alt="Profile"
                   >
                   <button 
-                    v-if="form.profile_image_preview"
+                    v-if="profileImagePreview"
                     type="button"
                     @click="removeImage"
                     class="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs z-10 hover:bg-red-600"
@@ -305,11 +313,8 @@
                     @click="showPasswordConfirm = !showPasswordConfirm"
                     class="absolute right-3 top-[40%] w-5 h-5"
                   >
-                    <img 
-                      :src="`${libraryUrl}/images/icons/eye-icon${showPasswordConfirm ? '-2' : ''}.svg`" 
-                      class="w-5 h-5" 
-                      alt="Toggle Password"
-                    >
+                    <EyeIcon v-if="!showPasswordConfirm" class="w-5 h-5" />
+                    <EyeIcon2 v-else class="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -318,56 +323,38 @@
         </div>
       </div>
 
-      <!-- Mobile Delete Button -->
+{{ console.log(hasPermission) }}
       <button 
         type="button" 
-        @click="showDeleteModal = true"
-        v-if="hasPermission && user.role !== 'god'"
+          @click="handleDeleteClick"
+        v-if="hasPermission "
         class="md:hidden flex w-full h-9 bg-white text-black py-2 rounded-md font-semibold border border-reddish-pink transition-colors duration-200 ease-in-out justify-center items-center text-sm"
       >
-        <img :src="`${libraryUrl}/images/icons/delete.svg`" class="w-[0.8rem] h-[0.8rem] mr-2" alt="Delete Icon">
+        <DeleteIcon class="w-[0.8rem] h-[0.8rem] mr-2" />
         Delete
       </button>
     </form>
 
-    <!-- Delete Modal -->
-    <div 
-      v-if="showDeleteModal" 
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      @click="showDeleteModal = false"
-    >
-      <div 
-        class="bg-white p-6 rounded-lg max-w-md w-full mx-4"
-        @click.stop
-      >
-        <h3 class="text-lg font-semibold mb-4">Confirm Delete</h3>
-        <p class="text-gray-600 mb-6">Are you sure you want to delete this profile? This action cannot be undone.</p>
-        <div class="flex gap-4">
-          <button 
-            @click="showDeleteModal = false"
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button 
-            @click="handleDelete"
-            class="flex-1 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
  
   </AppLayout>
+
+      <ConfirmDeleteDialog
+        v-model:open="showDeleteDialog"
+        title="Delete User"
+        description="This action cannot be undone. This will permanently delete the user and remove it from our servers."
+        confirm-text="Delete"
+        :is-loading="isDeletingUser"
+        @confirm="handleDeleteConfirm"
+    />
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { Link, router } from '@inertiajs/vue3';
+import { ref } from 'vue'
+import { Link, router, useForm, usePage } from '@inertiajs/vue3';
 import vueFilePond from 'vue-filepond'
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview'
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type'
+import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog.vue'
 import UserCardIcon from '@/assets/icons/user-card.svg';
 import LeftArrowIcon from '@/assets/icons/left-arrow.svg';
 import DeleteIcon from '@/assets/icons/delete.svg';
@@ -378,7 +365,7 @@ import EyeIcon2 from '@/assets/icons/eye-icon-2.svg';
 
 import AppLayout from '@/layouts/AppLayout.vue'
 
-// Import FilePond styles
+
 import 'filepond/dist/filepond.min.css'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
 
@@ -425,12 +412,18 @@ const props = withDefaults(defineProps<Props>(), {
   hasGodPermission: false
 })
 
-const loading = ref(false)
-const showDeleteModal = ref(false)
+
+const page = usePage()
+const successMessage = (page.props as any).flash?.success
+
+const showDeleteDialog = ref(false)
 const showPasswordFields = ref(false)
 const showPassword = ref(false)
 const showPasswordConfirm = ref(false)
 const pond = ref<any>(null)
+const isDeletingUser = ref(false)
+
+const profileImagePreview = ref(props.user.profile_image_url || null)
 
 const breadcrumbs = [
   {
@@ -443,7 +436,8 @@ const breadcrumbs = [
   }
 ]
 
-const form = reactive({
+// Use Inertia's useForm for automatic CSRF handling
+const form = useForm({
   firstname: props.user.firstname || '',
   lastname: props.user.lastname || '',
   email: props.user.email || '',
@@ -459,7 +453,6 @@ const form = reactive({
   password: '',
   password_confirmation: '',
   profile_image: null as File | null,
-  profile_image_preview: props.user.profile_image_url || null,
   displayed_badges: props.user.displayed_badges || []
 })
 
@@ -497,7 +490,7 @@ const handleImageUpload = (error: any, file: any) => {
     // Create preview
     const reader = new FileReader()
     reader.onload = (e: any) => {
-      form.profile_image_preview = e.target.result
+      profileImagePreview.value = e.target.result
     }
     reader.onerror = () => {
       alert('Error reading file')
@@ -509,7 +502,7 @@ const handleImageUpload = (error: any, file: any) => {
 
 const removeImage = () => {
   form.profile_image = null
-  form.profile_image_preview = props.user.profile_image_url || null
+  profileImagePreview.value = props.user.profile_image_url || null
   if (pond.value) {
     pond.value.removeFiles()
   }
@@ -532,7 +525,7 @@ const toggleBadge = async (badgeId: number) => {
 
     const result = await response.json()
     if (!result.success) {
-      // Revert the change if it failed
+      
       if (show) {
         form.displayed_badges = form.displayed_badges.filter((id: number) => id !== badgeId)
       } else {
@@ -560,53 +553,32 @@ const validateForm = () => {
   return true
 }
 
-const handleSubmit = async () => {
+const handleSubmit = () => {
   if (!validateForm()) return
 
-  loading.value = true
+  const endpoint = props.user.uuid ? `/api/update-profile/${props.user.uuid}` : '/api/update-profile'
   
-  try {
-    const formData = new FormData()
-    
-    // Add all form fields
-    Object.keys(form).forEach(key => {
-      const value = (form as any)[key]
-      if (key === 'profile_image' && value) {
-        formData.append('profile_image', value)
-      } else if (key === 'displayed_badges') {
-        formData.append('displayed_badges', JSON.stringify(value))
-      } else if (key !== 'profile_image_preview' && value !== '') {
-        formData.append(key, value)
-      }
-    })
-
-    const endpoint = props.user.uuid ? `/api/update-profile/${props.user.uuid}` : '/api/update-profile'
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-      },
-      body: formData
-    })
-
-    const result = await response.json()
-    
-    if (result.success) {
-      alert('Profile updated successfully!')
-      // Refresh the page to show updated data
-      router.reload()
-    } else {
-      alert('Error: ' + (result.message || 'Failed to update profile'))
+  form.post(endpoint, {
+    forceFormData: true, 
+    onError: (errors) => {
+      console.error('Form errors:', errors)
+      const firstError = Object.values(errors)[0]
+      alert('Error: ' + (firstError || 'Failed to update profile'))
+    },
+    onFinish: () => {
+   
+      form.password = ''
+      form.password_confirmation = ''
     }
-  } catch (error) {
-    console.error('Submit error:', error)
-    alert('Network error while updating profile')
-  } finally {
-    loading.value = false
-  }
+  })
 }
 
-const handleDelete = async () => {
+const handleDeleteClick = () => {
+    showDeleteDialog.value = true;
+};
+
+const handleDeleteConfirm = async () => {
+  isDeletingUser.value = true;
   try {
     const response = await fetch(`/api/users/${props.user.uuid}`, {
       method: 'DELETE',
@@ -618,7 +590,6 @@ const handleDelete = async () => {
     const result = await response.json()
     
     if (result.success) {
-      alert('Profile deleted successfully')
       router.visit('/dashboard')
     } else {
       alert('Error: ' + (result.message || 'Failed to delete profile'))
@@ -627,7 +598,8 @@ const handleDelete = async () => {
     console.error('Delete error:', error)
     alert('Network error while deleting profile')
   } finally {
-    showDeleteModal.value = false
+    showDeleteDialog.value = false
+    isDeletingUser.value = false;
   }
 }
 </script>
