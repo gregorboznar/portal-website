@@ -130,9 +130,6 @@ const closeDialog = () => {
     filePondFiles.value = [];
 };
 
-const handleFilePondInit = () => {
-    console.log('FilePond has initialized');
-};
 
 const handleFilePondProcessFile = (error: any, file: any) => {
     if (error) {
@@ -140,7 +137,7 @@ const handleFilePondProcessFile = (error: any, file: any) => {
         return;
     }
     
-    console.log('FilePond file processed:', file);
+
 };
 
 const handleFilePondAddFile = (error: any, file: any) => {
@@ -304,7 +301,7 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
                         <input
                             v-model="pollOptions[index]"
                             :placeholder="`Option ${index + 1}`"
-                            class="flex-1 border border-gray-200 rounded px-3 py-2 text-sm"
+                            class="flex-1  rounded-lg bg-input px-3 py-2 text-sm"
                         />
                         <Button
                             v-if="pollOptions.length > 2"

@@ -21,7 +21,6 @@
         </div>
       </div>
       
-      <!-- Logo overlay when no cover image -->
       <div v-else class="absolute inset-0 flex items-center justify-center bg-green rounded-t-lg">
         <img :src="TalmanLogo" alt="Talman Group Logo" class="w-[10rem]">
       </div>
@@ -55,8 +54,7 @@
                    </div>
                  </div>
                  
-                 <!-- Profile Photo Upload with FilePond for own profile -->
-                 <div v-if="isOwnProfile" class="">
+                                <div v-if="isOwnProfile" class="">
                    <!-- Show existing profile image with overlay controls if exists -->
                    <div v-if="user.profile_image" class="relative w-36 h-36 rounded-full overflow-hidden border-4 border-white shadow-lg group">
                      <img 
@@ -90,7 +88,6 @@
                      </div>
                    </div>
                    
-                   <!-- FilePond for upload when no image exists -->
                    <file-pond
                      v-else
                      ref="profileFilePond"
@@ -112,7 +109,6 @@
                      style-button-process-item-position="right bottom"
                    />
                    
-                   <!-- Hidden file input for changing existing photo -->
                    <input 
                      ref="hiddenFileInput"
                      type="file"
@@ -146,7 +142,7 @@
 
     <!-- Profile Content -->
     <div class="max-w-6xl mx-auto  relative z-10">
-      <div class="flex flex-col lg:flex-row gap-6">
+      <div class="flex flex-col lg:flex-row gap-4">
         <!-- Left Sidebar -->
         <div class="lg:w-1/3 mt-4">
          
@@ -166,15 +162,15 @@
           </div>
 
           <!-- Posts Feed -->
-          <div v-if="loading" class="space-y-6">
+          <div v-if="loading" class="space-y-4">
             <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
             <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
             <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
           </div>
 
-          <div v-else class="space-y-6">
+          <div v-else class="space-y-4">
             <FeedPost
-              v-for="post in posts"
+              v-for="post in userPosts"
               :key="post.id"
               :post-id="post.id"
               :author="post.author"
@@ -188,6 +184,9 @@
               :can-manage="post.canManage"
               :type="post.type"
               :poll-options="post.poll_options"
+              :poll-results="post.poll_results"
+              :user-vote="post.user_vote"
+              :has-voted="post.has_voted"
               :images="post.images"
               @post-deleted="handlePostDeleted"
               @post-pinned="handlePostPinned"
@@ -252,33 +251,11 @@
       </div>
     </div>
 
-    <!-- Cover Upload Modal -->
-    <div v-if="showCoverUploadModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-full max-w-md">
-        <h3 class="text-lg font-semibold mb-4">Upload Cover Photo</h3>
-        <file-pond
-          ref="coverFilePond"
-          name="cover_image"
-          label-idle="Drop image here or click to browse"
-          :allow-multiple="false"
-          accepted-file-types="image/jpeg, image/jpg, image/png"
-          max-file-size="10MB"
-          :server="coverServerConfig"
-          class="cover-upload-filepond"
-          :image-preview-height="200"
-          image-resize-target-width="1200"
-          image-resize-target-height="400"
-        />
-        <div class="flex justify-end gap-3 mt-4">
-          <button 
-            @click="showCoverUploadModal = false"
-            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
+    <!-- Cover Upload Dialog -->
+    <UploadCoverDialog 
+      v-model:open="showCoverUploadModal"
+      @upload-complete="handleCoverUploadComplete"
+    />
   </div>
   </AppLayout>
 </template>
@@ -290,6 +267,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import AboutSection from '@/components/AboutSection.vue';
 import PostCreator from '@/components/PostCreator.vue';
 import FeedPost from '@/components/FeedPost.vue';
+import UploadCoverDialog from '@/components/UploadCoverDialog.vue';
 import TalmanLogo from '@/assets/images/talman-logo.webp';
 import PictureIcon from '@/assets/icons/picture.svg';
 import UserCardIcon from '@/assets/icons/user-card.svg';
@@ -298,6 +276,7 @@ import { Link } from '@inertiajs/vue3';
 
 interface Props {
   user: any;
+  posts: any[];
   isOwnProfile: boolean;
 }
 
@@ -315,8 +294,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const showEditModal = ref(false);
 const showCoverUploadModal = ref(false);
-const posts = ref<any[]>([]);
 const loading = ref(false);
+const userPosts = ref(props.posts || []);
 
 const form = reactive({
   name: props.user?.name || '',
@@ -341,7 +320,6 @@ const updateProfile = () => {
   });
 };
 
-const coverFilePond = ref();
 const profileFilePond = ref();
 const hiddenFileInput = ref();
 
@@ -355,13 +333,8 @@ const handleProfileUploadResponse = (response: string) => {
   return response;
 };
 
-const handleCoverUploadResponse = (response: string) => {
-  const data = JSON.parse(response);
-  if (data.success) {
-    showCoverUploadModal.value = false;
-    router.reload({ only: ['user'] });
-  }
-  return response;
+const handleCoverUploadComplete = () => {
+  router.reload({ only: ['user'] });
 };
 
 const handleUploadError = (error: any) => {
@@ -449,17 +422,7 @@ const profileServerConfig = computed(() => ({
   }
 }));
 
-const coverServerConfig = computed(() => ({
-  process: {
-    url: '/api/images/upload-cover',
-    method: 'POST',
-    onload: handleCoverUploadResponse,
-    onerror: handleUploadError,
-    headers: {
-      'X-CSRF-TOKEN': getCsrfToken()
-    }
-  }
-}));
+
 
 const handleCoverImageRemove = async () => {
   try {
@@ -488,15 +451,15 @@ const handleCoverImageRemove = async () => {
 
 
 const handleNewPost = (post: any) => {
-  posts.value.unshift(post);
+  userPosts.value.unshift(post);
 };
 
 const handlePostDeleted = (postId: number) => {
-  posts.value = posts.value.filter(post => post.id !== postId);
+  userPosts.value = userPosts.value.filter((post: any) => post.id !== postId);
 };
 
 const handlePostPinned = (postId: number, isPinned: boolean) => {
-  const post = posts.value.find(p => p.id === postId);
+  const post = userPosts.value.find((p: any) => p.id === postId);
   if (post) {
     post.isPinned = isPinned;
   }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -21,6 +22,8 @@ Route::get('friends', function () {
     return Inertia::render('Friends');
 })->middleware(['auth', 'verified'])->name('friends');
 
+Route::get('users', [UserController::class, 'index'])->middleware(['auth', 'verified'])->name('users');
+
 Route::get('events', function () {
     return Inertia::render('Events');
 })->middleware(['auth', 'verified'])->name('events');
@@ -34,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/api/posts', [PostController::class, 'store']);
     Route::post('/api/posts/{post}/like', [PostController::class, 'toggleLike']);
     Route::post('/api/posts/{post}/pin', [PostController::class, 'togglePin']);
+    Route::post('/api/posts/{post}/vote', [PostController::class, 'votePoll']);
     Route::delete('/api/posts/{post}', [PostController::class, 'softDelete']);
     Route::get('/api/posts/{post}', [PostController::class, 'show']);
     Route::get('/api/posts/{post}/comments', [PostController::class, 'getComments']);

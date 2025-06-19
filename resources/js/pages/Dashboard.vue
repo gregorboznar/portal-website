@@ -14,12 +14,21 @@ interface PostAuthor {
     company: string;
 }
 
+interface PollResult {
+    option: string;
+    votes: number;
+    percentage: number;
+}
+
 interface Post {
     id: number;
     author: PostAuthor;
     content: string;
     type: 'regular' | 'poll';
     poll_options?: string[];
+    poll_results?: PollResult[];
+    user_vote?: number | null;
+    has_voted?: boolean;
     timestamp: string;
     likes: number;
     comments: number;
@@ -106,7 +115,6 @@ onMounted(() => {
     <div class="flex flex-col gap-4 flex-1">
     <div class="flex  gap-2 ml-3">
       <FeedIcon class="w-5 h-5 relative top-1" />
-
       <div class="flex items-left flex-col">
         <h1 class="text-xl font-semibold text-left">Social Feed</h1>
         <p class="p-s ">Stay Connected and Informed</p>
@@ -115,13 +123,13 @@ onMounted(() => {
      
       <PostCreator @post-created="handleNewPost" />
 
-      <div v-if="loading" class="space-y-6">
+      <div v-if="loading" class="space-y-4">
         <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
         <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
         <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
       </div>
 
-      <div v-else class="space-y-6">
+      <div v-else class="space-y-4">
         <FeedPost
           v-for="post in posts"
           :key="post.id"
@@ -137,6 +145,9 @@ onMounted(() => {
           :can-manage="post.canManage"
           :type="post.type"
           :poll-options="post.poll_options"
+          :poll-results="post.poll_results"
+          :user-vote="post.user_vote"
+          :has-voted="post.has_voted"
           :images="post.images"
           @post-deleted="handlePostDeleted"
           @post-pinned="handlePostPinned"

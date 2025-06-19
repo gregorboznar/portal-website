@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Post;
 use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,11 +52,59 @@ class ProfileController extends Controller
             'displayed_badges' => $user->displayed_badges,
             'profile_image_url' => $profileImage ? asset('storage/' . $profileImage->optimizations['medium']['path']) : null,
             'cover_image' => $coverImage ? asset('storage/' . $coverImage->path) : null,
+            'profile_image' => $profileImage ? asset('storage/' . $profileImage->path) : null,
             'slug' => $user->slug,
         ];
 
+
+        $posts = Post::where('user_id', $user->id)
+            ->with(['user', 'likes', 'images', 'pollVotes'])
+            ->orderByDesc('is_pinned')
+            ->orderByDesc('pinned_at')
+            ->latest()
+            ->get()
+            ->map(function ($post) {
+                $pollResults = $post->type === 'poll' ? $post->getPollResults() : null;
+                $userVote = Auth::check() && $post->type === 'poll' ? $post->getUserVote(Auth::user()) : null;
+
+                return [
+                    'id' => $post->id,
+                    'author' => [
+                        'name' => $post->user->name,
+                        'company' => $post->user->company,
+                        'profile_image' => $this->getUserProfileImage($post->user),
+                        'slug' => $post->user->slug,
+                    ],
+                    'content' => $post->content,
+                    'type' => $post->type,
+                    'poll_options' => $post->poll_options,
+                    'poll_results' => $pollResults,
+                    'user_vote' => $userVote,
+                    'has_voted' => Auth::check() && $post->type === 'poll' ? $post->hasVotedBy(Auth::user()) : false,
+                    'timestamp' => $post->created_at->format('j M \a\t g:i A'),
+                    'likes' => $post->likes_count,
+                    'comments' => $post->comments_count,
+                    'views' => $post->views_count,
+                    'isLiked' => Auth::check() ? $post->isLikedBy(Auth::user()) : false,
+                    'isPinned' => $post->is_pinned,
+                    'canManage' => Auth::check() && Auth::id() === $post->user_id,
+                    'images' => $post->images->map(function ($image) {
+                        return [
+                            'id' => $image->id,
+                            'url' => asset('storage/' . $image->path),
+                            'filename' => $image->filename,
+                            'original_filename' => $image->original_filename,
+                            'width' => $image->width,
+                            'height' => $image->height,
+                            'optimizations' => $this->formatOptimizations($image->optimizations),
+                        ];
+                    }),
+                ];
+            });
+
         return Inertia::render('Profile', [
             'user' => $userData,
+            'posts' => $posts,
             'isOwnProfile' => $isOwnProfile
         ]);
     }
@@ -267,5 +316,31 @@ class ProfileController extends Controller
         $user->update(['displayed_badges' => $displayedBadges]);
 
         return response()->json(['success' => true]);
+    }
+
+    private function getUserProfileImage($user): ?string
+    {
+        $profileImage = $user->images()->where('type', 'profile')->latest()->first();
+        return $profileImage ? asset('storage/' . $profileImage->optimizations['medium']['path']) : null;
+    }
+
+    private function formatOptimizations(?array $optimizations): array
+    {
+        if (!$optimizations) {
+            return [];
+        }
+
+        $formatted = [];
+        foreach ($optimizations as $key => $optimization) {
+            if (isset($optimization['path'])) {
+                $formatted[$key] = [
+                    'url' => asset('storage/' . $optimization['path']),
+                    'width' => $optimization['width'] ?? null,
+                    'height' => $optimization['height'] ?? null,
+                ];
+            }
+        }
+
+        return $formatted;
     }
 }

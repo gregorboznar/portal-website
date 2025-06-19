@@ -9,7 +9,8 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
 
 const form = useForm({
-    name: '',
+    first_name: '',
+    last_name: '',
     email: '',
     password: '',
     password_confirmation: '',
@@ -28,12 +29,18 @@ const submit = () => {
 
         <form @submit.prevent="submit" class="flex flex-col gap-6">
             <div class="grid gap-6">
-                <div class="grid gap-2">
-                    <Label for="name">Name</Label>
-                    <Input id="name" type="text" required autofocus :tabindex="1" autocomplete="name" v-model="form.name" placeholder="Full name" />
-                    <InputError :message="form.errors.name" />
+                <div class="flex gap-2">
+                    <div class="flex-1 grid gap-2">
+                        <Label for="first_name">First name</Label>
+                        <Input id="first_name" type="text" required autofocus :tabindex="1" autocomplete="name" v-model="form.first_name" placeholder="First name" />
+                        <InputError :message="form.errors.first_name" />
+                    </div>
+                    <div class="flex-1 grid gap-2">
+                        <Label for="last_name">Last name</Label>
+                        <Input id="last_name" type="text" required autofocus :tabindex="1" autocomplete="name" v-model="form.last_name" placeholder="Last name" />
+                        <InputError :message="form.errors.last_name" />
+                    </div>
                 </div>
-
                 <div class="grid gap-2">
                     <Label for="email">Email address</Label>
                     <Input id="email" type="email" required :tabindex="2" autocomplete="email" v-model="form.email" placeholder="email@example.com" />

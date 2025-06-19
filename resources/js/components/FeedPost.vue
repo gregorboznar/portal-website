@@ -38,6 +38,12 @@ interface Comment {
     };
 }
 
+interface PollResult {
+    option: string;
+    votes: number;
+    percentage: number;
+}
+
 interface FeedPostProps {
     postId: number;
     author: {
@@ -57,6 +63,9 @@ interface FeedPostProps {
     canManage?: boolean;
     type?: 'regular' | 'poll';
     pollOptions?: string[];
+    pollResults?: PollResult[];
+    userVote?: number | null;
+    hasVoted?: boolean;
     images?: {
         id: number;
         url: string;
@@ -87,6 +96,10 @@ const postElement = ref<HTMLElement>();
 const hasBeenViewed = ref(false);
 const currentViews = ref(props.views);
 const currentIsPinned = ref(props.isPinned || false);
+const currentPollResults = ref(props.pollResults || []);
+const currentUserVote = ref(props.userVote);
+const currentHasVoted = ref(props.hasVoted || false);
+const isVoting = ref(false);
 
 const emit = defineEmits<{
     'post-deleted': [postId: number];
@@ -126,7 +139,6 @@ const openPostDialog = async () => {
     showPostDialog.value = true;
     await loadComments();
     
-    // Initialize PhotoSwipe for dialog images
     setTimeout(() => {
         if (props.images && props.images.length > 0) {
             initDialogPhotoSwipe();
@@ -239,10 +251,10 @@ onMounted(async () => {
         initPhotoSwipe();
     }
     
-    // Wait for template to be fully rendered
+    
     await nextTick();
     
-    // Set up intersection observer for view tracking
+ 
     if (postElement.value) {
         observer = new IntersectionObserver(
             (entries) => {
@@ -253,7 +265,7 @@ onMounted(async () => {
                 });
             },
             {
-                threshold: 0.5, // Trigger when 50% of the post is visible
+                threshold: 0.5, 
                 rootMargin: '0px'
             }
         );
@@ -268,6 +280,27 @@ onUnmounted(() => {
         observer.disconnect();
     }
 });
+
+const handlePollOptionClick = async (index: number) => {
+    if (isVoting.value || props.type !== 'poll') return;
+    
+    try {
+        isVoting.value = true;
+        const response = await axios.post(`/api/posts/${props.postId}/vote`, {
+            option_index: index
+        });
+        
+        if (response.data.success) {
+            currentPollResults.value = response.data.poll_results;
+            currentUserVote.value = response.data.user_vote;
+            currentHasVoted.value = response.data.has_voted;
+        }
+    } catch (error) {
+        console.error('Error voting on poll:', error);
+    } finally {
+        isVoting.value = false;
+    }
+};
 </script>
 
 <template>
@@ -350,32 +383,58 @@ onUnmounted(() => {
                             </a>
                         </div>
                     </div>
-                    
+
                     <div v-if="type === 'poll' && pollOptions" class="mt-4 space-y-2">
-                        <div v-for="(option, index) in pollOptions" :key="index" class="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 cursor-pointer">
+                        <div 
+                            v-for="(option, index) in pollOptions" 
+                            :key="index" 
+                            @click="!currentHasVoted ? handlePollOptionClick(index) : null" 
+                            :class="[
+                                'border rounded-lg p-3 transition-all duration-200',
+                                currentHasVoted ? 'cursor-default' : 'cursor-pointer hover:bg-gray-50',
+                                currentUserVote === index ? 'border-green bg-green/5' : 'border-gray-200',
+                                isVoting ? 'opacity-50 pointer-events-none' : ''
+                            ]"
+                        >
                             <div class="flex items-center justify-between">
-                                <span class="text-sm">{{ option }}</span>
-                                <span class="text-xs text-gray-500">0%</span>
+                                <span class="text-sm font-medium">{{ option }}</span>
+                                <span class="text-xs text-gray-500">
+                                    {{ currentPollResults[index]?.percentage || 0 }}%
+                                    {{ currentPollResults[index]?.votes ? `(${currentPollResults[index].votes})` : '' }}
+                                </span>
                             </div>
                             <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
+                                <div 
+                                    class="h-2 rounded-full transition-all duration-300"
+                                    :class="currentUserVote === index ? 'bg-green' : 'bg-blue-600'"
+                                    :style="{ width: `${currentPollResults[index]?.percentage || 0}%` }"
+                                ></div>
                             </div>
+                            <div v-if="currentUserVote === index" class="text-xs text-green mt-1 font-medium">
+                                Your vote
+                            </div>
+                        </div>
+                        <div v-if="!currentHasVoted" class="text-xs text-gray-500 text-center pt-2">
+                            Click an option to vote
+                        </div>
+                        <div v-else class="text-xs text-gray-500 text-center pt-2">
+                            You have voted in this poll
                         </div>
                     </div>
                 </div>
                 
                 <div class="flex items-center space-x-6 pt-3 border-t border-gray-100">
                     <Button 
-    variant="ghost" 
-    size="sm" 
-    class="flex items-center space-x-2 text-gray-600 hover:text-red-600"
-    @click="toggleLike"
-    :disabled="isLiking"
->
-    <FlashIcon v-if="currentIsLiked" class="w-6 h-6 fill-red-500 text-red-500" />
-    <FlashIcon2 v-else class="w-6 h-6" />
-    <span class="p-min">{{ currentLikes }}</span>
-</Button>
+                        variant="ghost" 
+                        size="sm" 
+                        class="flex items-center space-x-2 text-gray-600 hover:text-red-600"
+                        @click="toggleLike"
+                        :disabled="isLiking"
+                    >
+                        <FlashIcon v-if="currentIsLiked" class="w-6 h-6 fill-red-500 text-red-500" />
+                        <FlashIcon2 v-else class="w-6 h-6" />
+                        <span class="p-min">{{ currentLikes }}</span>
+                    </Button>
                     
                     <Button 
                         variant="ghost" 
@@ -387,7 +446,11 @@ onUnmounted(() => {
                         <span class="p-min">{{ currentComments }}</span>
                     </Button>
                     
-                    <Button variant="ghost" size="sm" class="flex items-center space-x-2 text-gray-600">
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        class="flex items-center space-x-2 text-gray-600"
+                    >
                         <EyeIcon class="w-6 h-6" />
                         <span class="p-min">{{ currentViews }}</span>
                     </Button>
@@ -502,7 +565,7 @@ onUnmounted(() => {
                             </AvatarFallback>
                         </Avatar>
                             <div class="flex-1">
-                                <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="bg-background rounded-lg p-3">
                                     <h3 class="">{{ comment.user?.name || 'Anonymous' }}</h3>
                                     <div class="text-sm text-gray-800 mt-1">{{ comment.content }}</div>
                                 </div>

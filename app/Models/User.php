@@ -23,7 +23,6 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'uuid',
-        'name',
         'firstname',
         'lastname',
         'slug',
@@ -53,8 +52,7 @@ class User extends Authenticatable
         });
 
         static::updating(function ($model) {
-            // Update slug if name fields change
-            if ($model->isDirty(['firstname', 'lastname', 'name']) && empty($model->slug)) {
+            if ($model->isDirty(['firstname', 'lastname']) && empty($model->slug)) {
                 $model->slug = static::generateUniqueSlug($model);
             }
         });
@@ -64,7 +62,7 @@ class User extends Authenticatable
     {
         $name = $user->firstname && $user->lastname
             ? "{$user->firstname} {$user->lastname}"
-            : ($user->name ?: 'user');
+            : 'user';
 
         $baseSlug = Str::slug($name);
         $slug = $baseSlug;

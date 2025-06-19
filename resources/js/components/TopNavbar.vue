@@ -82,14 +82,14 @@ const navItems = computed(() => [
                     <AvatarImage 
                         v-if="auth.user.profile_image" 
                         :src="auth.user.profile_image" 
-                        :alt="auth.user.name" 
+                        :alt="auth.user.firstname + ' ' + auth.user.lastname" 
                     />
                     <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
-                        {{ getInitials(auth.user?.name) }}
+                        {{ getInitials(auth.user?.firstname + ' ' + auth.user?.lastname) }}
                     </AvatarFallback>
                 </Avatar>
                 <div class="hidden md:block text-left">
-                    <div class="text-sm font-semibold text-gray-900">{{ auth.user.name }}</div>
+                    <div class="text-sm font-semibold text-gray-900">{{ auth.user.firstname + ' ' + auth.user.lastname }}</div>
                     <div class="text-xs text-gray-500">{{ auth.user.company || 'Company' }}</div>
                 </div>
                 </Link>

@@ -315,12 +315,7 @@
   display: none !important;
 }
 
-/* Cover upload modal FilePond styling */
-.cover-upload-filepond .filepond--root {
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 2px dashed #d1d5db;
-}
+
 
 .cover-upload-filepond .filepond--drop-label {
   color: #6b7280;
@@ -333,7 +328,7 @@
   border-radius: 8px;
 }
 
-/* Profile photo FilePond styling */
+
 .profile-filepond .filepond--root {
   width: 128px !important;
   height: 128px !important;

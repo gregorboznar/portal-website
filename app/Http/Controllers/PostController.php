@@ -6,6 +6,7 @@ use App\Models\Post;
 use App\Models\Image;
 use App\Models\Comment;
 use App\Models\PostView;
+use App\Models\PollVote;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,7 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::with(['user', 'likes', 'images'])
+        $posts = Post::with(['user', 'likes', 'images', 'pollVotes'])
             ->whereHas('user', function ($query) {
                 $query->whereNull('deleted_at');
             })
@@ -25,6 +26,9 @@ class PostController extends Controller
             ->latest()
             ->get()
             ->map(function ($post) {
+                $pollResults = $post->type === 'poll' ? $post->getPollResults() : null;
+                $userVote = Auth::check() && $post->type === 'poll' ? $post->getUserVote(Auth::user()) : null;
+
                 return [
                     'id' => $post->id,
                     'author' => [
@@ -36,6 +40,9 @@ class PostController extends Controller
                     'content' => $post->content,
                     'type' => $post->type,
                     'poll_options' => $post->poll_options,
+                    'poll_results' => $pollResults,
+                    'user_vote' => $userVote,
+                    'has_voted' => Auth::check() && $post->type === 'poll' ? $post->hasVotedBy(Auth::user()) : false,
                     'timestamp' => $post->created_at->format('j M \a\t g:i A'),
                     'likes' => $post->likes_count,
                     'comments' => $post->comments_count,
@@ -88,6 +95,8 @@ class PostController extends Controller
 
         $post->load(['user', 'images']);
 
+        $pollResults = $post->type === 'poll' ? $post->getPollResults() : null;
+
         return response()->json([
             'id' => $post->id,
             'author' => [
@@ -99,6 +108,9 @@ class PostController extends Controller
             'content' => $post->content,
             'type' => $post->type,
             'poll_options' => $post->poll_options,
+            'poll_results' => $pollResults,
+            'user_vote' => null,
+            'has_voted' => false,
             'timestamp' => $post->created_at->format('j M \a\t g:i A'),
             'likes' => 0,
             'comments' => 0,
@@ -142,7 +154,10 @@ class PostController extends Controller
     {
         $post->increment('views_count');
 
-        $post->load(['user', 'likes', 'images']);
+        $post->load(['user', 'likes', 'images', 'pollVotes']);
+
+        $pollResults = $post->type === 'poll' ? $post->getPollResults() : null;
+        $userVote = Auth::check() && $post->type === 'poll' ? $post->getUserVote(Auth::user()) : null;
 
         return response()->json([
             'id' => $post->id,
@@ -155,6 +170,9 @@ class PostController extends Controller
             'content' => $post->content,
             'type' => $post->type,
             'poll_options' => $post->poll_options,
+            'poll_results' => $pollResults,
+            'user_vote' => $userVote,
+            'has_voted' => Auth::check() && $post->type === 'poll' ? $post->hasVotedBy(Auth::user()) : false,
             'timestamp' => $post->created_at->format('j M \a\t g:i A'),
             'likes' => $post->likes_count,
             'comments' => $post->comments_count,
@@ -315,6 +333,55 @@ class PostController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Post deleted successfully',
+        ]);
+    }
+
+    public function votePoll(Request $request, Post $post): JsonResponse
+    {
+        $request->validate([
+            'option_index' => 'required|integer|min:0',
+        ]);
+
+        if ($post->type !== 'poll') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This post is not a poll',
+            ], 400);
+        }
+
+        if (!$post->poll_options || $request->option_index >= count($post->poll_options)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid poll option',
+            ], 400);
+        }
+
+        $user = Auth::user();
+
+        $existingVote = PollVote::where('user_id', $user->id)
+            ->where('post_id', $post->id)
+            ->first();
+
+        if ($existingVote) {
+            $existingVote->update([
+                'option_index' => $request->option_index,
+            ]);
+        } else {
+            PollVote::create([
+                'user_id' => $user->id,
+                'post_id' => $post->id,
+                'option_index' => $request->option_index,
+            ]);
+        }
+
+        $pollResults = $post->getPollResults();
+        $userVote = $post->getUserVote($user);
+
+        return response()->json([
+            'success' => true,
+            'poll_results' => $pollResults,
+            'user_vote' => $userVote,
+            'has_voted' => true,
         ]);
     }
 

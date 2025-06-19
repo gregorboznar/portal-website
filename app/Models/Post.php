@@ -75,6 +75,45 @@ class Post extends Model
         return $this->hasMany(PostView::class);
     }
 
+    public function pollVotes(): HasMany
+    {
+        return $this->hasMany(PollVote::class);
+    }
+
+    public function hasVotedBy(User $user): bool
+    {
+        return $this->pollVotes()->where('user_id', $user->id)->exists();
+    }
+
+    public function getUserVote(User $user): ?int
+    {
+        $vote = $this->pollVotes()->where('user_id', $user->id)->first();
+        return $vote ? $vote->option_index : null;
+    }
+
+    public function getPollResults(): array
+    {
+        if ($this->type !== 'poll' || !$this->poll_options) {
+            return [];
+        }
+
+        $totalVotes = $this->pollVotes()->count();
+        $results = [];
+
+        foreach ($this->poll_options as $index => $option) {
+            $votes = $this->pollVotes()->where('option_index', $index)->count();
+            $percentage = $totalVotes > 0 ? round(($votes / $totalVotes) * 100, 1) : 0;
+
+            $results[] = [
+                'option' => $option,
+                'votes' => $votes,
+                'percentage' => $percentage,
+            ];
+        }
+
+        return $results;
+    }
+
     public function scopeWithLikesCount($query)
     {
         return $query->withCount('likes');
