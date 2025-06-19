@@ -25,8 +25,30 @@ Route::get('friends', function () {
 Route::get('users', [UserController::class, 'index'])->middleware(['auth', 'verified'])->name('users');
 
 Route::get('events', function () {
-    return Inertia::render('Events');
+    return Inertia::render('events/Index');
 })->middleware(['auth', 'verified'])->name('events');
+
+Route::get('events/create', function () {
+    return Inertia::render('events/Create');
+})->middleware(['auth', 'verified'])->name('events.create');
+
+Route::get('events/{id}', function ($id) {
+    return Inertia::render('events/Show', [
+        'event' => [
+            'id' => $id,
+            'title' => 'Sample Event ' . $id
+        ]
+    ]);
+})->middleware(['auth', 'verified'])->name('events.show');
+
+Route::get('events/{id}/edit', function ($id) {
+    return Inertia::render('events/Edit', [
+        'event' => [
+            'id' => $id,
+            'title' => 'Sample Event ' . $id
+        ]
+    ]);
+})->middleware(['auth', 'verified'])->name('events.edit');
 
 Route::get('whitney-wire-report', function () {
     return Inertia::render('WhitneyWireReport');
