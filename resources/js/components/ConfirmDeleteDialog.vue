@@ -40,7 +40,7 @@ const handleConfirm = () => {
 </script>
 
 <template>
-    <AlertDialog :open="open" @update:open="handleOpenChange">
+    <AlertDialog :open="props.open" @update:open="handleOpenChange">
         <AlertDialogContent>
             <AlertDialogHeader>
                 <AlertDialogTitle>{{ title }}</AlertDialogTitle>
@@ -60,4 +60,4 @@ const handleConfirm = () => {
             </AlertDialogFooter>
         </AlertDialogContent>
     </AlertDialog>
-</template> 
+</template>

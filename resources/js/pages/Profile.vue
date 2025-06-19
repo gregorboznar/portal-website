@@ -26,14 +26,15 @@
         <img :src="TalmanLogo" alt="Talman Group Logo" class="w-[10rem]">
       </div>
 
-      <!-- Change Cover Photo Button -->
+    
       <div v-if="isOwnProfile" class="absolute bottom-4 right-4">
         <button 
           @click="showCoverUploadModal = true"
-          class="bg-white rounded-lg px-4 py-3 flex items-center gap-3 shadow-lg  transition-shadow border border-gray-200"
+          class="bg-white rounded-sm px-3 py-2 flex items-center gap-3  border border-gray-200 text-sm font-semibold font-poppins text-green hover:opacity-90 transition-all duration-300"
         >
           <PictureIcon class="w-5 h-5" />
-          <span class="text-gray-700 font-medium">Change cover photo</span>
+         
+          Change cover photo
         </button>
       </div>
     </div>
@@ -133,7 +134,7 @@
           <Link 
             v-if="isOwnProfile"
             :href="route('edit-profile', user.slug)" 
-            class="px-4 py-2 bg-white border border-green font-semibold rounded-sm text-sm text-green hover:bg-gray-50 transition-all duration-300 flex items-center gap-2"
+            class="px-4 py-2 bg-white border border-green font-semibold rounded-sm text-sm text-green hover:bg-gray-50 transition-all duration-300 flex items-center gap-2 font-poppins"
           >
             <UserCardIcon class="w-5 h-5" />
             Edit profile
