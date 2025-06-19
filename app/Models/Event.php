@@ -46,6 +46,11 @@ class Event extends Model
         return 'uuid';
     }
 
+    public function images()
+    {
+        return $this->morphMany(Image::class, 'imageable');
+    }
+
     public function scopePublished($query)
     {
         return $query->where('status', 'published');

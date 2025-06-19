@@ -4,6 +4,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\EventController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -24,31 +25,15 @@ Route::get('friends', function () {
 
 Route::get('users', [UserController::class, 'index'])->middleware(['auth', 'verified'])->name('users');
 
-Route::get('events', function () {
-    return Inertia::render('events/Index');
-})->middleware(['auth', 'verified'])->name('events');
-
-Route::get('events/create', function () {
-    return Inertia::render('events/Create');
-})->middleware(['auth', 'verified'])->name('events.create');
-
-Route::get('events/{id}', function ($id) {
-    return Inertia::render('events/Show', [
-        'event' => [
-            'id' => $id,
-            'title' => 'Sample Event ' . $id
-        ]
-    ]);
-})->middleware(['auth', 'verified'])->name('events.show');
-
-Route::get('events/{id}/edit', function ($id) {
-    return Inertia::render('events/Edit', [
-        'event' => [
-            'id' => $id,
-            'title' => 'Sample Event ' . $id
-        ]
-    ]);
-})->middleware(['auth', 'verified'])->name('events.edit');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('events', [EventController::class, 'index'])->name('events');
+    Route::get('events/create', [EventController::class, 'create'])->name('events.create');
+    Route::post('events', [EventController::class, 'store'])->name('events.store');
+    Route::get('events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::get('events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
+    Route::put('events/{event}', [EventController::class, 'update'])->name('events.update');
+    Route::delete('events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
+});
 
 Route::get('whitney-wire-report', function () {
     return Inertia::render('WhitneyWireReport');
