@@ -32,7 +32,8 @@ class PostController extends Controller
                 return [
                     'id' => $post->id,
                     'author' => [
-                        'name' => $post->user->name,
+                        'firstname' => $post->user->firstname,
+                        'lastname' => $post->user->lastname,
                         'company' => $post->user->company,
                         'profile_image' => $this->getUserProfileImage($post->user),
                         'slug' => $post->user->slug,
@@ -100,7 +101,8 @@ class PostController extends Controller
         return response()->json([
             'id' => $post->id,
             'author' => [
-                'name' => $post->user->name,
+                'firstname' => $post->user->firstname,
+                'lastname' => $post->user->lastname,
                 'company' => $post->user->company,
                 'profile_image' => $this->getUserProfileImage($post->user),
                 'slug' => $post->user->slug,
@@ -162,7 +164,8 @@ class PostController extends Controller
         return response()->json([
             'id' => $post->id,
             'author' => [
-                'name' => $post->user->name,
+                'firstname' => $post->user->firstname,
+                'lastname' => $post->user->lastname,
                 'company' => $post->user->company,
                 'profile_image' => $this->getUserProfileImage($post->user),
                 'slug' => $post->user->slug,
@@ -215,7 +218,7 @@ class PostController extends Controller
     public function getComments(Post $post)
     {
         $comments = $post->comments()
-            ->with('user:id,name')
+            ->with('user:id,firstname,lastname')
             ->orderBy('created_at', 'asc')
             ->get()
             ->map(function ($comment) {
@@ -225,7 +228,8 @@ class PostController extends Controller
                     'created_at' => $comment->created_at->format('j M \a\t g:i A'),
                     'user' => [
                         'id' => $comment->user->id,
-                        'name' => $comment->user->name,
+                        'firstname' => $comment->user->firstname,
+                        'lastname' => $comment->user->lastname,
                         'profile_image' => $this->getUserProfileImage($comment->user),
                     ],
                 ];
@@ -250,7 +254,7 @@ class PostController extends Controller
 
         $post->increment('comments_count');
 
-        $comment->load('user:id,name');
+        $comment->load('user:id,firstname,lastname');
 
         return response()->json([
             'data' => [
@@ -259,7 +263,8 @@ class PostController extends Controller
                 'created_at' => $comment->created_at->format('j M \a\t g:i A'),
                 'user' => [
                     'id' => $comment->user->id,
-                    'name' => $comment->user->name,
+                    'firstname' => $comment->user->firstname,
+                    'lastname' => $comment->user->lastname,
                     'profile_image' => $this->getUserProfileImage($comment->user),
                 ],
             ]

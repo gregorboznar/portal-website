@@ -32,7 +32,8 @@ interface Comment {
     created_at: string;
     user?: {
         id: number;
-        name: string;
+        firstname: string;
+        lastname: string;
         avatar?: string;
         profile_image?: string;
     };
@@ -47,7 +48,8 @@ interface PollResult {
 interface FeedPostProps {
     postId: number;
     author: {
-        name: string;
+        firstname: string;
+        lastname: string;
         company?: string;
         avatar?: string;
         profile_image?: string;
@@ -314,15 +316,15 @@ const handlePollOptionClick = async (index: number) => {
                             <AvatarImage 
                                 v-if="author.profile_image" 
                                 :src="author.profile_image" 
-                                :alt="author.name" 
+                                :alt="author.firstname + ' ' + author.lastname" 
                             />
                             <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
-                                {{ getInitials(author?.name) }}
+                                {{ getInitials(author?.firstname + ' ' + author?.lastname) }}
                             </AvatarFallback>
                         </Avatar>
                         <div>
                             <div class="flex items-center gap-2">
-                                <h3 class="font-semibold ">{{ author.name }}</h3>
+                                <h3 class="font-semibold ">{{ author.firstname + ' ' + author.lastname }}</h3>
                                 
                             </div>
                             <p class="green-text" v-if="author.company">{{ author.company }}</p>
@@ -486,7 +488,7 @@ const handlePollOptionClick = async (index: number) => {
                         <FeedIcon class="w-6 h-6 text-gray-600" />
                  
                     <div>
-                        <h1 class="">Post by {{ author.name }}</h1>
+                        <h1 class="">Post by {{ author.firstname + ' ' + author.lastname }}</h1>
                     </div>
                 </DialogTitle>
             </DialogHeader>
@@ -499,16 +501,16 @@ const handlePollOptionClick = async (index: number) => {
                             <AvatarImage 
                                 v-if="author.profile_image" 
                                 :src="author.profile_image" 
-                                :alt="author.name" 
+                                :alt="author.firstname + ' ' + author.lastname" 
                             />
                             <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
-                                {{ getInitials(author?.name) }}
+                                {{ getInitials(author?.firstname + ' ' + author?.lastname) }}
                             </AvatarFallback>
                         </Avatar>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <h3 >{{ author.name }}</h3>
+                            <h3 >{{ author.firstname + ' ' + author.lastname }}</h3>
                             
                         </div>
                         <p class="green-text" v-if="author.company">{{ author.company }}</p>
@@ -558,15 +560,15 @@ const handlePollOptionClick = async (index: number) => {
                             <AvatarImage 
                                 v-if="comment.user?.profile_image" 
                                 :src="comment.user?.profile_image" 
-                                :alt="comment.user?.name" 
+                                :alt="comment.user?.firstname + ' ' + comment.user?.lastname" 
                             />
                             <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
-                                {{ getInitials(comment.user?.name) }}
+                                {{ getInitials(comment.user?.firstname + ' ' + comment.user?.lastname) }}
                             </AvatarFallback>
                         </Avatar>
                             <div class="flex-1">
                                 <div class="bg-background rounded-lg p-3">
-                                    <h3 class="">{{ comment.user?.name || 'Anonymous' }}</h3>
+                                    <h3 class="">{{ comment.user?.firstname + ' ' + comment.user?.lastname || 'Anonymous' }}</h3>
                                     <div class="text-sm text-gray-800 mt-1">{{ comment.content }}</div>
                                 </div>
                                 <div class="text-xs text-gray-500 mt-1">{{ comment.created_at }}</div>

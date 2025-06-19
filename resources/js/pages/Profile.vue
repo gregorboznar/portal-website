@@ -43,23 +43,22 @@
                  <div v-if="user.profile_image && !isOwnProfile" class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
                    <img 
                      :src="user.profile_image" 
-                     :alt="user.name"
+                     :alt="user.firstname + ' ' + user.lastname"
                      class="w-full h-full object-cover"
                    >
                  </div>
                  
                  <div v-else-if="!user.profile_image && !isOwnProfile" class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
                    <div class="w-full h-full bg-gray-300 flex items-center justify-center">
-                     <span class="text-2xl text-gray-600">{{ getInitials(user.name) }}</span>
+                     <span class="text-2xl text-gray-600">{{ getInitials(user.firstname + ' ' + user.lastname) }}</span>
                    </div>
                  </div>
                  
                                 <div v-if="isOwnProfile" class="">
-                   <!-- Show existing profile image with overlay controls if exists -->
-                   <div v-if="user.profile_image" class="relative w-36 h-36 rounded-full overflow-hidden border-4 border-white shadow-lg group">
+                    <div v-if="user.profile_image" class="relative w-36 h-36 rounded-full overflow-hidden border-4 border-white shadow-lg group">
                      <img 
                        :src="user.profile_image" 
-                       :alt="user.name"
+                       :alt="user.firstname + ' ' + user.lastname"
                        class="w-full h-full object-cover"
                      >
                      <!-- Overlay controls -->
@@ -122,7 +121,7 @@
      
       <div class="ml-48 flex justify-between w-full mr-4">
         <div>
-          <h1>{{ user.name }}</h1>
+          <h1>{{ user.firstname + ' ' + user.lastname }}</h1>
           <p class="text-green">{{ user.company || 'Company not specified' }}</p>
           <!-- <p class="text-sm text-gray-500 mb-4">AVAILABLE TICKETS: 0 / 0</p> -->
         </div>
@@ -149,8 +148,8 @@
 
           <AboutSection 
   :company="user.company" 
-  :description="user.description" 
-  :member-since="user.memberSince" 
+  :description="user.about" 
+  :member-since="user.created_at" 
 />
         </div>
 
@@ -202,15 +201,24 @@
         <h3 class="text-lg font-semibold mb-4">Edit Profile</h3>
         <form @submit.prevent="updateProfile" class="space-y-4">
           <div>
-            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+            <label for="firstname" class="block text-sm font-medium text-gray-700">First name</label>
             <input 
-              id="name" 
+              id="firstname" 
               type="text" 
-              v-model="form.name" 
+              v-model="form.firstname" 
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
             />
           </div>
-          
+
+          <div>
+            <label for="lastname" class="block text-sm font-medium text-gray-700">Last name</label>
+            <input 
+              id="lastname" 
+              type="text" 
+              v-model="form.lastname" 
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+            />
+          </div>
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
             <input 
@@ -298,7 +306,8 @@ const loading = ref(false);
 const userPosts = ref(props.posts || []);
 
 const form = reactive({
-  name: props.user?.name || '',
+  firstname: props.user?.firstname || '',
+  lastname: props.user?.lastname || '',
   email: props.user?.email || '',
   company: props.user?.company || '',
 });
@@ -354,17 +363,45 @@ const handleFileChange = (event: Event) => {
   }
 };
 
+const getCsrfToken = () => {
+  const meta = document.querySelector('meta[name="csrf-token"]');
+  return meta ? meta.getAttribute('content') : '';
+};
+
+const profileServerConfig = computed(() => {
+  const token = getCsrfToken();
+  console.log('CSRF Token for FilePond:', token); // Debug log
+  
+  return {
+    process: {
+      url: '/api/images/upload-profile',
+      method: 'POST',
+      onload: handleProfileUploadResponse,
+      onerror: handleUploadError,
+      headers: {
+        'X-CSRF-TOKEN': token,
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    }
+  };
+});
+
 const uploadProfileImage = async (file: File) => {
   try {
     const formData = new FormData();
     formData.append('profile_image', file);
     
     const csrfToken = getCsrfToken();
-    const headers: Record<string, string> = {};
+    console.log('CSRF Token for manual upload:', csrfToken); // Debug log
     
-    if (csrfToken) {
-      headers['X-CSRF-TOKEN'] = csrfToken;
+    if (!csrfToken) {
+      throw new Error('CSRF token not found');
     }
+    
+    const headers: Record<string, string> = {
+      'X-CSRF-TOKEN': csrfToken,
+      'X-Requested-With': 'XMLHttpRequest'
+    };
     
     const response = await fetch('/api/images/upload-profile', {
       method: 'POST',
@@ -372,83 +409,89 @@ const uploadProfileImage = async (file: File) => {
       body: formData
     });
     
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Upload error response:', errorText);
+      throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+    }
+    
     const data = await response.json();
     if (data.success) {
       router.reload({ only: ['user'] });
+    } else {
+      throw new Error(data.message || 'Upload failed');
     }
   } catch (error) {
     console.error('Error uploading profile image:', error);
+    alert('Failed to upload profile image. Please try again.');
   }
 };
 
 const handleProfileImageRemove = async () => {
   try {
     const csrfToken = getCsrfToken();
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json'
-    };
+    console.log('CSRF Token for profile delete:', csrfToken); // Debug log
     
-    if (csrfToken) {
-      headers['X-CSRF-TOKEN'] = csrfToken;
+    if (!csrfToken) {
+      throw new Error('CSRF token not found');
     }
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': csrfToken,
+      'X-Requested-With': 'XMLHttpRequest'
+    };
     
     const response = await fetch('/api/images/delete-profile', {
       method: 'DELETE',
       headers
     });
     
-    if (response.ok) {
-      router.reload({ only: ['user'] });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Delete error response:', errorText);
+      throw new Error(`Delete failed: ${response.status} ${response.statusText}`);
     }
+    
+    router.reload({ only: ['user'] });
   } catch (error) {
     console.error('Error deleting profile image:', error);
+    alert('Failed to delete profile image. Please try again.');
   }
 };
-
-const getCsrfToken = () => {
-  const meta = document.querySelector('meta[name="csrf-token"]');
-  return meta ? meta.getAttribute('content') : '';
-};
-
-const profileServerConfig = computed(() => ({
-  process: {
-    url: '/api/images/upload-profile',
-    method: 'POST',
-    onload: handleProfileUploadResponse,
-    onerror: handleUploadError,
-    headers: {
-      'X-CSRF-TOKEN': getCsrfToken()
-    }
-  }
-}));
-
-
 
 const handleCoverImageRemove = async () => {
   try {
     const csrfToken = getCsrfToken();
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json'
-    };
+    console.log('CSRF Token for cover delete:', csrfToken); // Debug log
     
-    if (csrfToken) {
-      headers['X-CSRF-TOKEN'] = csrfToken;
+    if (!csrfToken) {
+      throw new Error('CSRF token not found');
     }
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': csrfToken,
+      'X-Requested-With': 'XMLHttpRequest'
+    };
     
     const response = await fetch('/api/images/delete-cover', {
       method: 'DELETE',
       headers
     });
     
-    if (response.ok) {
-      router.reload({ only: ['user'] });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Delete error response:', errorText);
+      throw new Error(`Delete failed: ${response.status} ${response.statusText}`);
     }
+    
+    router.reload({ only: ['user'] });
   } catch (error) {
     console.error('Error deleting cover image:', error);
+    alert('Failed to delete cover image. Please try again.');
   }
 };
-
-
 
 const handleNewPost = (post: any) => {
   userPosts.value.unshift(post);

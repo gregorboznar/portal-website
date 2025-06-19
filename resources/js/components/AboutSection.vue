@@ -5,17 +5,18 @@
   </div>
   
     <div class="bg-white rounded-lg shadow-lg p-6">
-     
+    
       <div class="space-y-3">
         <div>
-          <h1 class="font-semibold text-left">CEO at {{ company }}</h1>
+          <h1 v-if="company" class="font-semibold text-left">CEO at {{ company }}</h1>
+          <h1 v-else class="font-semibold text-left text-gray-500">No company information</h1>
           <p class="text-gray-600 text-sm mt-2">
-            {{ description }}
+            {{ description || 'No description available' }}
           </p>
         </div>
         
         <div class="pt-4 border-t border-gray-200">
-          <p class="text-sm text-gray-500">Member since {{ memberSince }}</p>
+          <p class="text-sm text-gray-500">Member since {{ formatDate(memberSince) }}</p>
         </div>
       </div>
     </div>
@@ -23,18 +24,26 @@
   
   <script setup lang="ts">
   import StarIcon from '@/assets/icons/star.svg'
-  defineProps({
-    company: {
-      type: String,
-      default: 'Bplanet d.o.o.'
-    },
-    description: {
-      type: String,
-      default: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
-    },
-    memberSince: {
-      type: String,
-      default: 'January 1970'
+  
+  interface Props {
+    company?: string;
+    description?: string;
+    memberSince?: string;
+  }
+  
+  defineProps<Props>();
+  
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Unknown';
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long'
+      });
+    } catch {
+      return 'Unknown';
     }
-  })
+  };
   </script>

@@ -20,7 +20,6 @@ class UserController extends Controller
     $users = User::select([
       'id',
       'uuid',
-      'name',
       'firstname',
       'lastname',
       'email',
@@ -44,7 +43,6 @@ class UserController extends Controller
         return [
           'id' => $user->id,
           'uuid' => $user->uuid,
-          'name' => $user->name ?: ($user->firstname && $user->lastname ? "{$user->firstname} {$user->lastname}" : ''),
           'firstname' => $user->firstname,
           'lastname' => $user->lastname,
           'email' => $user->email,

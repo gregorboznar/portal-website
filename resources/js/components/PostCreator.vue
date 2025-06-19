@@ -18,6 +18,7 @@ import { getInitials } from '@/composables/useInitials';
 import PictureIcon from '@/assets/icons/picture.svg'
 import EventIcon from '@/assets/icons/events.svg'
 import PollIcon from '@/assets/icons/poll.svg'
+import FeedIcon from '@/assets/icons/feed.svg'
 
 // FilePond is globally registered in app.ts
 
@@ -218,10 +219,10 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
                             <AvatarImage 
                                 v-if="auth.user.profile_image" 
                                 :src="auth.user.profile_image" 
-                                :alt="auth.user.name" 
+                                :alt="auth.user.firstname + ' ' + auth.user.lastname" 
                             />
                             <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
-                                {{ getInitials(auth.user?.name) }}
+                                {{ getInitials(auth.user?.firstname + ' ' + auth.user?.lastname) }}
                             </AvatarFallback>
                         </Avatar>
                         <div class="flex-1"></div>
@@ -258,10 +259,11 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
         
         <DialogContent class="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-                <h1>Create Post</h1>
-             <!--    <DialogDescription>
-                    Share your thoughts, add images, create polls, and more.
-                </DialogDescription> -->
+                <div class="flex items-center gap-2">
+                    <FeedIcon class="w-5 h-5" />
+                    <h1 class="">Create Post</h1>
+                </div>
+            
             </DialogHeader>
             
             <div class="space-y-4">
@@ -271,14 +273,14 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
                             <AvatarImage 
                                 v-if="auth.user.profile_image" 
                                 :src="auth.user.profile_image" 
-                                :alt="auth.user.name" 
+                                :alt="auth.user.firstname + ' ' + auth.user.lastname" 
                             />
                             <AvatarFallback v-else class="bg-gray-300 text-gray-700 text-sm font-medium">
-                                {{ getInitials(auth.user?.name) }}
+                                {{ getInitials(auth.user?.firstname + ' ' + auth.user?.lastname) }}
                             </AvatarFallback>
                         </Avatar>
                         <div class="flex-1">
-                            <p class="text-sm font-medium">{{ auth.user.name }}</p>
+                            <p class="text-sm font-medium">{{ auth.user.firstname + ' ' + auth.user.lastname }}</p>
                             <p class="text-xs text-gray-500">{{ auth.user.company }}</p>
                         </div>
                     </div>
@@ -348,7 +350,6 @@ const commonEmojis = ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '�
                         :max-files="5"
                         accepted-file-types="image/jpeg, image/png, image/gif, image/webp"
                         :files="filePondFiles"
-                        @init="handleFilePondInit"
                         @addfile="handleFilePondAddFile"
                         @processfile="handleFilePondProcessFile"
                         class="filepond--custom"

@@ -15,7 +15,6 @@ import { Link, router } from '@inertiajs/vue3'
 interface User {
     id: number
     uuid: string
-    name: string
     firstname?: string
     lastname?: string
     email: string
@@ -53,7 +52,7 @@ const columns: ColumnDef<User>[] = [
                     ])
                 ]),
                 h('div', {}, [
-                    h('div', { class: 'font-medium' }, user.name || 'N/A'),
+                    h('div', { class: 'font-medium' }, user.firstname + ' ' + user.lastname || 'N/A'),
                     user.position && h('div', { class: 'text-sm text-muted-foreground' }, user.position)
                 ])
             ])

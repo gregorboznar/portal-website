@@ -8,7 +8,6 @@ import UserIcon from '@/assets/icons/user-card.svg'
 interface User {
     id: number
     uuid: string
-    name: string
     firstname?: string
     lastname?: string
     email: string

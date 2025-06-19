@@ -38,7 +38,6 @@ class ProfileController extends Controller
         $userData = [
             'id' => $user->id,
             'uuid' => $user->uuid,
-            'name' => $user->name,
             'firstname' => $user->firstname,
             'lastname' => $user->lastname,
             'email' => $user->email,
@@ -54,6 +53,7 @@ class ProfileController extends Controller
             'cover_image' => $coverImage ? asset('storage/' . $coverImage->path) : null,
             'profile_image' => $profileImage ? asset('storage/' . $profileImage->path) : null,
             'slug' => $user->slug,
+            'created_at' => $user->created_at,
         ];
 
 
@@ -70,7 +70,8 @@ class ProfileController extends Controller
                 return [
                     'id' => $post->id,
                     'author' => [
-                        'name' => $post->user->name,
+                        'firstname' => $post->user->firstname,
+                        'lastname' => $post->user->lastname,
                         'company' => $post->user->company,
                         'profile_image' => $this->getUserProfileImage($post->user),
                         'slug' => $post->user->slug,
@@ -124,7 +125,6 @@ class ProfileController extends Controller
         $userData = [
             'id' => $user->id,
             'uuid' => $user->uuid,
-            'name' => $user->name,
             'firstname' => $user->firstname,
             'lastname' => $user->lastname,
             'email' => $user->email,
@@ -168,6 +168,8 @@ class ProfileController extends Controller
         }
 
         $rules = [
+            'firstname' => 'nullable|string|max:255',
+            'lastname' => 'nullable|string|max:255',
             'firstname' => 'nullable|string|max:255',
             'lastname' => 'nullable|string|max:255',
             'email' => [
