@@ -11,10 +11,21 @@ class EventController extends Controller
 {
   public function index()
   {
-    $events = Event::with(['images'])->latest()->get();
+    $upcomingEvents = Event::with(['image'])
+      ->published()
+      ->upcoming()
+      ->orderBy('date', 'asc')
+      ->get();
+
+    $pastEvents = Event::with(['image'])
+      ->published()
+      ->past()
+      ->orderBy('date', 'desc')
+      ->get();
 
     return Inertia::render('events/Index', [
-      'events' => $events
+      'upcomingEvents' => $upcomingEvents,
+      'pastEvents' => $pastEvents
     ]);
   }
 
@@ -31,8 +42,7 @@ class EventController extends Controller
       'date' => 'required|date',
       'end_date' => 'nullable|date|after_or_equal:date',
       'location' => 'nullable|string|max:255',
-      'images' => 'array|max:5',
-      'images.*' => 'integer',
+      'image' => 'nullable|integer',
     ]);
 
     $event = Event::create([
@@ -44,8 +54,8 @@ class EventController extends Controller
       'status' => 'published',
     ]);
 
-    if ($request->has('images') && is_array($request->images) && count($request->images) > 0) {
-      Image::whereIn('id', $request->images)
+    if ($request->has('image') && $request->image) {
+      Image::where('id', $request->image)
         ->update([
           'imageable_type' => Event::class,
           'imageable_id' => $event->id,
@@ -59,7 +69,7 @@ class EventController extends Controller
 
   public function show(Event $event)
   {
-    $event->load(['images']);
+    $event->load(['image']);
 
     return Inertia::render('events/Show', [
       'event' => $event
@@ -68,7 +78,8 @@ class EventController extends Controller
 
   public function edit(Event $event)
   {
-    $event->load(['images']);
+
+    $event->load(['image']);
 
     return Inertia::render('events/Edit', [
       'event' => $event
@@ -83,8 +94,7 @@ class EventController extends Controller
       'date' => 'required|date',
       'end_date' => 'nullable|date|after_or_equal:date',
       'location' => 'nullable|string|max:255',
-      'images' => 'array|max:5',
-      'images.*' => 'integer',
+      'image' => 'nullable|integer',
     ]);
 
     $event->update([
@@ -95,9 +105,9 @@ class EventController extends Controller
       'location' => $request->location,
     ]);
 
-    // Update images
-    if ($request->has('images')) {
-      // Remove old images
+    // Update image
+    if ($request->has('image')) {
+      // Remove old image
       Image::where('imageable_type', Event::class)
         ->where('imageable_id', $event->id)
         ->update([
@@ -105,9 +115,9 @@ class EventController extends Controller
           'imageable_id' => null,
         ]);
 
-      // Add new images
-      if (is_array($request->images) && count($request->images) > 0) {
-        Image::whereIn('id', $request->images)
+      // Add new image
+      if ($request->image) {
+        Image::where('id', $request->image)
           ->update([
             'imageable_type' => Event::class,
             'imageable_id' => $event->id,

@@ -38,6 +38,13 @@ class Image extends Model
         'optimizations' => 'array',
     ];
 
+    protected $appends = ['url'];
+
+    public function getUrlAttribute()
+    {
+        return asset('storage/' . $this->path);
+    }
+
     public function imageable()
     {
         return $this->morphTo();

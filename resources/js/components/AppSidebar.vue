@@ -6,7 +6,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-vue-next';
-import talmanLogo from '@/assets/images/talman-logo.webp';
+import TalmanLogo from '@/assets/images/talman-logo.webp';
 
 
 const mainNavItems: NavItem[] = [
@@ -50,7 +50,7 @@ const footerNavItems: NavItem[] = [
                     <SidebarMenuButton class="h-[10rem]" as-child>
                         <Link class="flex items-center justify-center" :href="route('dashboard')">
                             <img 
-                                :src="talmanLogo" 
+                                :src="TalmanLogo" 
                                 alt="Talman Group Logo" 
                                 class="w-[10rem]" 
                             />

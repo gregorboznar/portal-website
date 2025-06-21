@@ -123,7 +123,6 @@
         <div>
           <h1>{{ user.firstname + ' ' + user.lastname }}</h1>
           <p class="text-green">{{ user.company || 'Company not specified' }}</p>
-          <!-- <p class="text-sm text-gray-500 mb-4">AVAILABLE TICKETS: 0 / 0</p> -->
         </div>
         <div>
           <Link 

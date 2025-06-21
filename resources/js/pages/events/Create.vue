@@ -24,6 +24,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const form = useForm({
     title: '',
+    short_description: '',
     description: '',
     date: '',
     end_date: '',
@@ -85,23 +86,30 @@ const submit = () => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-lg">
+             <form @submit.prevent="submit" class="space-y-4">
             <div class="flex justify-between">
-                <div class="pl-3">
-                    <div class="flex items-center gap-3">
-                        <EventIcon class="w-5 h-5" />
-                        <h1>Create new event</h1>
+                <div class="flex justify-between pl-3 w-full">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <EventIcon class="w-5 h-5" />
+                            <h1>Create new event</h1>
+                        </div>
+                        <Link 
+                            :href="route('events')" 
+                            class="flex items-center gap-2 text-green hover:text-green/70 transition-colors duration-300 text-sm underline ml-2 cursor-pointer"
+                        >
+                            <LeftArrowIcon class="w-4 h-4" />
+                            Back to events
+                        </Link>
                     </div>
-                    <Link 
-                        :href="route('events')" 
-                        class="flex items-center gap-2 text-green hover:text-green/70 transition-colors duration-300 text-sm underline ml-2 cursor-pointer"
-                    >
-                        <LeftArrowIcon class="w-4 h-4" />
-                        Back to events
-                    </Link>
+                    <div class="flex justify-end gap-4 items-center">
+                        <Button type="submit" :disabled="form.processing">
+                            {{ form.processing ? 'Creating...' : 'Create Event' }}
+                        </Button>
+                    </div>
                 </div>
             </div>
-            
-            <form @submit.prevent="submit" class="space-y-6">
+           
                 <div class="flex gap-6">
                     <Card class="flex-1">
                         <CardContent>
@@ -121,12 +129,26 @@ const submit = () => {
                                     </div>
                                 </div>
                                 <div class="space-y-2">
+                                    <Label for="description">Short Description</Label>
+                                    <Textarea
+                                        id="short_description"
+                                        v-model="form.short_description"
+                                        placeholder="Brief description of the event"
+                                        rows="4"
+                                        :class="{ 'border-red-500': form.errors.short_description }"
+                                    />
+                                    <div v-if="form.errors.short_description" class="text-sm text-red-500">
+                                        {{ form.errors.short_description }}
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
                                     <Label for="description">Description</Label>
                                     <Textarea
                                         id="description"
                                         v-model="form.description"
                                         placeholder="Enter event description"
-                                        rows="4"
+                                        rows="6"
                                         :class="{ 'border-red-500': form.errors.description }"
                                     />
                                     <div v-if="form.errors.description" class="text-sm text-red-500">
@@ -181,26 +203,22 @@ const submit = () => {
                         <CardContent>
                             <div class="space-y-4">
                                 <div class="space-y-2">
-                                    <Label>Event Images</Label>
-                                    <p class="text-sm text-gray-600">Upload images for your event (optional)</p>
+                                    <Label>Event Image</Label>   
                                 </div>
-                                
-                                <!-- FilePond Image Upload -->
                                 <div class="mb-4">
                                     <FilePond
                                         ref="filePondRef"
                                         name="images"
                                         label-idle='<span class="filepond--label-action">Browse</span> or drop images here'
                                         :allow-multiple="true"
-                                        :max-files="5"
+                                        :max-files="1"
                                         accepted-file-types="image/jpeg, image/png, image/gif, image/webp"
                                         @addfile="handleFilePondAddFile"
                                         class="filepond--custom"
                                     />
                                 </div>
                                 
-                                <!-- Preview uploaded images -->
-                                <div v-if="uploadedImages.length > 0" class="space-y-2">
+                             <!--    <div v-if="uploadedImages.length > 0" class="space-y-2">
                                     <Label>Uploaded Images</Label>
                                     <div class="grid grid-cols-2 gap-2">
                                         <div 
@@ -222,16 +240,10 @@ const submit = () => {
                                             </button>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                             </div>
                         </CardContent>
                     </Card>
-                </div>
-                
-                <div class="flex justify-end gap-4">
-                    <Button type="submit" :disabled="form.processing">
-                        {{ form.processing ? 'Creating...' : 'Create Event' }}
-                    </Button>
                 </div>
             </form>
         </div>
