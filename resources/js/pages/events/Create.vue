@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm, router, Link } from '@inertiajs/vue3';
+import { Head, useForm, Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -29,7 +29,7 @@ const form = useForm({
     date: '',
     end_date: '',
     location: '',
-    images: [] as number[],
+    image: null as number | null,
 });
 
 const uploadedImages = ref<any[]>([]);
@@ -63,17 +63,17 @@ const uploadImage = async (file: File) => {
         const data = await response.json();
         
         if (data.success) {
-            uploadedImages.value.push(data.image);
-            form.images.push(data.image.id);
+            uploadedImages.value = [data.image];
+            form.image = data.image.id;
         }
     } catch (error) {
         console.error('Error uploading image:', error);
     }
 };
 
-const removeImage = (imageId: number) => {
-    uploadedImages.value = uploadedImages.value.filter(img => img.id !== imageId);
-    form.images = form.images.filter(id => id !== imageId);
+const removeImage = () => {
+    uploadedImages.value = [];
+    form.image = null;
 };
 
 const submit = () => {
@@ -208,9 +208,9 @@ const submit = () => {
                                 <div class="mb-4">
                                     <FilePond
                                         ref="filePondRef"
-                                        name="images"
-                                        label-idle='<span class="filepond--label-action">Browse</span> or drop images here'
-                                        :allow-multiple="true"
+                                        name="image"
+                                        label-idle='<span class="filepond--label-action">Browse</span> or drop an image here'
+                                        :allow-multiple="false"
                                         :max-files="1"
                                         accepted-file-types="image/jpeg, image/png, image/gif, image/webp"
                                         @addfile="handleFilePondAddFile"
@@ -218,29 +218,23 @@ const submit = () => {
                                     />
                                 </div>
                                 
-                             <!--    <div v-if="uploadedImages.length > 0" class="space-y-2">
-                                    <Label>Uploaded Images</Label>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <div 
-                                            v-for="image in uploadedImages" 
-                                            :key="image.id"
-                                            class="relative group"
+                                <div v-if="uploadedImages.length > 0" class="space-y-2">
+                                    <Label>Uploaded Image</Label>
+                                    <div class="relative group w-full">
+                                        <img 
+                                            :src="uploadedImages[0].optimizations?.small?.url || uploadedImages[0].url" 
+                                            :alt="uploadedImages[0].original_filename"
+                                            class="w-full h-32 object-cover rounded border"
+                                        />
+                                        <button
+                                            type="button"
+                                            @click="removeImage()"
+                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
                                         >
-                                            <img 
-                                                :src="image.optimizations?.small?.url || image.url" 
-                                                :alt="image.original_filename"
-                                                class="w-full h-20 object-cover rounded border"
-                                            />
-                                            <button
-                                                type="button"
-                                                @click="removeImage(image.id)"
-                                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
-                                            >
-                                                ×
-                                            </button>
-                                        </div>
+                                            ×
+                                        </button>
                                     </div>
-                                </div> -->
+                                </div>
                             </div>
                         </CardContent>
                     </Card>

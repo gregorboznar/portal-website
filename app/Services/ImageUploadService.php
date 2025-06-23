@@ -143,6 +143,7 @@ class ImageUploadService
       'optimizations' => $optimizations,
       'imageable_type' => null,
       'imageable_id' => null,
+      'type' => $type,
     ]);
   }
 }

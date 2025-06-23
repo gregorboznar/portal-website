@@ -93,7 +93,7 @@ const openModal = () => {
         <div class="block relative sm:flex sm:justify-between">
             <div class="flex flex-col gap-6 sm:flex-row">
                 <div class="mr-0 sm:mr-8">
-                  {{ event.image }}
+              
                     <div v-if="event.image">
                         <img 
                             :src="event.image.url" 

@@ -34,11 +34,8 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
    
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
+
+
 ];
 </script>
 
@@ -64,10 +61,10 @@ const footerNavItems: NavItem[] = [
             <NavMain :items="mainNavItems" />
         </SidebarContent>
 
-        <SidebarFooter>
+       <!--  <SidebarFooter>
             <NavFooter :items="footerNavItems" />
             <NavUser />
-        </SidebarFooter>
+        </SidebarFooter> -->
     </Sidebar>
     <slot />
 </template>

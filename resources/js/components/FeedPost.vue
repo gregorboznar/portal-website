@@ -610,8 +610,6 @@ const handlePollOptionClick = async (index: number) => {
             </div>
         </DialogContent>
     </Dialog>
-
-   
     <ConfirmDeleteDialog
         v-model:open="showDeleteDialog"
         title="Delete Post"

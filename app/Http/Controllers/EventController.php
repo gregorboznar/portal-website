@@ -38,6 +38,7 @@ class EventController extends Controller
   {
     $request->validate([
       'title' => 'required|string|max:255',
+      'short_description' => 'nullable|string',
       'description' => 'nullable|string',
       'date' => 'required|date',
       'end_date' => 'nullable|date|after_or_equal:date',
@@ -47,6 +48,7 @@ class EventController extends Controller
 
     $event = Event::create([
       'title' => $request->title,
+      'short_description' => $request->short_description,
       'description' => $request->description,
       'date' => $request->date,
       'end_date' => $request->end_date,
@@ -90,6 +92,7 @@ class EventController extends Controller
   {
     $request->validate([
       'title' => 'required|string|max:255',
+      'short_description' => 'nullable|string',
       'description' => 'nullable|string',
       'date' => 'required|date',
       'end_date' => 'nullable|date|after_or_equal:date',
@@ -99,6 +102,7 @@ class EventController extends Controller
 
     $event->update([
       'title' => $request->title,
+      'short_description' => $request->short_description,
       'description' => $request->description,
       'date' => $request->date,
       'end_date' => $request->end_date,
@@ -134,8 +138,9 @@ class EventController extends Controller
   {
     $event->delete();
 
-    return redirect()
-      ->route('events')
-      ->with('success', 'Event deleted successfully!');
+    return response()->json([
+      'success' => true,
+      'message' => 'Event deleted successfully',
+    ]);
   }
 }

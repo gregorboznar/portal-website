@@ -52,7 +52,7 @@ const handleConfirm = () => {
                 <AlertDialogCancel :disabled="isLoading">Cancel</AlertDialogCancel>
                 <AlertDialogAction 
                     @click="handleConfirm" 
-                    class="bg-red-600 hover:bg-red-700"
+                    class="bg-red-600 hover:bg-red-700 text-white"
                     :disabled="isLoading"
                 >
                     {{ isLoading ? 'Deleting...' : confirmText }}
