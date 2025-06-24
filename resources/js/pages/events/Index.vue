@@ -73,7 +73,6 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
             </div>
             <div class="space-y-4">
-              
                 <div class="flex gap-2 ml-3">
                     <EventIcon class="w-5 h-5 relative top-1" />
                     <div class="flex flex-col">
@@ -81,7 +80,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                         <p>Past Events and Activities</p>
                     </div>
                 </div>
-                
+            
                 <div class="space-y-4">
                     <div class="flex flex-col gap-4">
                     <EventCard 
