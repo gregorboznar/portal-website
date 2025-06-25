@@ -7,18 +7,21 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-vue-next';
 import TalmanLogo from '@/assets/images/talman-logo.webp';
+import FeedIcon from '@/assets/icons/feed.svg?component'
+import FriendsIcon from '@/assets/icons/friends.svg?component'
+import EventsIcon from '@/assets/icons/events.svg?component'
 
 
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Social feed ',
         href: '/dashboard',
-        icon: LayoutGrid,
+        icon: FeedIcon,
     },
     {
         title: 'Friends',
         href: '/friends',
-        icon: Users,
+        icon: FriendsIcon,
     },
      {
         title: 'Whitney Wire Report',
@@ -28,7 +31,7 @@ const mainNavItems: NavItem[] = [
       {
         title: 'Events',
         href: '/events',
-        icon: Users,
+        icon: EventsIcon,
     },
 ];
 

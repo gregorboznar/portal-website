@@ -5,16 +5,16 @@ import { computed } from 'vue';
 
 interface Props {
     name: string;
-    class?: string;
     size?: number | string;
+    class?: string;
     color?: string;
     strokeWidth?: number | string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    class: '',
     size: 16,
-    strokeWidth: 2,
+    class: '',
+    strokeWidth: 4,
 });
 
 const className = computed(() => cn('h-4 w-4', props.class));

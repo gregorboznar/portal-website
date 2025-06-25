@@ -52,7 +52,7 @@ const navItems = computed(() => [
 </script>
 
 <template>
-    <div class="fixed top-0 left-[18rem] right-0 z-50 bg-white border-b border-gray-200 shadow-sm rounded-lg m-4 ml-0">
+    <div class="fixed top-0 left-[20rem] right-0 z-50 bg-white border-b border-gray-200 shadow-sm rounded-lg m-4 ml-0">
         <div class="flex items-center justify-between px-6 py-3">
                <SidebarTrigger class="-ml-1" />
 
