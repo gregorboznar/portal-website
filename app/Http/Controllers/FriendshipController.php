@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Friendship;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -85,7 +84,7 @@ class FriendshipController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         $request->validate([
             'friend_id' => 'required|exists:users,id',
@@ -95,7 +94,7 @@ class FriendshipController extends Controller
         $friendId = $request->friend_id;
 
         if ($currentUser->id == $friendId) {
-            return response()->json(['message' => 'Cannot send friend request to yourself'], 400);
+            return redirect()->back()->withErrors(['error' => 'Cannot send friend request to yourself']);
         }
 
         $existingFriendship = Friendship::where([
@@ -107,7 +106,7 @@ class FriendshipController extends Controller
         ])->first();
 
         if ($existingFriendship) {
-            return response()->json(['message' => 'Friendship already exists'], 400);
+            return redirect()->back()->withErrors(['error' => 'Friendship already exists']);
         }
 
         Friendship::create([
@@ -116,32 +115,32 @@ class FriendshipController extends Controller
             'status' => 'pending',
         ]);
 
-        return response()->json(['message' => 'Friend request sent successfully']);
+        return redirect()->back()->with('success', 'Friend request sent successfully');
     }
 
-    public function accept(Friendship $friendship): JsonResponse
+    public function accept(Friendship $friendship)
     {
         if ($friendship->friend_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return redirect()->back()->withErrors(['error' => 'Unauthorized']);
         }
 
         $friendship->accept();
 
-        return response()->json(['message' => 'Friend request accepted']);
+        return redirect()->back()->with('success', 'Friend request accepted');
     }
 
-    public function decline(Friendship $friendship): JsonResponse
+    public function decline(Friendship $friendship)
     {
         if ($friendship->friend_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return redirect()->back()->withErrors(['error' => 'Unauthorized']);
         }
 
         $friendship->delete();
 
-        return response()->json(['message' => 'Friend request declined']);
+        return redirect()->back()->with('success', 'Friend request declined');
     }
 
-    public function destroy(User $user): JsonResponse
+    public function destroy(User $user)
     {
         $currentUser = Auth::user();
 
@@ -153,6 +152,6 @@ class FriendshipController extends Controller
             ['friend_id', $currentUser->id],
         ])->delete();
 
-        return response()->json(['message' => 'Friend removed successfully']);
+        return redirect()->back()->with('success', 'Friend removed successfully');
     }
 }

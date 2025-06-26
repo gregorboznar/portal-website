@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import Icon from '@/components/Icon.vue';
 import { getInitials } from '@/composables/useInitials';
 import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import ConfirmFriendshipIcon from '@/assets/icons/confirm-friendship.svg'
 import DeclineFriendshipIcon from '@/assets/icons/decline-friendship.svg'
 import MessageIcon from '@/assets/icons/message-3.svg'
+import MessageIcon2 from '@/assets/icons/message-4.svg'
 import AddFriendIcon from '@/assets/icons/add-friend-icon.svg'
 
 interface Friend {
@@ -28,6 +28,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const isLoading = ref(false);
+const requestSent = ref(false);
 
 const fullName = `${props.friend.firstname || ''} ${props.friend.lastname || ''}`.trim() || 'Unknown User';
 
@@ -35,6 +36,7 @@ const sendFriendRequest = async () => {
     isLoading.value = true;
     try {
         await router.post('/friendships', { friend_id: props.friend.id });
+        requestSent.value = true;
     } finally {
         isLoading.value = false;
     }
@@ -84,7 +86,7 @@ const sendMessage = () => {
             @click="visitProfile"
         >
             <AvatarImage 
-                :src="friend.profile_image_url || undefined" 
+                :src="friend.profile_image_url || ''" 
                 :alt="fullName" 
             />
             <AvatarFallback class="text-lg font-medium">
@@ -94,7 +96,7 @@ const sendMessage = () => {
 
         <div class="text-center">
             <h3 
-                class="font-semibold text-gray-900 dark:text-gray-100 cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
+                class="font-semibold text-gray-900 dark:text-gray-100 cursor-pointer"
                 @click="visitProfile"
             >
                 {{ fullName }}
@@ -128,7 +130,7 @@ const sendMessage = () => {
                 variant="outline"
                 class="w-full"
             >
-                <MessageIcon class="w-5 h-5 mr-1" />
+                <MessageIcon2 class="w-5 h-5 mr-1" />
                 Message
             </Button>
         </div>
@@ -148,7 +150,13 @@ const sendMessage = () => {
                 <DeclineFriendshipIcon class="w-4 h-4" />
                 Remove Friend
             </Button>
+            
+        </div>
+
+        <!-- Suggested Friend Actions -->
+        <div v-else-if="type === 'suggested'" class="flex flex-col space-y-2 w-full">
             <Button 
+                v-if="!requestSent"
                 @click="sendFriendRequest" 
                 :disabled="isLoading"
                 class="w-full bg-green text-white"
@@ -156,24 +164,20 @@ const sendMessage = () => {
                 <AddFriendIcon class="w-5 h-5 mr-2" />
                 Add friend
             </Button>
-        </div>
-
-        <!-- Suggested Friend Actions -->
-        <div v-else-if="type === 'suggested'" class="flex flex-col space-y-2 w-full">
             <Button 
-                @click="sendFriendRequest" 
-                :disabled="isLoading"
-                class="w-full bg-green text-white"
+                v-else
+                disabled
+                variant="outline"
+                class="w-full"
             >
-                <AddFriendIcon class="w-5 h-5 mr-2" />
-                Add friend
+                Request sent
             </Button>
             <Button 
                 @click="sendMessage" 
                 variant="outline"
                 class="w-full"
             >
-                <MessageIcon class="w-5 h-5 mr-1" />
+                <MessageIcon2 class="w-5 h-5 mr-1" />
                 Message
             </Button>
         </div>
@@ -181,16 +185,16 @@ const sendMessage = () => {
         <!-- Member Directory Actions -->
         <div v-else-if="type === 'member'" class="flex flex-col space-y-2 w-full">
             <Button 
-                v-if="!friend.friendship_status"
+                v-if="!friend.friendship_status && !requestSent"
                 @click="sendFriendRequest" 
                 :disabled="isLoading"
-                class="w-full bg-green-600 hover:bg-green-700 text-white"
+                class="w-full bg-green text-white"
             >
-                <Icon name="user-plus" class="w-4 h-4 mr-2" />
+                <AddFriendIcon name="user-plus" class="w-5 h-5 " />
                 Add friend
             </Button>
             <Button 
-                v-else-if="friend.friendship_status === 'request_sent'"
+                v-else-if="friend.friendship_status === 'request_sent' || requestSent"
                 disabled
                 variant="outline"
                 class="w-full"
@@ -202,9 +206,9 @@ const sendMessage = () => {
                 @click="removeFriend" 
                 :disabled="isLoading"
                 variant="outline"
-                class="w-full text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                class="w-full "
             >
-                <Icon name="x" class="w-4 h-4 mr-2" />
+                <DeclineFriendshipIcon name="x" class="w-4 h-4 " />
                 Remove Friend
             </Button>
             <Button 
@@ -212,7 +216,7 @@ const sendMessage = () => {
                 variant="outline"
                 class="w-full"
             >
-                <Icon name="message-2" class="w-4 h-4 mr-2" />
+                <MessageIcon2 name="message-2" class="w-5 h-5 mr-1" />
                 Message
             </Button>
         </div>

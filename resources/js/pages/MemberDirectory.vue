@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import FriendCard from '@/components/FriendCard.vue';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
 import Icon from '@/components/Icon.vue';
+import MemberDirectoryIcon from '@/assets/icons/member-directory.svg'
+import SearchIcon from '@/assets/icons/search.svg'
 
 interface Member {
     id: number;
@@ -33,6 +34,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const searchQuery = ref('');
+let searchTimeout: number | null = null;
 
 const performSearch = () => {
     router.get('/member-directory', { search: searchQuery.value }, {
@@ -41,10 +43,18 @@ const performSearch = () => {
     });
 };
 
-watch(searchQuery, (newValue) => {
-    if (!newValue) {
-        performSearch();
+const debouncedSearch = () => {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
     }
+    
+    searchTimeout = setTimeout(() => {
+        performSearch();
+    }, 300);
+};
+
+watch(searchQuery, () => {
+    debouncedSearch();
 });
 </script>
 
@@ -52,41 +62,34 @@ watch(searchQuery, (newValue) => {
     <Head title="Member Directory" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="flex h-full flex-1 flex-col gap-6 p-4">
+        <div class="flex h-full flex-1 flex-col gap-4 ">
             <!-- Header -->
-            <div class="space-y-4">
-                <div class="flex items-center space-x-2">
-                    <Icon name="member-directory" class="w-6 h-6 text-green-600" />
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                        Member directory
-                    </h1>
+            <div class="flex justify-between">
+                <div class="ml-3">
+                    <div class="flex items-center space-x-2">
+                        <MemberDirectoryIcon class="w-5 h-5" />
+                        <h1 class="">
+                          Member directory
+                        </h1>
+                    </div>
+                    <p class="">
+                        The Talman Group members.
+                    </p>
                 </div>
-                <p class="text-gray-600 dark:text-gray-400">
-                    The Talman Group members.
-                </p>
-            </div>
-
-            <!-- Search -->
+                  <!-- Search -->
             <div class="flex items-center space-x-4 max-w-md">
                 <div class="relative flex-1">
-                    <Icon name="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <SearchIcon name="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
                         v-model="searchQuery"
                         placeholder="Search"
-                        class="pl-10"
-                        @keyup.enter="performSearch"
+                        class="pl-10 py-4 bg-white"
                     />
                 </div>
-                <Button 
-                    v-if="searchQuery"
-                    @click="performSearch"
-                    class="shrink-0"
-                >
-                    Search
-                </Button>
+            </div>
             </div>
 
-            <!-- Members Grid -->
+          
             <div v-if="members.length === 0" class="text-center py-12">
                 <p class="text-gray-500 dark:text-gray-400">
                     No members found.
