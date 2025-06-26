@@ -64,22 +64,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/friendships', [FriendshipController::class, 'store']);
     Route::patch('/friendships/{friendship}/accept', [FriendshipController::class, 'accept']);
     Route::delete('/friendships/{friendship}/decline', [FriendshipController::class, 'decline']);
-    Route::delete('/friendships/{user}', [FriendshipController::class, 'destroy']);
+    Route::delete('/friendships/{user:id}', [FriendshipController::class, 'destroy']);
 
-    // Debug route - remove after debugging
-    Route::get('/debug/image/{id}', function ($id) {
-        $image = \App\Models\Image::find($id);
-        $post = \App\Models\Post::find($id);
-
-        return response()->json([
-            'image' => $image,
-            'post' => $post,
-            'post_with_images' => $post ? $post->load('images') : null,
-        ]);
-    });
+    Route::get('/chat', function () {
+        return Inertia::render('Chat');
+    })->name('chat');
 });
 
-// Profile management routes - separate group to handle CSRF properly
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/api/update-profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/api/update-profile/{uuid}', [ProfileController::class, 'update'])->name('profile.update.uuid');

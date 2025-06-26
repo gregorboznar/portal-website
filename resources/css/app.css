@@ -261,6 +261,17 @@
        font-weight: 600;
        font-size:1.25rem;
     }
+    h2 {
+      font-family: PlayfairDisplay-Bold, serif;
+      font-weight: 600;
+      font-size:1rem;
+    }
+    h3 {
+      font-family: PlayfairDisplay-Bold, serif;
+      font-weight: 600;
+      font-size:0.875rem;
+      line-height: 1.25;
+    }
 
     p {
         font-family: Poppins, sans-serif;

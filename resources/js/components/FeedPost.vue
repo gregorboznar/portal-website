@@ -441,7 +441,7 @@ const handlePollOptionClick = async (index: number) => {
                     <Button 
                         variant="ghost" 
                         size="sm" 
-                        class="flex items-center space-x-2 text-gray-600 hover:text-blue-600"
+                        class="flex items-center space-x-2 text-gray-600"
                         @click="openPostDialog"
                     >
                         <CommentIcon class="w-6 h-6" />

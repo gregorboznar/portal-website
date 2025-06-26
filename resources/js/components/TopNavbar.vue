@@ -38,9 +38,9 @@ const navItems = computed(() => [
     },
     {
         icon: MessageIcon,
-        href: '/friends',
-        active: page.url === '/friends',
-        label: 'Friends'
+        href: '/chat',
+        active: page.url === '/chat',
+        label: 'Chat'
     },
     {
         icon: CircleGreenIcon,

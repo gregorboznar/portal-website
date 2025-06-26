@@ -155,7 +155,9 @@ const sendMessage = () => {
 
         <!-- Suggested Friend Actions -->
         <div v-else-if="type === 'suggested'" class="flex flex-col space-y-2 w-full">
+               {{ console.log(requestSent) }}
             <Button 
+         
                 v-if="!requestSent"
                 @click="sendFriendRequest" 
                 :disabled="isLoading"
