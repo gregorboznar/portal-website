@@ -433,7 +433,7 @@ const handlePollOptionClick = async (index: number) => {
                         @click="toggleLike"
                         :disabled="isLiking"
                     >
-                        <FlashIcon v-if="currentIsLiked" class="w-6 h-6 fill-red-500 text-red-500" />
+                        <FlashIcon v-if="currentIsLiked" class="w-6 h-6" />
                         <FlashIcon2 v-else class="w-6 h-6" />
                         <span class="p-min">{{ currentLikes }}</span>
                     </Button>

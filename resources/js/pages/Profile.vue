@@ -139,17 +139,17 @@
     </div>
 
     <!-- Profile Content -->
-    <div class="max-w-6xl mx-auto  relative z-10">
+    <div class=" mx-auto  relative z-10">
       <div class="flex flex-col lg:flex-row gap-4">
         <!-- Left Sidebar -->
         <div class="lg:w-1/3 mt-4">
          
 
           <AboutSection 
-  :company="user.company" 
-  :description="user.about" 
-  :member-since="user.created_at" 
-/>
+            :company="user.company" 
+            :description="user.about" 
+            :member-since="user.created_at" 
+          />
         </div>
 
         <!-- Main Content -->

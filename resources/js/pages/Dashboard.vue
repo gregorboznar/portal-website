@@ -20,6 +20,17 @@ interface PollResult {
     percentage: number;
 }
 
+interface Event {
+    id: number;
+    title: string;
+    short_description: string;
+    description: string;
+    date: string;
+    end_date: string;
+    location: string;
+    status: string;
+}
+
 interface Post {
     id: number;
     author: PostAuthor;
@@ -56,19 +67,19 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 const posts = ref<Post[]>([]);
 const loading = ref(true);
-
+const events = ref<Event[]>([]);
 const fetchPosts = async () => {
     try {
         loading.value = true;
         const response = await axios.get('/api/posts');
-        posts.value = response.data;
+        posts.value = response.data.posts;  
+        events.value = response.data.events; 
     } catch (error) {
         console.error('Error fetching posts:', error);
     } finally {
         loading.value = false;
     }
 };
-
 const handleNewPost = (newPost: Post) => {
     posts.value.unshift(newPost);
 };
@@ -155,8 +166,8 @@ onMounted(() => {
       </div>
     </div>
 
-    <div>
-<Event />
+   <div>
+        <Event :events="events" />
     </div>
     
   </div>

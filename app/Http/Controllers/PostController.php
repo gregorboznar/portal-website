@@ -10,7 +10,7 @@ use App\Models\PollVote;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\Event;
 
 class PostController extends Controller
 {
@@ -65,7 +65,16 @@ class PostController extends Controller
                 ];
             });
 
-        return response()->json($posts);
+        $events = Event::with(['image'])
+            ->active()
+            ->upcoming()
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return response()->json([
+            'posts' => $posts,
+            'events' => $events,
+        ]);
     }
 
     public function store(Request $request)

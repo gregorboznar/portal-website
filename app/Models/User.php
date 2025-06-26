@@ -27,6 +27,7 @@ class User extends Authenticatable
         'lastname',
         'slug',
         'email',
+        'email_verified_at',
         'password',
         'company',
         'position',
@@ -129,5 +130,72 @@ class User extends Authenticatable
     public function coverImage()
     {
         return $this->images()->where('type', 'cover')->latest()->first();
+    }
+
+    public function sentFriendRequests(): HasMany
+    {
+        return $this->hasMany(Friendship::class, 'user_id');
+    }
+
+    public function receivedFriendRequests(): HasMany
+    {
+        return $this->hasMany(Friendship::class, 'friend_id');
+    }
+
+    public function friends(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
+            ->wherePivot('status', 'accepted')
+            ->withPivot(['status', 'accepted_at']);
+    }
+
+    public function pendingFriendRequests()
+    {
+        return $this->receivedFriendRequests()
+            ->where('status', 'pending')
+            ->with('user');
+    }
+
+    public function isFriendWith(User $user): bool
+    {
+        return $this->friends()->where('friend_id', $user->id)->exists();
+    }
+
+    public function hasSentFriendRequestTo(User $user): bool
+    {
+        return $this->sentFriendRequests()
+            ->where('friend_id', $user->id)
+            ->where('status', 'pending')
+            ->exists();
+    }
+
+    public function hasReceivedFriendRequestFrom(User $user): bool
+    {
+        return $this->receivedFriendRequests()
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->exists();
+    }
+
+    public function getFriendshipStatus(User $user): ?string
+    {
+        if ($this->isFriendWith($user)) {
+            return 'friends';
+        }
+
+        if ($this->hasSentFriendRequestTo($user)) {
+            return 'request_sent';
+        }
+
+        if ($this->hasReceivedFriendRequestFrom($user)) {
+            return 'request_received';
+        }
+
+        return null;
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return trim($this->firstname . ' ' . $this->lastname) ?: 'Unknown User';
     }
 }

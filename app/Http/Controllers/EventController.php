@@ -12,13 +12,13 @@ class EventController extends Controller
   public function index()
   {
     $upcomingEvents = Event::with(['image'])
-      ->published()
+      ->active()
       ->upcoming()
       ->orderBy('date', 'asc')
       ->get();
 
     $pastEvents = Event::with(['image'])
-      ->published()
+      ->active()
       ->past()
       ->orderBy('date', 'desc')
       ->get();
@@ -53,7 +53,7 @@ class EventController extends Controller
       'date' => $request->date,
       'end_date' => $request->end_date,
       'location' => $request->location,
-      'status' => 'published',
+      'status' => 'active',
     ]);
 
     if ($request->has('image') && $request->image) {

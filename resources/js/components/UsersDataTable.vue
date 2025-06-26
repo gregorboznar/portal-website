@@ -21,8 +21,6 @@ interface User {
     company?: string
     position?: string
     role: string
-    total_tickets?: number
-    remaining_tickets?: number
     created_at: string
     slug: string
     profile_image_url?: string
@@ -78,35 +76,17 @@ const columns: ColumnDef<User>[] = [
         header: 'Role',
         cell: ({ row }) => {
             const role = row.getValue('role') as string
-            const roleColors = {
-                'god': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-                'admin': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-                'user': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
-            }
+                    const roleColors = {
+            'god': 'bg-[var(--color-pale-green)] text-[var(--color-light-green)]',
+            'admin': 'bg-[var(--color-pale-green)] text-[var(--color-light-green)]',
+            'user': 'bg-[var(--color-linen-light)] text-[var(--color-yellow-gold)]'
+        }
             return h(Badge, {
                 class: roleColors[role as keyof typeof roleColors] || roleColors.user
             }, () => role?.charAt(0).toUpperCase() + role?.slice(1))
         },
     },
-    {
-        accessorKey: 'total_tickets',
-        header: ({ column }) => {
-            return h('div', { class: 'text-right' }, [
-                h(Button, {
-                    variant: 'ghost',
-                    onClick: () => column.toggleSorting(column.getIsSorted() === 'asc'),
-                }, () => ['Tickets', h(ArrowUpDown, { class: 'ml-2 h-4 w-4' })])
-            ])
-        },
-        cell: ({ row }) => {
-            const total = row.getValue('total_tickets') as number
-            const remaining = row.original.remaining_tickets
-            return h('div', { class: 'text-right space-y-1' }, [
-                h('div', { class: 'text-sm font-medium' }, `${remaining || 0}/${total || 0}`),
-                h('div', { class: 'text-xs text-muted-foreground' }, 'remaining/total')
-            ])
-        },
-    },
+
     {
         accessorKey: 'created_at',
         header: ({ column }) => {

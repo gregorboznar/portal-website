@@ -5,6 +5,8 @@ use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\FriendshipController;
+use App\Http\Controllers\MemberDirectoryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -19,11 +21,13 @@ Route::get('dashboard', function () {
 Route::get('profile/{user:slug}', [ProfileController::class, 'show'])->middleware(['auth', 'verified'])->name('profile');
 Route::get('edit-profile/{user:slug}', [ProfileController::class, 'edit'])->middleware(['auth', 'verified'])->name('edit-profile');
 
-Route::get('friends', function () {
-    return Inertia::render('Friends');
-})->middleware(['auth', 'verified'])->name('friends');
-
-Route::get('users', [UserController::class, 'index'])->middleware(['auth', 'verified'])->name('users');
+Route::get('friends', [FriendshipController::class, 'index'])->middleware(['auth', 'verified'])->name('friends');
+Route::get('member-directory', [MemberDirectoryController::class, 'index'])->middleware(['auth', 'verified'])->name('member-directory');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('users', [UserController::class, 'index'])->name('users');
+    Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('users', [UserController::class, 'store'])->name('users.store');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('events', [EventController::class, 'index'])->name('events');
@@ -55,6 +59,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/api/images/upload-cover', [ImageController::class, 'uploadCover']);
     Route::delete('/api/images/delete-profile', [ImageController::class, 'deleteProfile']);
     Route::delete('/api/images/delete-cover', [ImageController::class, 'deleteCover']);
+
+    // Friendship routes
+    Route::post('/friendships', [FriendshipController::class, 'store']);
+    Route::patch('/friendships/{friendship}/accept', [FriendshipController::class, 'accept']);
+    Route::delete('/friendships/{friendship}/decline', [FriendshipController::class, 'decline']);
+    Route::delete('/friendships/{user}', [FriendshipController::class, 'destroy']);
 
     // Debug route - remove after debugging
     Route::get('/debug/image/{id}', function ($id) {

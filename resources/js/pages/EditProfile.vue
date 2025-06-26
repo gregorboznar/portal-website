@@ -120,51 +120,8 @@
                 </div>
               </div>
             </div>
-
-            <!-- Badges Section -->
-            <div class="flex items-center gap-3 mt-4 pl-3">
-              <StarIcon class="w-5 h-5" />
-              <h1>Badges</h1>
-            </div>
-            <div class="bg-white rounded-lg p-6 mt-6">
-              <div v-if="!badges.length" class="text-gray-600 px-3">
-                You haven't unlocked any badges yet.
-              </div>
-              <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 px-3">
-                <label 
-                  v-for="badge in badges" 
-                  :key="badge.id"
-                  class="flex flex-col items-center cursor-pointer"
-                >
-                  <div 
-                    :class="[
-                      'border rounded-lg p-2 mb-1',
-                      form.displayed_badges.includes(badge.id) 
-                        ? 'border-green bg-green/10' 
-                        : 'border-gray'
-                    ]"
-                  >
-                    <img 
-                      :src="badge.image_url" 
-                      class="w-12 h-12 object-contain" 
-                      :alt="badge.name"
-                    >
-                  </div>
-                  <input 
-                    type="checkbox" 
-                    :value="badge.id"
-                    v-model="form.displayed_badges"
-                    @change="toggleBadge(badge.id)"
-                    class="hidden"
-                  >
-                  <span class="text-xs text-center">{{ badge.name }}</span>
-                </label>
-              </div>
-            </div>
           </div>
         </div>
-
-        <!-- Right Column -->
         <div class="bg-white rounded-lg p-8 flex-1">
           <div class="space-y-4">
             <div>
@@ -221,17 +178,10 @@
                 class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
               >
             </div>
-            <div>
-              <label class="text-sm font-poppins leading-normal text-black mb-1">Instagram</label>
-              <input 
-                v-model="form.instagram" 
-                type="text" 
-                class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
-              >
-            </div>
+           
 
-            <!-- Admin Only Fields -->
-            <template v-if="hasPermission">
+           
+    <!--         <template v-if="hasPermission">
               <div>
                 <label class="text-sm font-poppins leading-normal text-black mb-1">Total Tickets</label>
                 <input 
@@ -262,7 +212,7 @@
                 </select>
               </div>
             </template>
-
+ -->
             <!-- Change Password Section -->
             <div class="mt-4">
               <a 
@@ -387,27 +337,18 @@ interface Props {
     social_media?: {
       linkedin?: string
       facebook?: string
-      instagram?: string
+     
     }
-    total_tickets?: number
-    remaining_tickets?: number
     role?: string
     profile_image_url?: string
-    displayed_badges?: number[]
     slug?: string
   }
-  badges?: Array<{
-    id: number
-    name: string
-    image_url: string
-  }>
   hasPermission?: boolean
   hasGodPermission?: boolean
   libraryUrl: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  badges: () => [],
   hasPermission: false,
   hasGodPermission: false
 })
@@ -446,14 +387,11 @@ const form = useForm({
   about: props.user.about || '',
   linkedin: props.user.social_media?.linkedin || '',
   facebook: props.user.social_media?.facebook || '',
-  instagram: props.user.social_media?.instagram || '',
-  total_tickets: props.user.total_tickets || 0,
-  remaining_tickets: props.user.remaining_tickets || 0,
+ 
   role: props.user.role || 'user',
   password: '',
   password_confirmation: '',
-  profile_image: null as File | null,
-  displayed_badges: props.user.displayed_badges || []
+  profile_image: null as File | null
 })
 
 const handleImageUpload = (error: any, file: any) => {
@@ -505,37 +443,6 @@ const removeImage = () => {
   profileImagePreview.value = props.user.profile_image_url || null
   if (pond.value) {
     pond.value.removeFiles()
-  }
-}
-
-const toggleBadge = async (badgeId: number) => {
-  try {
-    const show = form.displayed_badges.includes(badgeId)
-    const response = await fetch('/api/toggle-displayed-badge', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-      },
-      body: JSON.stringify({ 
-        badge_id: badgeId, 
-        show: show 
-      })
-    })
-
-    const result = await response.json()
-    if (!result.success) {
-      
-      if (show) {
-        form.displayed_badges = form.displayed_badges.filter((id: number) => id !== badgeId)
-      } else {
-        form.displayed_badges.push(badgeId)
-      }
-      alert('Error: ' + (result.error || 'Unable to save badge selection'))
-    }
-  } catch (error) {
-    console.error('Badge toggle error:', error)
-    alert('Network error while saving badge selection')
   }
 }
 

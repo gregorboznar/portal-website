@@ -52,9 +52,9 @@ class Event extends Model
         return $this->morphOne(Image::class, 'imageable');
     }
 
-    public function scopePublished($query)
+    public function scopeActive($query)
     {
-        return $query->where('status', 'published');
+        return $query->where('status', 'active');
     }
 
     public function scopeUpcoming($query)

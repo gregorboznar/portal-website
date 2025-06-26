@@ -10,6 +10,7 @@ import TalmanLogo from '@/assets/images/talman-logo.webp';
 import FeedIcon from '@/assets/icons/feed.svg?component'
 import FriendsIcon from '@/assets/icons/friends.svg?component'
 import EventsIcon from '@/assets/icons/events.svg?component'
+import MemberDirectoryIcon from '@/assets/icons/member-directory.svg?component'
 
 
 const mainNavItems: NavItem[] = [
@@ -22,6 +23,11 @@ const mainNavItems: NavItem[] = [
         title: 'Friends',
         href: '/friends',
         icon: FriendsIcon,
+    },
+    {
+        title: 'Member Directory',
+        href: '/member-directory',
+        icon: MemberDirectoryIcon,
     },
      {
         title: 'Whitney Wire Report',

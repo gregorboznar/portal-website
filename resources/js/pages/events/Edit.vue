@@ -153,9 +153,9 @@ const deleteEvent = async () => {
                     </div>
                  
                     <div class="flex justify-end gap-4 items-center">
-                        <Button type="button" @click="showDeleteDialog = true" class="bg-white text-black  w-[10rem] border border-red-500 relative hover:bg-white">
-                            <DeleteIcon class="w-4 h-4 mr-2 absolute left-2 top-1/2 -translate-y-1/2" />
-                            Delete Event
+                        <Button type="button" @click="showDeleteDialog = true" class="bg-white text-black  w-[10rem] border border-red-500 relative hover:bg-white relative">
+                            <DeleteIcon class="w-4 h-4 mr-2 absolute left-10 top-4.5 -translate-y-1/2" />
+                            Delete
                         </Button>
                         <Button class="w-[10rem]" type="submit" :disabled="form.processing">
                             {{ form.processing ? 'Saving...' : 'Save' }}

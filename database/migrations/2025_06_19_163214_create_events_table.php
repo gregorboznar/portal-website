@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('location')->nullable();
             $table->string('url')->nullable();
             $table->string('registration_url')->nullable();
-            $table->enum('status', ['draft', 'published', 'cancelled', 'completed'])->default('draft');
+            $table->enum('status', ['active', 'deleted'])->default('active');
             $table->timestamps();
         });
     }

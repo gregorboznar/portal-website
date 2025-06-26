@@ -17,7 +17,7 @@ class ImageController extends Controller
   {
     $request->validate([
       'image' => 'required|image|max:10240',
-      'type' => 'string|in:posts,users,general,events',
+      'type' => 'string|in:posts,users,general,events,profile,covers',
     ]);
 
     try {

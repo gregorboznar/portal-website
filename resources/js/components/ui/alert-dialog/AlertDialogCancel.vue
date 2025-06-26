@@ -15,7 +15,7 @@ const delegatedProps = reactiveOmit(props, 'class')
     v-bind="delegatedProps"
     :class="cn(
       buttonVariants({ variant: 'outline' }),
-      'mt-2 sm:mt-0',
+      'mt-2 sm:mt-0 border-[oklch(.922_0_0)]',
       props.class,
     )"
   >

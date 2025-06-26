@@ -126,6 +126,10 @@
   --color-light-gray: #f1f3f7;
   --color-pale-green: #c7d9cf;
   --color-bg: #f3f7f5;
+  --color-yellow-gold: #B89C4F;
+  --color-light-green: #3f7c5c;
+  --color-pale-green: #D5E3DC;
+  --color-linen-light:#F8F2E1;
 }
 
 /*
@@ -159,16 +163,14 @@
     color: var(--color-white);
   }
 }
-
-
-ul[data-sidebar="menu"] li[data-sidebar="menu-item"] a[data-sidebar="menu-button"] svg[width="20"][height="20"] {
+/* ul[data-sidebar="menu"] li[data-sidebar="menu-item"] a[data-sidebar="menu-button"] svg[width="20"][height="20"] {
   width: 20px !important;
   height: 20px !important;
   min-width: 20px !important;
   min-height: 20px !important;
   max-width: 20px !important;
   max-height: 20px !important;
-}
+} */
 
 :root {
   --background: hsl(150, 23%, 96%);
