@@ -3,8 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import HomeIcon from '@/assets/icons/home.svg'
+import HomeGreenIcon from '@/assets/icons/home-green.svg'
 import MessageIcon from '@/assets/icons/message-2.svg'
-import CircleGreenIcon from '@/assets/icons/circle.svg'
+import MessageGreenIcon from '@/assets/icons/message-2-green.svg'
+import CircleIcon from '@/assets/icons/circle.svg'
+import CircleGreenIcon from '@/assets/icons/circle-green.svg'
 /* import { SidebarTrigger } from '@/components/ui/sidebar';
  */
 import UserMenuContent from '@/components/UserMenuContent.vue';
@@ -31,19 +34,19 @@ const auth = computed(() => page.props.auth as AuthData);
 
 const navItems = computed(() => [
     {
-        icon: HomeIcon,
+        icon: page.url === '/dashboard' ? HomeGreenIcon : HomeIcon,
         href: '/dashboard',
         active: page.url === '/dashboard',
         label: 'Social Feed'
     },
     {
-        icon: MessageIcon,
+        icon: page.url === '/chat' ? MessageGreenIcon : MessageIcon,
         href: '/chat',
         active: page.url === '/chat',
         label: 'Chat'
     },
     {
-        icon: CircleGreenIcon,
+        icon: page.url === '/events' ? CircleGreenIcon : CircleIcon,
         href: '/events',
         active: page.url === '/events',
         label: 'Events'
@@ -63,10 +66,13 @@ const navItems = computed(() => [
                         <Button 
                             variant="ghost" 
                             size="icon" 
-                            class="h-12 w-12 rounded-full hover:bg-gray-100"
-                            :class="{ 'bg-gray-100': item.active }"
+                            class="h-12 w-12 rounded-full hover:bg-gray-100 relative"
                         >
                             <component :is="item.icon" class="h-6 w-6 text-gray-600" />
+                            <div 
+                                v-if="item.active" 
+                                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-green-500 rounded-full"
+                            />
                             <div 
                                 v-if="'hasNotification' in item && item.hasNotification" 
                                 class="absolute -top-1 -right-1 h-3 w-3 bg-red-500 border-2 border-white rounded-full"

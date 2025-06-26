@@ -42,7 +42,7 @@ const formatDate = (date: string, endDate?: string) => {
 <template>
     <div class="flex justify-between items-center mb-4 pl-3">
         <div class="flex gap-2 items-start w-full">
-            <EventIcon class="w-5 h-5 relative top-1" />
+            <EventIcon class="w-6 h-6 relative top-1" />
             <div class="flex flex-col items-start w-full">
                 <div class="flex justify-between items-center w-full">
                     <h1>Events</h1>
