@@ -55,23 +55,23 @@ const navItems = computed(() => [
 </script>
 
 <template>
-    <div class="fixed top-0 left-[20rem] right-0 z-50 bg-white border-b border-gray-200 shadow-sm rounded-lg m-4 ml-0">
+    <div class="fixed top-0 left-[20rem] right-0 z-50 bg-white rounded-lg m-4 ml-0">
         <div class="flex items-center justify-between px-6 py-3">
                <SidebarTrigger class="-ml-1" />
 
             <!-- Center Navigation Icons -->
-            <div class="flex items-center space-x-1">
+            <div class="flex items-center space-x-8">
                 <template v-for="item in navItems" :key="item.href">
                     <Link :href="item.href" class="relative">
                         <Button 
                             variant="ghost" 
                             size="icon" 
-                            class="h-12 w-12 rounded-full hover:bg-gray-100 relative"
+                            class="h-10 w-16 rounded-md hover:bg-bg relative"
                         >
-                            <component :is="item.icon" class="h-6 w-6 text-gray-600" />
+                            <component :is="item.icon" class="w-[1.375rem]" />
                             <div 
                                 v-if="item.active" 
-                                class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-green-500 rounded-full"
+                                class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-15 h-0.5 bg-green rounded-full"
                             />
                             <div 
                                 v-if="'hasNotification' in item && item.hasNotification" 
