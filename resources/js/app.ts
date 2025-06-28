@@ -7,27 +7,25 @@ import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
 
-// Import Echo and Pusher
+
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 import axios from 'axios';
 
-// Import FilePond
 import vueFilePond from 'vue-filepond';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 
-// Import FilePond styles
+
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
 
-// Create FilePond component
 const FilePond = vueFilePond(
     FilePondPluginFileValidateType,
     FilePondPluginImagePreview
 );
 
-// Configure Laravel Echo
+
 window.Pusher = Pusher;
 
 window.Echo = new Echo({

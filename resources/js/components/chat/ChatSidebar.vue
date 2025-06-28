@@ -4,14 +4,13 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/Icon.vue';
 import { getInitials } from '@/composables/useInitials';
 import SearchIcon from '@/assets/icons/search.svg';
-import { computed, ref } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 
 interface User {
     id: number;
     name: string;
     slug: string;
     avatar: string | null;
-    online?: boolean;
 }
 
 interface Conversation {
@@ -44,6 +43,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const searchQuery = ref('');
+const onlineUsers = ref<User[]>([]);
 
 const filteredConversations = computed(() => {
     if (!searchQuery.value) return props.conversations;
@@ -68,6 +68,30 @@ const selectConversation = (conversation: Conversation) => {
 const startConversation = (friend: User) => {
     emit('startConversation', friend);
 };
+
+
+onMounted(() => {
+    window.Echo.join('presence')
+        .here((users: User[]) => {
+            onlineUsers.value = users;
+        })
+        .joining((user: User) => { 
+            onlineUsers.value.push(user);
+        })
+        .leaving((user: User) => {
+            onlineUsers.value = onlineUsers.value.filter(u => u.id !== user.id);
+        });
+})
+
+const friendsWithOnlineStatus = computed(() => {
+    return props.friends.map(friend => {
+        return {
+            ...friend,
+            online: onlineUsers.value.some(user => user.id === friend.id)
+        };
+    });
+})
+
 </script>
 
 <template>
@@ -75,11 +99,11 @@ const startConversation = (friend: User) => {
         <div class="flex flex-col gap-6">
             <div>
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                    Online
+                    Online {{ friendsWithOnlineStatus.map(user => user.id).join(', ') }}
                 </h2>
                 <div class="mt-4 flex items-center gap-4">
                     <div 
-                        v-for="user in friends.filter(f => f.online)" 
+                        v-for="user in friendsWithOnlineStatus " 
                         :key="user.id" 
                         class="relative cursor-pointer text-center"
                         @click="startConversation(user)"
@@ -88,7 +112,7 @@ const startConversation = (friend: User) => {
                             <AvatarImage v-if="user.avatar" :src="user.avatar" :alt="user.name" />
                             <AvatarFallback>{{ getInitials(user.name) }}</AvatarFallback>
                         </Avatar>
-                        <div v-if="user.online" class="absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-white bg-green-500" />
+                        <div v-if="user.id in friendsWithOnlineStatus " class="absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-white bg-green-500" />
                         <span class="mt-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ user.name }}</span>
                     </div>
                 </div>

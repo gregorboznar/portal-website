@@ -53,7 +53,6 @@ class ChatController extends Controller
                 'name' => $friend->full_name,
                 'slug' => $friend->slug,
                 'avatar' => $friend->profileImage()?->url,
-                'online' => true, // TODO: implement real online status
             ];
         });
 
