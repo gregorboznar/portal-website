@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ProfileController;
@@ -9,6 +10,13 @@ use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\MemberDirectoryController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+// Broadcasting routes for WebSocket authentication
+Broadcast::routes(['middleware' => ['web', 'auth']]);
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -66,9 +74,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/friendships/{friendship}/decline', [FriendshipController::class, 'decline']);
     Route::delete('/friendships/{user:id}', [FriendshipController::class, 'destroy']);
 
-    Route::get('/chat', function () {
-        return Inertia::render('Chat');
-    })->name('chat');
+    Route::get('/chat', [ChatController::class, 'index'])->name('chat');
+    Route::get('/api/conversations/{conversation}', [ChatController::class, 'show'])->name('conversations.show');
+    Route::post('/api/conversations', [ChatController::class, 'store'])->name('conversations.store');
+    Route::post('/api/conversations/{conversation}/messages', [ChatController::class, 'sendMessage'])->name('conversations.messages.store');
+    Route::patch('/api/conversations/{conversation}/read', [ChatController::class, 'markAsRead'])->name('conversations.read');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {

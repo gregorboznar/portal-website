@@ -7,6 +7,11 @@ import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
 
+// Import Echo and Pusher
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+import axios from 'axios';
+
 // Import FilePond
 import vueFilePond from 'vue-filepond';
 import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
@@ -22,16 +27,78 @@ const FilePond = vueFilePond(
     FilePondPluginImagePreview
 );
 
-// Extend ImportMeta interface for Vite...
-declare module 'vite/client' {
-    interface ImportMetaEnv {
-        readonly VITE_APP_NAME: string;
-        [key: string]: string | boolean | undefined;
-    }
+// Configure Laravel Echo
+window.Pusher = Pusher;
 
-    interface ImportMeta {
-        readonly env: ImportMetaEnv;
-        readonly glob: <T>(pattern: string) => Record<string, () => Promise<T>>;
+window.Echo = new Echo({
+    broadcaster: 'reverb',
+    key: import.meta.env.VITE_REVERB_APP_KEY,
+    wsHost: import.meta.env.VITE_REVERB_HOST,
+    wsPort: import.meta.env.VITE_REVERB_PORT ?? 8083,
+    wssPort: import.meta.env.VITE_REVERB_PORT ?? 8083,
+    forceTLS: false,
+    enabledTransports: ['ws', 'wss'],
+    disableStats: true,
+    authEndpoint: '/broadcasting/auth',
+    auth: {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    },
+    authorizer: (channel: any) => {
+        return {
+            authorize: (socketId: string, callback: any) => {
+                axios.post('/broadcasting/auth', {
+                    socket_id: socketId,
+                    channel_name: channel.name,
+                }, {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                })
+                .then(response => {
+                    callback(null, response.data);
+                })
+                .catch(error => {
+                    console.error('Broadcasting auth failed:', error);
+                    if (error.response) {
+                        console.error('Error response:', {
+                            status: error.response.status,
+                            data: error.response.data,
+                            headers: error.response.headers
+                        });
+                    }
+                    callback(error, null);
+                });
+            }
+        };
+    },
+});
+
+// Extend ImportMeta interface for Vite environment variables
+interface ImportMetaEnv {
+    readonly VITE_APP_NAME: string;
+    readonly VITE_REVERB_APP_KEY: string;
+    readonly VITE_REVERB_HOST: string;
+    readonly VITE_REVERB_PORT: string;
+    readonly VITE_REVERB_SCHEME: string;
+    [key: string]: string | boolean | undefined;
+}
+
+interface ImportMeta {
+    readonly env: ImportMetaEnv;
+}
+
+// Add global Echo types
+declare global {
+    interface Window {
+        Pusher: typeof Pusher;
+        Echo: Echo<any>;
+        auth?: any;
     }
 }
 
@@ -42,6 +109,10 @@ createInertiaApp({
     resolve: (name) => resolvePageComponent(`./pages/${name}.vue`, import.meta.glob<DefineComponent>('./pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
         const app = createApp({ render: () => h(App, props) });
+        
+        // Make auth data globally available
+        window.auth = (props.initialPage?.props as any)?.auth;
+        
         app.use(plugin)
            .use(ZiggyVue)
            .component('FilePond', FilePond as any)

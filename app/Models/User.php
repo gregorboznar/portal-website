@@ -198,4 +198,17 @@ class User extends Authenticatable
     {
         return trim($this->firstname . ' ' . $this->lastname) ?: 'Unknown User';
     }
+
+    public function conversations(): BelongsToMany
+    {
+        return $this->belongsToMany(Conversation::class, 'conversation_participants')
+            ->using(ConversationParticipant::class)
+            ->withPivot(['joined_at', 'last_read_at'])
+            ->withTimestamps();
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
 }

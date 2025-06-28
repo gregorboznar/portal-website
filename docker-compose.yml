@@ -66,6 +66,24 @@ services:
     networks:
       - laravel
 
+  reverb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_reverb
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - '8083:8083'
+    command: php artisan reverb:start --host=0.0.0.0 --port=8083
+    networks:
+      - laravel
+    depends_on:
+      - redis
+      - mysql
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     platform: linux/amd64

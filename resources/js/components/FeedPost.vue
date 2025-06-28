@@ -408,8 +408,10 @@ const handlePollOptionClick = async (index: number) => {
                             <div class="mt-2 w-full bg-gray-200 rounded-full h-2">
                                 <div 
                                     class="h-2 rounded-full transition-all duration-300"
-                                    :class="currentUserVote === index ? 'bg-green' : 'bg-blue-600'"
-                                    :style="{ width: `${currentPollResults[index]?.percentage || 0}%` }"
+                                    :style="{ 
+                                        width: `${currentPollResults[index]?.percentage || 0}%`,
+                                        backgroundColor: currentUserVote === index ? 'var(--color-green)' : 'var(--color-green-light-2)'
+                                    }"
                                 ></div>
                             </div>
                             <div v-if="currentUserVote === index" class="text-xs text-green mt-1 font-medium">
