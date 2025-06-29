@@ -56,9 +56,19 @@ class ChatController extends Controller
             ];
         });
 
+        $users = User::all()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->full_name,
+                'slug' => $user->slug,
+                'avatar' => $user->profileImage()?->url,
+            ];
+        });
+
         return Inertia::render('Chat', [
             'conversations' => $conversations,
             'friends' => $friends,
+            'users' => $users,
         ]);
     }
 
@@ -113,44 +123,44 @@ class ChatController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'participants' => 'required|array|min:1',
+            'participants' => 'required|array|size:1',
             'participants.*' => 'exists:users,id',
-            'name' => 'nullable|string|max:255',
-            'type' => 'in:direct,group',
         ]);
 
         $user = Auth::user();
-        $participantIds = $request->participants;
+        $otherUserId = $request->participants[0];
 
-        if (!in_array($user->id, $participantIds)) {
-            $participantIds[] = $user->id;
+        if ($otherUserId == $user->id) {
+            return response()->json(['error' => 'Cannot start conversation with yourself'], 400);
         }
 
-        if (count($participantIds) === 2 && $request->type !== 'group') {
-            $existingConversation = Conversation::where('type', 'direct')
-                ->whereHas('participants', function ($query) use ($participantIds) {
-                    $query->whereIn('user_id', $participantIds);
-                })
-                ->withCount('participants')
-                ->having('participants_count', '=', 2)
-                ->first();
+        $existingConversation = Conversation::where('type', 'direct')
+            ->whereHas('participants', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->whereHas('participants', function ($query) use ($otherUserId) {
+                $query->where('user_id', $otherUserId);
+            })
+            ->withCount('participants')
+            ->having('participants_count', '=', 2)
+            ->first();
 
-            if ($existingConversation) {
-                return response()->json([
-                    'conversation' => [
-                        'uuid' => $existingConversation->uuid,
-                    ]
-                ]);
-            }
+        if ($existingConversation) {
+            return response()->json([
+                'conversation' => [
+                    'uuid' => $existingConversation->uuid,
+                ]
+            ]);
         }
 
         $conversation = Conversation::create([
-            'name' => $request->name,
-            'type' => count($participantIds) > 2 ? 'group' : 'direct',
+            'name' => null,
+            'type' => 'direct',
         ]);
 
-        $conversation->participants()->attach($participantIds, [
-            'joined_at' => now(),
+        $conversation->participants()->attach([
+            $user->id => ['joined_at' => now()],
+            $otherUserId => ['joined_at' => now()],
         ]);
 
         return response()->json([

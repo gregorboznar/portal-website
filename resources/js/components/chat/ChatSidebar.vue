@@ -4,7 +4,10 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/Icon.vue';
 import { getInitials } from '@/composables/useInitials';
 import SearchIcon from '@/assets/icons/search.svg';
-import { onMounted, computed, ref } from 'vue';
+import { computed, ref } from 'vue';
+import { usePresence } from '@/composables/usePresence';
+import PencilIcon from '@/assets/icons/note-pencil.svg';
+import StartChatComponent from '@/components/chat/StartChatComponent.vue';
 
 interface User {
     id: number;
@@ -28,10 +31,18 @@ interface Conversation {
     last_message_at: string;
 }
 
+interface Users {
+    id: number;
+    name: string;
+    slug: string;
+    avatar: string | null;
+}
+
 interface Props {
     conversations: Conversation[];
     friends: User[];
     activeConversation?: Conversation | null;
+    users: Users[];
 }
 
 interface Emits {
@@ -41,9 +52,10 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+const openStartChatModal = ref(false);
 
 const searchQuery = ref('');
-const onlineUsers = ref<User[]>([]);
+const { onlineUsers } = usePresence();
 
 const filteredConversations = computed(() => {
     if (!searchQuery.value) return props.conversations;
@@ -70,24 +82,19 @@ const startConversation = (friend: User) => {
 };
 
 
-onMounted(() => {
-    window.Echo.join('presence')
-        .here((users: User[]) => {
-            onlineUsers.value = users;
-        })
-        .joining((user: User) => { 
-            onlineUsers.value.push(user);
-        })
-        .leaving((user: User) => {
-            onlineUsers.value = onlineUsers.value.filter(u => u.id !== user.id);
-        });
-})
+
 
 const friendsWithOnlineStatus = computed(() => {
+    // Debug logging
+    console.log('ChatSidebar: onlineUsers:', onlineUsers.value);
+    console.log('ChatSidebar: friends:', props.friends);
+    
     return props.friends.map(friend => {
+        const isOnline = onlineUsers.value.some((user: any) => user.id === friend.id);
+        console.log(`ChatSidebar: Friend ${friend.name} (${friend.id}) is online:`, isOnline);
         return {
             ...friend,
-            online: onlineUsers.value.some(user => user.id === friend.id)
+            online: isOnline
         };
     });
 })
@@ -96,24 +103,24 @@ const friendsWithOnlineStatus = computed(() => {
 
 <template>
     <div class="h-full w-[340px] flex-shrink-0 bg-white p-4 dark:bg-gray-800">
-        <div class="flex flex-col gap-6">
-            <div>
+        <div class="flex flex-col gap-4">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4" v-if="friendsWithOnlineStatus.filter(u => u.online).length > 0">
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                    Online {{ friendsWithOnlineStatus.map(user => user.id).join(', ') }}
+                    Online Friends
                 </h2>
-                <div class="mt-4 flex items-center gap-4">
+                <div class="mt-4 flex items-center gap-4 overflow-x-auto">
                     <div 
-                        v-for="user in friendsWithOnlineStatus " 
+                        v-for="user in friendsWithOnlineStatus.filter(u => u.online)" 
                         :key="user.id" 
-                        class="relative cursor-pointer text-center"
+                        class="relative cursor-pointer text-center flex-shrink-0"
                         @click="startConversation(user)"
                     >
                         <Avatar class="relative mx-auto h-14 w-14">
                             <AvatarImage v-if="user.avatar" :src="user.avatar" :alt="user.name" />
                             <AvatarFallback>{{ getInitials(user.name) }}</AvatarFallback>
                         </Avatar>
-                        <div v-if="user.id in friendsWithOnlineStatus " class="absolute bottom-0 right-0 h-4 w-4 rounded-full border-2 border-white bg-green-500" />
-                        <span class="mt-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ user.name }}</span>
+                        <div class="absolute bottom-6.5 right-2 h-4 w-4 rounded-full border-2 border-white bg-green-500" />
+                        <span class="mt-2 block text-sm font-medium text-gray-700 dark:text-gray-300 truncate max-w-[80px]">{{ user.name }}</span>
                     </div>
                 </div>
             </div>
@@ -122,8 +129,8 @@ const friendsWithOnlineStatus = computed(() => {
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white">
                         Messages
                     </h2>
-                    <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                        <Icon name="note-pencil" class="h-6 w-6" />
+                    <button @click="openStartChatModal = true" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" title="Start new chat">
+                        <PencilIcon class="h-5 w-5" />
                     </button>
                 </div>
                 <div class="relative mb-4">
@@ -178,4 +185,8 @@ const friendsWithOnlineStatus = computed(() => {
             </div>
         </div>
     </div>
+    <StartChatComponent
+        v-model:open="openStartChatModal"
+        :users="users"
+    />
 </template> 

@@ -91,27 +91,23 @@ class FriendshipController extends Controller
         ]);
 
         $currentUser = Auth::user();
-        $friendId = $request->friend_id;
+        $friend = User::findOrFail($request->friend_id);
 
-        if ($currentUser->id == $friendId) {
+        if ($currentUser->id == $friend->id) {
             return redirect()->back()->withErrors(['error' => 'Cannot send friend request to yourself']);
         }
 
-        $existingFriendship = Friendship::where([
-            ['user_id', $currentUser->id],
-            ['friend_id', $friendId],
-        ])->orWhere([
-            ['user_id', $friendId],
-            ['friend_id', $currentUser->id],
-        ])->first();
-
-        if ($existingFriendship) {
-            return redirect()->back()->withErrors(['error' => 'Friendship already exists']);
+        if (
+            $currentUser->isFriendWith($friend) ||
+            $currentUser->hasSentFriendRequestTo($friend) ||
+            $currentUser->hasReceivedFriendRequestFrom($friend)
+        ) {
+            return redirect()->back()->withErrors(['error' => 'Friendship relationship already exists']);
         }
 
         Friendship::create([
             'user_id' => $currentUser->id,
-            'friend_id' => $friendId,
+            'friend_id' => $friend->id,
             'status' => 'pending',
         ]);
 

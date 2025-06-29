@@ -17,5 +17,10 @@ Broadcast::channel('conversation.{uuid}', function ($user, $uuid) {
     return $conversation->participants()->where('user_id', $user->id)->exists();
 });
 Broadcast::channel('presence', function ($user) {
-    return ['id' => $user->id, 'name' => $user->name];
+    return [
+        'id' => $user->id,
+        'name' => $user->full_name,
+        'slug' => $user->slug,
+        'avatar' => $user->profileImage()?->url,
+    ];
 });
