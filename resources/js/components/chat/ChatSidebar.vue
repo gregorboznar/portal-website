@@ -33,7 +33,8 @@ interface Conversation {
 
 interface Users {
     id: number;
-    name: string;
+    firstname: string;
+    lastname: string;
     slug: string;
     avatar: string | null;
 }
@@ -85,13 +86,8 @@ const startConversation = (friend: User) => {
 
 
 const friendsWithOnlineStatus = computed(() => {
-    // Debug logging
-    console.log('ChatSidebar: onlineUsers:', onlineUsers.value);
-    console.log('ChatSidebar: friends:', props.friends);
-    
     return props.friends.map(friend => {
         const isOnline = onlineUsers.value.some((user: any) => user.id === friend.id);
-        console.log(`ChatSidebar: Friend ${friend.name} (${friend.id}) is online:`, isOnline);
         return {
             ...friend,
             online: isOnline
@@ -106,7 +102,7 @@ const friendsWithOnlineStatus = computed(() => {
         <div class="flex flex-col gap-4">
             <div class="border-b border-gray-200 dark:border-gray-700 pb-4" v-if="friendsWithOnlineStatus.filter(u => u.online).length > 0">
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                    Online Friends
+                    Online Friends  
                 </h2>
                 <div class="mt-4 flex items-center gap-4 overflow-x-auto">
                     <div 
@@ -185,6 +181,7 @@ const friendsWithOnlineStatus = computed(() => {
             </div>
         </div>
     </div>
+   
     <StartChatComponent
         v-model:open="openStartChatModal"
         :users="users"

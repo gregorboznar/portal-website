@@ -59,7 +59,8 @@ class ChatController extends Controller
         $users = User::all()->map(function ($user) {
             return [
                 'id' => $user->id,
-                'name' => $user->full_name,
+                'firstname' => $user->firstname,
+                'lastname' => $user->lastname,
                 'slug' => $user->slug,
                 'avatar' => $user->profileImage()?->url,
             ];

@@ -31,12 +31,21 @@ interface Conversation {
     last_message_at: string;
 }
 
+interface Users {
+    id: number;
+    firstname: string;
+    lastname: string;
+    slug: string;
+    avatar: string | null;
+}
+
 interface Props {
     conversations: Conversation[];
     friends: User[];
+    users: Users[];
 }
 
-const { conversations, friends } = defineProps<Props>();
+const { conversations, friends, users } = defineProps<Props>();
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -95,6 +104,7 @@ provide('startNewConversation', startNewConversation);
                 :active-conversation="activeConversation"
                 @select-conversation="selectConversation"
                 @start-conversation="startNewConversation"
+                :users="users"
             />
             <ChatWindow 
                 v-if="activeConversation"
