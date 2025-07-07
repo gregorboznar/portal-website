@@ -153,7 +153,6 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        // Handle UUID parameter from route
         if ($request->route('uuid')) {
             $uuid = $request->route('uuid');
             $targetUser = User::where('uuid', $uuid)->firstOrFail();
@@ -194,7 +193,7 @@ class ProfileController extends Controller
             'displayed_badges' => 'nullable|json',
         ];
 
-        // Only allow admin/god to change certain fields
+
         if ($user->role !== 'admin' && $user->role !== 'god') {
             unset($rules['total_tickets'], $rules['remaining_tickets'], $rules['role']);
             if ($user->id !== $targetUser->id) {
@@ -204,7 +203,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate($rules);
 
-        // Handle social media data
+
         $socialMedia = [];
         if ($request->has('linkedin')) {
             $socialMedia['linkedin'] = $request->linkedin;
@@ -220,42 +219,42 @@ class ProfileController extends Controller
             $validated['social_media'] = $socialMedia;
         }
 
-        // Handle password update
+
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
         }
 
-        // Remove password confirmation from validated data
+
         unset($validated['password_confirmation']);
 
-        // Handle profile image upload
+
         if ($request->hasFile('profile_image')) {
             try {
-                // Delete old profile image
+
                 $targetUser->images()->where('type', 'profile')->delete();
 
-                // Upload new profile image
+
                 $image = $this->imageUploadService->uploadForModel(
                     $request->file('profile_image'),
                     $targetUser
                 );
 
-                // Set the image type to profile
+
                 $image->update(['type' => 'profile']);
             } catch (\Exception $e) {
                 return response()->json(['success' => false, 'message' => 'Image upload failed: ' . $e->getMessage()]);
             }
         }
 
-        // Handle displayed badges
+
         if ($request->has('displayed_badges')) {
             $displayedBadges = json_decode($request->displayed_badges, true);
             $validated['displayed_badges'] = $displayedBadges;
         }
 
-        // Update user
+
         $targetUser->update($validated);
 
         return redirect()->back()->with('success', 'Profile updated successfully');

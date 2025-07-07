@@ -40,10 +40,8 @@ const showAllFriends = computed(() => false);
 
 <template>
     <Head title="Friends" />
-
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 ">
-            <!-- Friend Requests Section -->
             <div v-if="friendRequests.length > 0" class="space-y-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2 ml-3">
@@ -63,8 +61,6 @@ const showAllFriends = computed(() => false);
                     />
                 </div>
             </div>
-
-            <!-- Friends Section -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2 ml-3">
@@ -81,13 +77,11 @@ const showAllFriends = computed(() => false);
                         Show all
                     </Button>
                 </div>
-
                 <div v-if="friends.length === 0" class="text-center py-8">
                     <p class="text-gray-500 dark:text-gray-400 mb-4">
                         You don't have any friends yet. Start by adding friends from the suggestions below.
                     </p>
                 </div>
-
                 <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     <FriendCard
                         v-for="friend in (showAllFriends ? friends : friends.slice(0, 10))"
@@ -97,8 +91,6 @@ const showAllFriends = computed(() => false);
                     />
                 </div>
             </div>
-
-            <!-- Suggested Section -->
             <div class="space-y-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2 ml-3">

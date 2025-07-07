@@ -1,13 +1,9 @@
 <template>
   <AppLayout :breadcrumbs="breadcrumbs">
   <div class="min-h-screen bg-bg">
-    <!-- Cover Photo Section -->
     <div class="relative h-80">
-      <!-- Cover image if exists -->
       <div v-if="user.cover_image" class="absolute inset-0 group">
         <img :src="user.cover_image" alt="Cover" class="w-full h-full object-cover">
-        
-        <!-- Delete cover photo button - only for own profile -->
         <div v-if="isOwnProfile" class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <button 
             @click="handleCoverImageRemove"
@@ -47,21 +43,18 @@
                      class="w-full h-full object-cover"
                    >
                  </div>
-                 
                  <div v-else-if="!user.profile_image && !isOwnProfile" class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
                    <div class="w-full h-full bg-gray-300 flex items-center justify-center">
                      <span class="text-2xl text-gray-600">{{ getInitials(user.firstname + ' ' + user.lastname) }}</span>
                    </div>
                  </div>
-                 
-                                <div v-if="isOwnProfile" class="">
+                        <div v-if="isOwnProfile" class="">
                     <div v-if="user.profile_image" class="relative w-36 h-36 rounded-full overflow-hidden border-4 border-white shadow-lg group">
                      <img 
                        :src="user.profile_image" 
                        :alt="user.firstname + ' ' + user.lastname"
                        class="w-full h-full object-cover"
                      >
-                     <!-- Overlay controls -->
                      <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                        <div class="flex gap-2 mt-4 w-full items-center justify-center">
                          <button 
@@ -86,7 +79,6 @@
                        </div>
                      </div>
                    </div>
-                   
                    <file-pond
                      v-else
                      ref="profileFilePond"
@@ -118,7 +110,6 @@
                  </div>
                </div>
       </div>
-     
       <div class="ml-48 flex justify-between w-full mr-4">
         <div>
           <h1>{{ user.firstname + ' ' + user.lastname }}</h1>
@@ -135,37 +126,25 @@
           </Link>
         </div>
       </div>
-      
     </div>
-
-    <!-- Profile Content -->
     <div class=" mx-auto  relative z-10">
       <div class="flex flex-col lg:flex-row gap-4">
-        <!-- Left Sidebar -->
         <div class="lg:w-1/3 mt-4">
-         
-
           <AboutSection 
             :company="user.company" 
             :description="user.about" 
             :member-since="user.created_at" 
           />
         </div>
-
-        <!-- Main Content -->
         <div class="lg:w-2/3 mt-[3.7rem]">
-          <!-- Post Creation -->
           <div v-if="isOwnProfile" class="mb-6 ">
             <PostCreator @post-created="handleNewPost" />
           </div>
-
-          <!-- Posts Feed -->
           <div v-if="loading" class="space-y-4">
             <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
             <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
             <div class="animate-pulse bg-gray-200 h-32 rounded-lg"></div>
           </div>
-
           <div v-else class="space-y-4">
             <FeedPost
               v-for="post in userPosts"
@@ -193,7 +172,6 @@
         </div>
       </div>
     </div>
-
     <UploadCoverDialog 
       v-model:open="showCoverUploadModal"
       @upload-complete="handleCoverUploadComplete"
@@ -224,8 +202,7 @@ interface Props {
 
 const props = defineProps<Props>();
 
-console.log('isOwnProfile value:', props.isOwnProfile);
-console.log('user', props.user);
+
 
 const breadcrumbs: BreadcrumbItem[] = [
   {

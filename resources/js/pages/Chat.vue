@@ -68,10 +68,9 @@ const startNewConversation = async (friend: User) => {
             participants: [friend.id],
             type: 'direct'
         });
-        
-        // Create a temporary conversation object and select it
+
         const newConversation: Conversation = {
-            id: Date.now(), // temporary ID
+            id: Date.now(), 
             uuid: response.data.conversation.uuid,
             name: friend.name,
             type: 'direct',
@@ -86,7 +85,6 @@ const startNewConversation = async (friend: User) => {
     }
 };
 
-// Provide these to child components
 provide('activeConversation', activeConversation);
 provide('selectedParticipant', selectedParticipant);
 provide('selectConversation', selectConversation);

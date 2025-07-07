@@ -286,7 +286,6 @@ class PostController extends Controller
         $ipAddress = $request->ip();
         $userAgent = $request->userAgent();
 
-        // Check if this user has already viewed this post
         $existingView = PostView::where('post_id', $post->id)
             ->where(function ($query) use ($user, $ipAddress) {
                 if ($user) {
@@ -328,9 +327,7 @@ class PostController extends Controller
             $post->pin();
             $message = 'Post pinned successfully';
         }
-        // // rel the page
-        // return redirect()->back();
-        // return redirect()->back();
+
         return response()->json([
             'success' => true,
             'message' => $message,

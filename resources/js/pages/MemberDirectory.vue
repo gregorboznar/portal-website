@@ -5,7 +5,6 @@ import { Input } from '@/components/ui/input';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
-import Icon from '@/components/Icon.vue';
 import MemberDirectoryIcon from '@/assets/icons/member-directory.svg'
 import SearchIcon from '@/assets/icons/search.svg'
 
@@ -63,7 +62,6 @@ watch(searchQuery, () => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 ">
-            <!-- Header -->
             <div class="flex justify-between">
                 <div class="ml-3">
                     <div class="flex items-center space-x-2">
@@ -76,7 +74,8 @@ watch(searchQuery, () => {
                         The Talman Group members.
                     </p>
                 </div>
-                  <!-- Search -->
+            </div>
+                 
             <div class="flex items-center space-x-4 max-w-md">
                 <div class="relative flex-1">
                     <SearchIcon name="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -87,15 +86,12 @@ watch(searchQuery, () => {
                     />
                 </div>
             </div>
-            </div>
-
-          
+            
             <div v-if="members.length === 0" class="text-center py-12">
                 <p class="text-gray-500 dark:text-gray-400">
                     No members found.
                 </p>
             </div>
-
             <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 <FriendCard
                     v-for="member in members"

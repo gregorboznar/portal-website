@@ -109,9 +109,8 @@ class EventController extends Controller
       'location' => $request->location,
     ]);
 
-    // Update image
+
     if ($request->has('image')) {
-      // Remove old image
       Image::where('imageable_type', Event::class)
         ->where('imageable_id', $event->id)
         ->update([
@@ -119,7 +118,7 @@ class EventController extends Controller
           'imageable_id' => null,
         ]);
 
-      // Add new image
+
       if ($request->image) {
         Image::where('id', $request->image)
           ->update([

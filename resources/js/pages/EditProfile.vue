@@ -1,16 +1,12 @@
 <template>
   <AppLayout :breadcrumbs="breadcrumbs">
- 
-    <!-- Success Message -->
     <div 
       v-if="successMessage" 
       class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
     >
       {{ successMessage }}
     </div>
-
     <form @submit.prevent="handleSubmit" class="space-y-3" autocomplete="off">
-      <!-- Header Section -->
       <div class="flex justify-between items-center mb-4">
         <div class="flex flex-col w-full justify-between gap-2 sm:items-center sm:flex-row sm:gap-0">
           <div class="pl-3">
@@ -26,7 +22,6 @@
               Back to your profile
             </Link>
           </div>
-
           <div class="flex flex-col gap-2 w-full sm:gap-4 sm:flex-row sm:justify-end sm:w-auto">
             <button 
               type="button" 
@@ -47,11 +42,8 @@
           </div>
         </div>
       </div>
-
       <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
-        <!-- Left Column -->
         <div class="flex-[1.5]">
-          <!-- Profile Photo Section -->
           <div class="flex flex-col">
             <div class="bg-white p-8 rounded-lg">
               <div class="flex justify-between items-center w-full mb-4">
@@ -93,8 +85,6 @@
               </div>
               <p class="text-xs text-gray-500 mt-2">Max file size: 3MB</p>
             </div>
-
-            <!-- About Me Section -->
             <div class="flex items-center gap-3 mt-4 pl-3">
               <StarIcon class="w-5 h-5" />
               <h1>About me</h1>
@@ -178,42 +168,6 @@
                 class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
               >
             </div>
-           
-
-           
-    <!--         <template v-if="hasPermission">
-              <div>
-                <label class="text-sm font-poppins leading-normal text-black mb-1">Total Tickets</label>
-                <input 
-                  v-model.number="form.total_tickets" 
-                  type="number" 
-                  min="0" 
-                  class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
-                >
-              </div>
-              <div>
-                <label class="text-sm font-poppins leading-normal text-black mb-1">Remaining Tickets</label>
-                <input 
-                  v-model.number="form.remaining_tickets" 
-                  type="number" 
-                  min="0" 
-                  class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
-                >
-              </div>
-              <div class="flex flex-col">
-                <label class="text-sm font-poppins">Role</label>
-                <select 
-                  v-model="form.role" 
-                  class="w-full max-w-sm bg-input rounded-xl px-4 text-sm h-10 mt-2 outline-none border border-transparent focus:border-green focus:ring-0"
-                >
-                  <option value="user">User</option>
-                  <option v-if="hasPermission" value="admin">Admin</option>
-                  <option v-if="hasGodPermission" value="god">Super Admin</option>
-                </select>
-              </div>
-            </template>
- -->
-            <!-- Change Password Section -->
             <div class="mt-4">
               <a 
                 href="#" 
@@ -226,7 +180,6 @@
                 </p>
               </a>
             </div>
-
             <div v-show="showPasswordFields" class="mt-2 space-y-4">
               <div>
                 <label class="text-sm font-poppins leading-normal text-black mb-1">New Password</label>
@@ -272,8 +225,6 @@
           </div>
         </div>
       </div>
-
-{{ console.log(hasPermission) }}
       <button 
         type="button" 
           @click="handleDeleteClick"
@@ -284,8 +235,6 @@
         Delete
       </button>
     </form>
-
- 
   </AppLayout>
 
       <ConfirmDeleteDialog
@@ -312,7 +261,6 @@ import StarIcon from '@/assets/icons/star.svg';
 import LockIcon from '@/assets/icons/lock.svg';
 import EyeIcon from '@/assets/icons/eye-icon.svg';
 import EyeIcon2 from '@/assets/icons/eye-icon-2.svg';
-
 import AppLayout from '@/layouts/AppLayout.vue'
 
 
@@ -377,7 +325,6 @@ const breadcrumbs = [
   }
 ]
 
-// Use Inertia's useForm for automatic CSRF handling
 const form = useForm({
   firstname: props.user.firstname || '',
   lastname: props.user.lastname || '',
@@ -404,7 +351,7 @@ const handleImageUpload = (error: any, file: any) => {
   if (file && file.file) {
     const fileObj = file.file
     
-    // Check file size (3MB limit)
+ 
     if (fileObj.size > 3 * 1024 * 1024) {
       alert('File size must be less than 3MB')
       if (pond.value) {
@@ -413,7 +360,7 @@ const handleImageUpload = (error: any, file: any) => {
       return
     }
     
-    // Check file type
+
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(fileObj.type)) {
       alert('Please select a valid image file (JPEG, PNG, GIF, or WebP)')
@@ -425,7 +372,7 @@ const handleImageUpload = (error: any, file: any) => {
     
     form.profile_image = fileObj
     
-    // Create preview
+   
     const reader = new FileReader()
     reader.onload = (e: any) => {
       profileImagePreview.value = e.target.result

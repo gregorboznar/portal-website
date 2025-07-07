@@ -72,7 +72,6 @@ const loading = ref(true);
 const events = ref<Event[]>([]);
 const { onlineUsers, connectionStatus, resetPresence, initializePresence } = usePresence();
 
-// Debug logging for dashboard
 const debugDashboard = () => {
     console.log('Dashboard: onlineUsers:', onlineUsers.value);
     console.log('Dashboard: connectionStatus:', connectionStatus.value);
@@ -116,13 +115,11 @@ const handlePostPinned = (postId: number, isPinned: boolean) => {
         posts.value[postIndex] = updatedPost;
 
         posts.value.sort((a, b) => {
-            // First, sort by pinned status (pinned posts first)
+       
             if (a.isPinned && !b.isPinned) return -1;
             if (!a.isPinned && b.isPinned) return 1;
             
-            // If both have same pinned status, maintain original order (most recent first)
-            // Since we don't have pinned_at timestamp on frontend, we'll use the post ID as proxy
-            // Higher ID means more recent post
+          
             return b.id - a.id;
         });
     }
@@ -137,14 +134,12 @@ onMounted(() => {
     <Head title="Dashboard" />
 
   <AppLayout :breadcrumbs="breadcrumbs">
-  <!-- Simple Presence Test - Remove after testing -->
+
   <div class="mb-4">
     <SimplePresenceTest />
   </div>
   
   <div class="flex h-full flex-1 gap-4 w-full bg-bg">
-    
-    
     <div class="flex flex-col gap-4 flex-1">
     <div class="flex justify-between items-start ml-3">
       <div class="flex gap-2">
@@ -154,8 +149,7 @@ onMounted(() => {
           <p class="p-s ">Stay Connected and Informed</p>
         </div>
       </div>
-      
-      <!-- Online Users Indicator for Testing -->
+
       <div class="flex items-center gap-2">
         <div class="text-sm text-gray-600 px-3 py-1 rounded-full border" 
              :class="connectionStatus.isConnected ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">

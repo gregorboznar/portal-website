@@ -24,8 +24,6 @@ return new class extends Migration
             $table->string('alt_text')->nullable();
             $table->nullableMorphs('imageable');
             $table->timestamps();
-
-            $table->index(['imageable_type', 'imageable_id']);
         });
     }
 
