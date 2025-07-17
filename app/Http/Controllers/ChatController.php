@@ -17,7 +17,7 @@ class ChatController extends Controller
     {
         $user = Auth::user();
         $conversations = $user->conversations()
-            ->with(['participants', 'lastMessage.user'])
+            ->with(['participants.images', 'lastMessage.user'])
             ->orderByDesc('last_message_at')
             ->get()
             ->map(function ($conversation) use ($user) {
@@ -34,7 +34,7 @@ class ChatController extends Controller
                             'id' => $participant->id,
                             'name' => $participant->full_name,
                             'slug' => $participant->slug,
-                            'avatar' => $participant->profileImage()?->url,
+                            'avatar' => $participant->getProfileImageUrl(),
                         ];
                     }),
                     'last_message' => $lastMessage ? [
@@ -47,22 +47,22 @@ class ChatController extends Controller
                 ];
             });
 
-        $friends = $user->friends()->get()->map(function ($friend) {
+        $friends = $user->friends()->with('images')->get()->map(function ($friend) {
             return [
                 'id' => $friend->id,
                 'name' => $friend->full_name,
                 'slug' => $friend->slug,
-                'avatar' => $friend->profileImage()?->url,
+                'avatar' => $friend->getProfileImageUrl(),
             ];
         });
 
-        $users = User::all()->map(function ($user) {
+        $users = User::with('images')->get()->map(function ($user) {
             return [
                 'id' => $user->id,
                 'firstname' => $user->firstname,
                 'lastname' => $user->lastname,
                 'slug' => $user->slug,
-                'avatar' => $user->profileImage()?->url,
+                'avatar' => $user->getProfileImageUrl(),
             ];
         });
 
@@ -77,12 +77,14 @@ class ChatController extends Controller
     {
         $user = Auth::user();
 
+        $conversation->load('participants.images');
+
         if (!$conversation->participants->contains($user)) {
             abort(403, 'You are not a participant in this conversation.');
         }
 
         $messages = $conversation->messages()
-            ->with('user')
+            ->with('user.images')
             ->orderBy('created_at')
             ->get()
             ->map(function ($message) use ($user) {
@@ -95,7 +97,7 @@ class ChatController extends Controller
                         'id' => $message->user->id,
                         'name' => $message->user->full_name,
                         'slug' => $message->user->slug,
-                        'avatar' => $message->user->profileImage()?->url,
+                        'avatar' => $message->user->getProfileImageUrl(),
                     ],
                     'is_mine' => $message->user_id === $user->id,
                     'created_at' => $message->created_at,
@@ -113,7 +115,7 @@ class ChatController extends Controller
                         'id' => $participant->id,
                         'name' => $participant->full_name,
                         'slug' => $participant->slug,
-                        'avatar' => $participant->profileImage()?->url,
+                        'avatar' => $participant->getProfileImageUrl(),
                     ];
                 }),
             ],
@@ -191,7 +193,7 @@ class ChatController extends Controller
             'type' => $request->type ?? 'text',
         ]);
 
-        $message->load('user');
+        $message->load('user.images');
 
         return response()->json([
             'message' => [
@@ -203,7 +205,7 @@ class ChatController extends Controller
                     'id' => $message->user->id,
                     'name' => $message->user->full_name,
                     'slug' => $message->user->slug,
-                    'avatar' => $message->user->profileImage()?->url,
+                    'avatar' => $message->user->getProfileImageUrl(),
                 ],
                 'created_at' => $message->created_at,
             ]

@@ -58,7 +58,7 @@ class ProfileController extends Controller
 
 
         $posts = Post::where('user_id', $user->id)
-            ->with(['user', 'likes', 'images', 'pollVotes'])
+            ->with(['user.images', 'likes', 'images', 'pollVotes'])
             ->orderByDesc('is_pinned')
             ->orderByDesc('pinned_at')
             ->latest()
@@ -73,7 +73,7 @@ class ProfileController extends Controller
                         'firstname' => $post->user->firstname,
                         'lastname' => $post->user->lastname,
                         'company' => $post->user->company,
-                        'profile_image' => $this->getUserProfileImage($post->user),
+                        'profile_image' => $post->user->getProfileImageUrl(),
                         'slug' => $post->user->slug,
                     ],
                     'content' => $post->content,
@@ -319,11 +319,7 @@ class ProfileController extends Controller
         return response()->json(['success' => true]);
     }
 
-    private function getUserProfileImage($user): ?string
-    {
-        $profileImage = $user->images()->where('type', 'profile')->latest()->first();
-        return $profileImage ? asset('storage/' . $profileImage->optimizations['medium']['path']) : null;
-    }
+
 
     private function formatOptimizations(?array $optimizations): array
     {

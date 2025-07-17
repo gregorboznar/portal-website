@@ -8,13 +8,7 @@ import { computed, ref } from 'vue';
 import { usePresence } from '@/composables/usePresence';
 import PencilIcon from '@/assets/icons/note-pencil.svg';
 import StartChatComponent from '@/components/chat/StartChatComponent.vue';
-
-interface User {
-    id: number;
-    name: string;
-    slug: string;
-    avatar: string | null;
-}
+import { type User } from '@/types';
 
 interface Conversation {
     id: number;
@@ -31,19 +25,11 @@ interface Conversation {
     last_message_at: string;
 }
 
-interface Users {
-    id: number;
-    firstname: string;
-    lastname: string;
-    slug: string;
-    avatar: string | null;
-}
-
 interface Props {
     conversations: Conversation[];
     friends: User[];
     activeConversation?: Conversation | null;
-    users: Users[];
+    users: User[];
 }
 
 interface Emits {
@@ -85,38 +71,38 @@ const startConversation = (friend: User) => {
 
 
 
-const friendsWithOnlineStatus = computed(() => {
-    return props.friends.map(friend => {
-        const isOnline = onlineUsers.value.some((user: any) => user.id === friend.id);
-        return {
-            ...friend,
-            online: isOnline
-        };
+const onlineUsersList = computed(() => {
+    return props.users.filter(user => {
+        return onlineUsers.value.some((onlineUser: any) => onlineUser.id === user.id);
     });
-})
+});
+
+const getUserFullName = (user: User) => {
+    return `${user.firstname} ${user.lastname}`;
+};
 
 </script>
 
 <template>
     <div class="h-full w-[340px] flex-shrink-0 bg-white p-4 dark:bg-gray-800 rounded-lg">
         <div class="flex flex-col gap-4">
-            <div class="border-b border-gray-200 dark:border-gray-700 pb-4" v-if="friendsWithOnlineStatus.filter(u => u.online).length > 0">
+            <div class="border-b border-gray-200 dark:border-gray-700 pb-4" v-if="onlineUsersList.length > 0">
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                    Online Friends  
+                    Online Users  
                 </h2>
                 <div class="mt-4 flex items-center gap-4 overflow-x-auto">
                     <div 
-                        v-for="user in friendsWithOnlineStatus.filter(u => u.online)" 
+                        v-for="user in onlineUsersList" 
                         :key="user.id" 
                         class="relative cursor-pointer text-center flex-shrink-0"
                         @click="startConversation(user)"
                     >
                         <Avatar class="relative mx-auto h-14 w-14">
-                            <AvatarImage v-if="user.avatar" :src="user.avatar" :alt="user.name" />
-                            <AvatarFallback>{{ getInitials(user.name) }}</AvatarFallback>
+                            <AvatarImage v-if="user.avatar" :src="user.avatar" :alt="getUserFullName(user)" />
+                            <AvatarFallback>{{ getInitials(getUserFullName(user)) }}</AvatarFallback>
                         </Avatar>
-                        <div class="absolute bottom-6.5 right-2 h-4 w-4 rounded-full border-2 border-white bg-green-500" />
-                        <span class="mt-2 block text-sm font-medium text-gray-700 dark:text-gray-300 truncate max-w-[80px]">{{ user.name }}</span>
+                        <div class="absolute bottom-7 right-3 h-4 w-4 rounded-full border-2 border-white bg-green-500" />
+                        <span class="mt-2 block text-sm font-medium text-gray-700 dark:text-gray-300 truncate max-w-[80px]">{{ getUserFullName(user) }}</span>
                     </div>
                 </div>
             </div>
@@ -151,9 +137,10 @@ const friendsWithOnlineStatus = computed(() => {
                     >
                     
                         <Avatar class="relative h-12 w-12">
+                            
                             <AvatarImage 
-                                v-if="conversation.participants[0]?.avatar" 
-                                :src="conversation.participants[0].avatar" 
+                                v-if="Object.values(conversation.participants)[0]?.avatar" 
+                                :src="Object.values(conversation.participants)[0].avatar!" 
                                 :alt="conversation.name" 
                             />
                             <AvatarFallback>{{ getInitials(conversation.name) }}</AvatarFallback>

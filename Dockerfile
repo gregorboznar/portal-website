@@ -11,12 +11,13 @@ RUN apt-get update && apt-get install -y \
     libwebp-dev \
     libonig-dev \
     libxml2-dev \
+    libmagickwand-dev \
     zip \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
+    && pecl install redis imagick \
+    && docker-php-ext-enable redis imagick \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

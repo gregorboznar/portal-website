@@ -33,7 +33,7 @@ echo "Linking storage..."
 docker-compose exec app php artisan storage:link
 
 echo ""
-echo "🎉 Setup complete!"
+echo "Setup complete!"
 echo ""
 echo "Your Laravel application is now running at:"
 echo "  - Laravel app: http://localhost:8081"

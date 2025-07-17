@@ -16,7 +16,7 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::with(['user', 'likes', 'images', 'pollVotes'])
+        $posts = Post::with(['user.images', 'likes', 'images', 'pollVotes'])
             ->whereHas('user', function ($query) {
                 $query->whereNull('deleted_at');
             })
@@ -35,7 +35,7 @@ class PostController extends Controller
                         'firstname' => $post->user->firstname,
                         'lastname' => $post->user->lastname,
                         'company' => $post->user->company,
-                        'profile_image' => $this->getUserProfileImage($post->user),
+                        'profile_image' => $post->user->getProfileImageUrl(),
                         'slug' => $post->user->slug,
                     ],
                     'content' => $post->content,
@@ -113,7 +113,7 @@ class PostController extends Controller
                 'firstname' => $post->user->firstname,
                 'lastname' => $post->user->lastname,
                 'company' => $post->user->company,
-                'profile_image' => $this->getUserProfileImage($post->user),
+                'profile_image' => $post->user->getProfileImageUrl(),
                 'slug' => $post->user->slug,
             ],
             'content' => $post->content,
@@ -165,7 +165,7 @@ class PostController extends Controller
     {
         $post->increment('views_count');
 
-        $post->load(['user', 'likes', 'images', 'pollVotes']);
+        $post->load(['user.images', 'likes', 'images', 'pollVotes']);
 
         $pollResults = $post->type === 'poll' ? $post->getPollResults() : null;
         $userVote = Auth::check() && $post->type === 'poll' ? $post->getUserVote(Auth::user()) : null;
@@ -176,7 +176,7 @@ class PostController extends Controller
                 'firstname' => $post->user->firstname,
                 'lastname' => $post->user->lastname,
                 'company' => $post->user->company,
-                'profile_image' => $this->getUserProfileImage($post->user),
+                'profile_image' => $post->user->getProfileImageUrl(),
                 'slug' => $post->user->slug,
             ],
             'content' => $post->content,
@@ -227,7 +227,7 @@ class PostController extends Controller
     public function getComments(Post $post)
     {
         $comments = $post->comments()
-            ->with('user:id,firstname,lastname')
+            ->with('user.images')
             ->orderBy('created_at', 'asc')
             ->get()
             ->map(function ($comment) {
@@ -239,7 +239,7 @@ class PostController extends Controller
                         'id' => $comment->user->id,
                         'firstname' => $comment->user->firstname,
                         'lastname' => $comment->user->lastname,
-                        'profile_image' => $this->getUserProfileImage($comment->user),
+                        'profile_image' => $comment->user->getProfileImageUrl(),
                     ],
                 ];
             });
@@ -274,7 +274,7 @@ class PostController extends Controller
                     'id' => $comment->user->id,
                     'firstname' => $comment->user->firstname,
                     'lastname' => $comment->user->lastname,
-                    'profile_image' => $this->getUserProfileImage($comment->user),
+                    'profile_image' => $comment->user->getProfileImageUrl(),
                 ],
             ]
         ]);
@@ -394,11 +394,5 @@ class PostController extends Controller
             'user_vote' => $userVote,
             'has_voted' => true,
         ]);
-    }
-
-    private function getUserProfileImage($user): ?string
-    {
-        $profileImage = $user->images()->where('type', 'profile')->latest()->first();
-        return $profileImage ? asset('storage/' . $profileImage->optimizations['medium']['path']) : null;
     }
 }

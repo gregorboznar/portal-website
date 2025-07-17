@@ -132,6 +132,12 @@ class User extends Authenticatable
         return $this->images()->where('type', 'cover')->latest()->first();
     }
 
+    public function getProfileImageUrl(): ?string
+    {
+        $profileImage = $this->profileImage();
+        return $profileImage ? asset('storage/' . $profileImage->optimizations['medium']['path']) : null;
+    }
+
     public function sentFriendRequests(): HasMany
     {
         return $this->hasMany(Friendship::class, 'user_id');
