@@ -93,11 +93,11 @@
               <div class="space-y-4">
                 <div>
                   <label class="text-sm font-poppins leading-normal text-black mb-1">Position</label>
-                  <input 
+                  <Input 
                     v-model="form.position" 
                     type="text" 
                     class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
-                  >
+                  />
                 </div>
                 <div>
                   <label class="text-sm font-poppins leading-normal text-black mb-1">Short description about yourself</label>
@@ -116,23 +116,23 @@
           <div class="space-y-4">
             <div>
               <label class="text-sm font-poppins leading-normal text-black mb-1">First name</label>
-              <input 
+              <Input 
                 v-model="form.firstname" 
                 type="text" 
                 class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
-              >
+              />
             </div>
             <div>
               <label class="text-sm font-poppins leading-normal text-black mb-1">Last name</label>
-              <input 
+              <Input 
                 v-model="form.lastname" 
                 type="text" 
                 class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
-              >
+              />
             </div>
             <div>
               <label class="text-sm font-poppins leading-normal text-black mb-1">Email</label>
-              <input 
+              <Input 
                 v-model="form.email" 
                 type="email" 
                 :readonly="!hasPermission"
@@ -142,31 +142,41 @@
                     ? 'bg-input focus:border-green focus:ring-0' 
                     : 'bg-gray-200 cursor-not-allowed'
                 ]"
-              >
+              />
             </div>
             <div>
               <label class="text-sm font-poppins leading-normal text-black mb-1">Company</label>
-              <input 
+              <Input 
                 v-model="form.company" 
                 type="text" 
                 class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
-              >
+              />
             </div>
-            <div>
-              <label class="text-sm font-poppins leading-normal text-black mb-1">LinkedIn</label>
-              <input 
-                v-model="form.linkedin" 
-                type="text" 
-                class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
-              >
+            <div class="flex gap-4">
+              <div class="flex-1">
+                <label class="text-sm font-poppins leading-normal text-black mb-1">LinkedIn</label>
+                <Input 
+                  v-model="form.linkedin" 
+                  type="text" 
+                  class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
+                />
+              </div>
+              <div class="flex-1">
+                <label class="text-sm font-poppins leading-normal text-black mb-1">Facebook</label>
+                <Input 
+                  v-model="form.facebook" 
+                  type="text" 
+                  class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
+                />
+              </div>
             </div>
-            <div>
-              <label class="text-sm font-poppins leading-normal text-black mb-1">Facebook</label>
-              <input 
-                v-model="form.facebook" 
-                type="text" 
+             <div class="mt-4">
+              <label class="text-sm font-poppins leading-normal text-black mb-1">Registered at</label>
+              <Input 
+                v-model="form.registered_at" 
+                type="date"
                 class="w-full bg-input rounded-xl px-4 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]"
-              >
+              />
             </div>
             <div class="mt-4">
               <a 
@@ -184,13 +194,13 @@
               <div>
                 <label class="text-sm font-poppins leading-normal text-black mb-1">New Password</label>
                 <div class="relative">
-                  <input 
+                  <Input 
                     v-model="form.password" 
                     :type="showPassword ? 'text' : 'password'" 
                     class="w-full bg-input rounded-xl px-4 pr-12 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]" 
                     placeholder="Enter new password" 
                     autocomplete="new-password"
-                  >
+                  />
                   <button 
                     type="button" 
                     @click="showPassword = !showPassword"
@@ -204,13 +214,13 @@
               <div>
                 <label class="text-sm font-poppins leading-normal text-black mb-1">Confirm New Password</label>
                 <div class="relative">
-                  <input 
+                  <Input 
                     v-model="form.password_confirmation" 
                     :type="showPasswordConfirm ? 'text' : 'password'" 
                     class="w-full bg-input rounded-xl px-4 pr-12 text-sm h-10 text-[#333] mt-2 outline-none border border-transparent focus:border-green focus:ring-0 h-[2.75rem]" 
                     placeholder="Confirm new password" 
                     autocomplete="new-password"
-                  >
+                  />
                   <button 
                     type="button" 
                     @click="showPasswordConfirm = !showPasswordConfirm"
@@ -262,7 +272,7 @@ import LockIcon from '@/assets/icons/lock.svg';
 import EyeIcon from '@/assets/icons/eye-icon.svg';
 import EyeIcon2 from '@/assets/icons/eye-icon-2.svg';
 import AppLayout from '@/layouts/AppLayout.vue'
-
+import { Input } from '@/components/ui/input';
 
 import 'filepond/dist/filepond.min.css'
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css'
@@ -290,6 +300,7 @@ interface Props {
     role?: string
     profile_image_url?: string
     slug?: string
+    registered_at?: string
   }
   hasPermission?: boolean
   hasGodPermission?: boolean
@@ -334,7 +345,7 @@ const form = useForm({
   about: props.user.about || '',
   linkedin: props.user.social_media?.linkedin || '',
   facebook: props.user.social_media?.facebook || '',
- 
+  registered_at: props.user.registered_at || '',
   role: props.user.role || 'user',
   password: '',
   password_confirmation: '',

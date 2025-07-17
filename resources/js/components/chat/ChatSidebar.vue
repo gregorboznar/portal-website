@@ -6,6 +6,7 @@ import { getInitials } from '@/composables/useInitials';
 import SearchIcon from '@/assets/icons/search.svg';
 import { computed, ref } from 'vue';
 import { usePresence } from '@/composables/usePresence';
+import { usePage } from '@inertiajs/vue3';
 import PencilIcon from '@/assets/icons/note-pencil.svg';
 import StartChatComponent from '@/components/chat/StartChatComponent.vue';
 import { type User } from '@/types';
@@ -43,6 +44,8 @@ const openStartChatModal = ref(false);
 
 const searchQuery = ref('');
 const { onlineUsers } = usePresence();
+const page = usePage();
+const currentUser = computed(() => (page.props as any).auth.user);
 
 const filteredConversations = computed(() => {
     if (!searchQuery.value) return props.conversations;
@@ -73,7 +76,8 @@ const startConversation = (friend: User) => {
 
 const onlineUsersList = computed(() => {
     return props.users.filter(user => {
-        return onlineUsers.value.some((onlineUser: any) => onlineUser.id === user.id);
+        return user.id !== currentUser.value.id && 
+               onlineUsers.value.some((onlineUser: any) => onlineUser.id === user.id);
     });
 });
 
@@ -173,5 +177,6 @@ const getUserFullName = (user: User) => {
     <StartChatComponent
         v-model:open="openStartChatModal"
         :users="users"
+        @start-conversation="startConversation"
     />
 </template> 

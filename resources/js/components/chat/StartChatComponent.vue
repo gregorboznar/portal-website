@@ -22,7 +22,7 @@ const props = defineProps<StartChatDialogProps>();
 
 const emit = defineEmits<{
     'update:open': [value: boolean];
-    'startChat': [userId: number];
+    'startConversation': [friend: User];
 }>();
 
 const searchQuery = ref('');
@@ -48,9 +48,16 @@ const handleOpenChange = (value: boolean) => {
     }
 };
 
+const startConversation = (friend: User) => {
+    emit('startConversation', friend);
+};
+
 const handleConfirm = () => {
-    if (selectedUserId.value) {
-        emit('startChat', selectedUserId.value);
+    if (!selectedUserId.value) return;
+    
+    const selectedUser = props.users.find(user => user.id === selectedUserId.value);
+    if (selectedUser) {
+        emit('startConversation', selectedUser);
         handleOpenChange(false);
     }
 };

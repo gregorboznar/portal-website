@@ -1,20 +1,12 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type User } from '@/types';
 import { Head } from '@inertiajs/vue3';
 import ChatSidebar from '@/components/chat/ChatSidebar.vue';
 import ChatWindow from '@/components/chat/ChatWindow.vue';
 import ChatParticipantInfo from '@/components/chat/ChatParticipantInfo.vue';
 import { ref, provide } from 'vue';
 import axios from 'axios';
-
-interface User {
-    id: number;
-    name: string;
-    slug: string;
-    avatar: string | null;
-    online?: boolean;
-}
 
 interface Conversation {
     id: number;
@@ -31,18 +23,10 @@ interface Conversation {
     last_message_at: string;
 }
 
-interface Users {
-    id: number;
-    firstname: string;
-    lastname: string;
-    slug: string;
-    avatar: string | null;
-}
-
 interface Props {
     conversations: Conversation[];
     friends: User[];
-    users: Users[];
+    users: User[];
 }
 
 const { conversations, friends, users } = defineProps<Props>();
@@ -54,12 +38,18 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-const activeConversation = ref<Conversation | null>(null);
+const activeConversation = ref<any>(null);
 const selectedParticipant = ref<User | null>(null);
 
-const selectConversation = (conversation: Conversation) => {
+const selectConversation = (conversation: any) => {
     activeConversation.value = conversation;
-    selectedParticipant.value = conversation.participants[0] || null;
+    
+    // Handle case where participants might be empty or undefined
+    const participant = conversation.participants && conversation.participants.length > 0 
+        ? conversation.participants[0] 
+        : null;
+        
+    selectedParticipant.value = participant;
 };
 
 const startNewConversation = async (friend: User) => {
@@ -69,17 +59,25 @@ const startNewConversation = async (friend: User) => {
             type: 'direct'
         });
 
-        const newConversation: Conversation = {
+        // Create a conversation object that matches what ChatWindow expects
+        const conversationForWindow = {
             id: Date.now(), 
             uuid: response.data.conversation.uuid,
-            name: friend.name,
-            type: 'direct',
-            participants: [friend],
+            name: `${friend.firstname} ${friend.lastname}`,
+            type: 'direct' as const,
+            participants: [{
+                id: friend.id,
+                name: `${friend.firstname} ${friend.lastname}`,
+                slug: friend.slug,
+                avatar: friend.avatar || null,
+            }],
             last_message: null,
             last_message_at: new Date().toISOString(),
         };
         
-        selectConversation(newConversation);
+        // Set both the active conversation and selected participant
+        activeConversation.value = conversationForWindow;
+        selectedParticipant.value = friend; // Use the original friend object for ChatParticipantInfo
     } catch (error) {
         console.error('Failed to start conversation:', error);
     }

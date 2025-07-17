@@ -21,7 +21,8 @@ class ChatController extends Controller
             ->orderByDesc('last_message_at')
             ->get()
             ->map(function ($conversation) use ($user) {
-                $otherParticipants = $conversation->participants->where('id', '!=', $user->id);
+                $allParticipants = $conversation->participants;
+                $otherParticipants = $allParticipants->where('id', '!=', $user->id);
                 $lastMessage = $conversation->lastMessage->first();
 
                 return [
@@ -32,11 +33,13 @@ class ChatController extends Controller
                     'participants' => $otherParticipants->map(function ($participant) {
                         return [
                             'id' => $participant->id,
-                            'name' => $participant->full_name,
+                            'firstname' => $participant->firstname,
+                            'lastname' => $participant->lastname,
                             'slug' => $participant->slug,
                             'avatar' => $participant->getProfileImageUrl(),
+                            'about' => $participant->about,
                         ];
-                    }),
+                    })->values(), // Ensure we get a proper array, not a collection
                     'last_message' => $lastMessage ? [
                         'content' => $lastMessage->content,
                         'user_name' => $lastMessage->user->full_name,
@@ -63,6 +66,7 @@ class ChatController extends Controller
                 'lastname' => $user->lastname,
                 'slug' => $user->slug,
                 'avatar' => $user->getProfileImageUrl(),
+                'about' => $user->about,
             ];
         });
 
@@ -113,9 +117,11 @@ class ChatController extends Controller
                 'participants' => $conversation->participants->map(function ($participant) {
                     return [
                         'id' => $participant->id,
-                        'name' => $participant->full_name,
+                        'firstname' => $participant->firstname,
+                        'lastname' => $participant->lastname,
                         'slug' => $participant->slug,
                         'avatar' => $participant->getProfileImageUrl(),
+                        'about' => $participant->about,
                     ];
                 }),
             ],

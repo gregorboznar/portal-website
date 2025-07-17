@@ -131,9 +131,9 @@
       <div class="flex flex-col lg:flex-row gap-4">
         <div class="lg:w-1/3 mt-4">
           <AboutSection 
-            :company="user.company" 
+            :position="user.position" 
             :description="user.about" 
-            :member-since="user.created_at" 
+            :registered_at="user.registered_at" 
           />
         </div>
         <div class="lg:w-2/3 mt-[3.7rem]">

@@ -8,7 +8,7 @@
     
       <div class="space-y-3">
         <div>
-          <h1 v-if="company" class="font-semibold text-left">CEO at {{ company }}</h1>
+          <h1 v-if="position" class="font-semibold text-left">{{ position }}</h1>
           <h1 v-else class="font-semibold text-left text-gray-500">No company information</h1>
           <p class="text-gray-600 text-sm mt-2">
             {{ description || 'No description available' }}
@@ -16,7 +16,7 @@
         </div>
         
         <div class="pt-4 border-t border-gray-200">
-          <p class="text-sm text-gray-500">Member since {{ formatDate(memberSince) }}</p>
+          <p class="text-sm text-gray-500">Member since {{ formatDate(registered_at) }}</p>
         </div>
       </div>
     </div>
@@ -26,9 +26,9 @@
   import StarIcon from '@/assets/icons/star.svg'
   
   interface Props {
-    company?: string;
+    position?: string;
     description?: string;
-    memberSince?: string;
+    registered_at?: string;
   }
   
   defineProps<Props>();

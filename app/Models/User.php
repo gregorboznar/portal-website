@@ -37,6 +37,7 @@ class User extends Authenticatable
         'remaining_tickets',
         'role',
         'displayed_badges',
+        'registered_at',
     ];
 
     protected static function boot()
@@ -101,6 +102,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'registered_at' => 'date',
             'password' => 'hashed',
             'social_media' => 'array',
             'displayed_badges' => 'array',

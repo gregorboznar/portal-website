@@ -44,6 +44,7 @@ class ProfileController extends Controller
             'company' => $user->company,
             'position' => $user->position,
             'about' => $user->about,
+            'registered_at' => $user->registered_at ? $user->registered_at->format('Y-m-d') : null,
             'social_media' => $user->social_media,
             'total_tickets' => $user->total_tickets,
             'remaining_tickets' => $user->remaining_tickets,
@@ -72,7 +73,7 @@ class ProfileController extends Controller
                     'author' => [
                         'firstname' => $post->user->firstname,
                         'lastname' => $post->user->lastname,
-                        'company' => $post->user->company,
+                        'position' => $post->user->position,
                         'profile_image' => $post->user->getProfileImageUrl(),
                         'slug' => $post->user->slug,
                     ],
@@ -138,6 +139,7 @@ class ProfileController extends Controller
             'displayed_badges' => $user->displayed_badges ?? [],
             'profile_image_url' => $profileImage ? asset('storage/' . $profileImage->optimizations['medium']['path']) : null,
             'slug' => $user->slug,
+            'registered_at' => $user->registered_at ? $user->registered_at->format('Y-m-d') : null,
         ];
 
         return Inertia::render('EditProfile', [
@@ -189,8 +191,9 @@ class ProfileController extends Controller
             'role' => Rule::in(['user', 'admin', 'god']),
             'password' => 'nullable|string|min:6',
             'password_confirmation' => 'nullable|string|same:password',
-            'profile_image' => 'nullable|image|max:3072', // 3MB max
+            'profile_image' => 'nullable|image|max:3072',
             'displayed_badges' => 'nullable|json',
+            'registered_at' => 'nullable|date',
         ];
 
 
