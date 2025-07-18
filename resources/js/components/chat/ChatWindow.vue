@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
-import Icon from '@/components/Icon.vue';
 import { getInitials } from '@/composables/useInitials';
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import axios from 'axios';
 import SmileIcon from '@/assets/icons/icon-smile.svg';
 import SendMessageIcon from '@/assets/icons/send-message.svg';
+import MessageIcon from '@/assets/icons/message-shape-7.svg';
+import MessageIconMirrored from '@/assets/icons/message-shape-7-mirrored.svg';
 
 interface User {
     id: number;
@@ -181,61 +182,91 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="flex flex-1 flex-col  max-h-screen">
+    <div class="flex flex-1 flex-col max-h-screen">
         <!-- Chat Header -->
-        <div class="flex items-center gap-4 border-b border-sidebar-border p-4 dark:border-sidebar-border/10 bg-white rounded-t-lg">
-            <div class="flex -space-x-4">
-                <Avatar v-for="p in conversation.participants" :key="p.id" class="h-10 w-10 border-2 border-white dark:border-gray-800">
-                    <AvatarImage v-if="p.avatar" :src="p.avatar" :alt="p.name" />
-                    <AvatarFallback>{{ getInitials(p.name) }}</AvatarFallback>
-                </Avatar>
-            </div>
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-                {{ conversation.name }}
-            </h2>
-        </div>
-
-        <!-- Messages -->
-        <div ref="messagesContainer" class="space-y-4 overflow-y-auto p-6 h-[24rem] bg-white rounded-b-lg">
-            <div v-if="loading" class="flex items-center justify-center h-full">
-                <p class="text-gray-500">Loading messages...</p>
-            </div>
-            
-            <div
-                v-for="(msg, index) in messages"
-                :key="msg.uuid"
-                class="flex flex-col"
-                :class="{ 'items-end': msg.is_mine, 'items-start': !msg.is_mine }"
-            >
-                <div
-                    class="flex items-end gap-3"
-                    :class="{ 'flex-row-reverse': msg.is_mine }"
-                >
-                    <Avatar v-if="index === messages.length - 1 || messages[index + 1].user.id !== msg.user.id" class="h-8 w-8">
-                        <AvatarImage v-if="msg.user.avatar" :src="msg.user.avatar" :alt="msg.user.name" />
-                        <AvatarFallback>{{ getInitials(msg.user.name) }}</AvatarFallback>
-                    </Avatar>
-                    <div v-else class="w-8" />
-                    <div
-                        class="max-w-md rounded-2xl p-3"
-                        :class="{
-                            'rounded-bl-none bg-gray-100 dark:bg-gray-700': !msg.is_mine,
-                            'rounded-br-none bg-blue-500 text-white': msg.is_mine,
-                        }"
+        <div class="shadow-sm rounded-lg">
+            <div class="flex items-center gap-4 p-4 dark:border-sidebar-border/10 bg-white rounded-t-lg">
+                <div class="flex -space-x-4">
+                    <Avatar
+                        v-for="p in conversation.participants"
+                        :key="p.id"
+                        class="h-10 w-10 border-2 border-white dark:border-gray-800"
                     >
-                        <p :class="msg.is_mine ? 'text-white' : 'text-gray-800 dark:text-gray-200'">
-                            {{ msg.content }}
-                        </p>
-                    </div>
+                        <AvatarImage v-if="p.avatar" :src="p.avatar" :alt="p.name" />
+                        <AvatarFallback>{{ getInitials(p.name) }}</AvatarFallback>
+                    </Avatar>
                 </div>
-                <span class="mt-1 text-xs text-gray-500" :class="msg.is_mine ? 'pr-11' : 'pl-11'">
-                    {{ formatMessageTime(msg.created_at) }}
-                </span>
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+                    {{ conversation.name }}
+                </h2>
+                <div class="border-b border-gray-200 dark:border-gray-700 pb-4"></div>
+            </div>
+
+            <!-- Messages -->
+            <div
+                ref="messagesContainer"
+                class="space-y-4 overflow-y-auto p-6 h-[24rem] bg-white rounded-b-lg"
+            >
+                <div v-if="loading" class="flex items-center justify-center h-full">
+                    <p class="text-gray-500">Loading messages...</p>
+                </div>
+
+                <div
+                    v-for="(msg, index) in messages"
+                    :key="msg.uuid"
+                    class="flex flex-col"
+                    :class="{ 'items-end': msg.is_mine, 'items-start': !msg.is_mine }"
+                >
+                    <div class="flex items-normal gap-3" :class="{ 'flex-row-reverse': msg.is_mine }">
+                        <Avatar
+                            v-if="index === messages.length - 1 || messages[index + 1].user.id !== msg.user.id"
+                            class="h-8 w-8 bottom-[0.4rem]"
+                        >
+                            <AvatarImage
+                                v-if="msg.user.avatar"
+                                :src="msg.user.avatar"
+                                :alt="msg.user.name"
+                            />
+                            <AvatarFallback>{{ getInitials(msg.user.name) }}</AvatarFallback>
+                        </Avatar>
+                        <div v-else class="w-8" />
+                        <div class="flex relative">
+                            <MessageIcon
+                                v-if="!msg.is_mine"
+                                class="w-[2.5rem] absolute top-[-0.4rem] left-0"
+                            />
+                            <MessageIconMirrored
+                                v-else
+                                class="w-[2.5rem] absolute top-[-0.4rem] right-0"
+                            />
+                            <div
+                                class="max-w-md rounded-2xl p-4 min-w-[4rem]"
+                                :class="{
+                                    'rounded-tl-none': !msg.is_mine,
+                                    'rounded-tr-none text-white': msg.is_mine,
+                                }"
+                                :style="
+                                    msg.is_mine
+                                        ? { backgroundColor: 'var(--color-linen-light)' }
+                                        : { backgroundColor: 'var(--color-pale-green)' }
+                                "
+                            >
+                                <p>{{ msg.content }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <span
+                        class="mt-1 text-xs text-gray-500"
+                        :class="msg.is_mine ? 'pr-11' : 'pl-11'"
+                    >
+                        {{ formatMessageTime(msg.created_at) }}
+                    </span>
+                </div>
             </div>
         </div>
-
         <!-- Message Input -->
-        <div class="border-t border-sidebar-border p-4 dark:border-sidebar-border/10 bg-white rounded-lg mt-4 flex items-center relative gap-1 ">
+        <div class="p-4 bg-white rounded-lg mt-4 flex items-center relative gap-1 shadow-sm">
             <div class="relative rounded-lg bg-gray-100 dark:bg-gray-700 w-full">
                 <Input
                     v-model="newMessage"
@@ -246,7 +277,7 @@ onUnmounted(() => {
                     @keypress="handleKeyPress"
                 />
                 <div class="absolute top-2 -right-1 flex items-center">
-                        <button 
+                    <button
                         class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 mr-2"
                         disabled
                     >
@@ -254,13 +285,13 @@ onUnmounted(() => {
                     </button>
                 </div>
             </div>
-             <button 
-                        class="text-blue-500 hover:text-blue-600 disabled:opacity-50  relative "
-                        :disabled="!newMessage.trim() || sending"
-                        @click="sendMessage"
-                    >
-                        <SendMessageIcon class="h-7 w-7" />
+            <button
+                class="text-blue-500 hover:text-blue-600 disabled:opacity-50 relative"
+                :disabled="!newMessage.trim() || sending"
+                @click="sendMessage"
+            >
+                <SendMessageIcon class="h-7 w-7" />
             </button>
         </div>
     </div>
-</template> 
+</template>

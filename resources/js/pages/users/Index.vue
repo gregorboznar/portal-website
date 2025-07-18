@@ -55,7 +55,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                     </Button>
             </Link>
         </div>
-        <div class="flex flex-col gap-4 rounded-xl p-4 bg-white">
+        <div class="flex flex-col gap-4 rounded-xl p-4 bg-white shadow-sm">
             <UsersDataTable 
                 :users="users" 
                 :can-manage-users="canManageUsers" 

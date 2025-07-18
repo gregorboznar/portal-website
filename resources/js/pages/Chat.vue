@@ -5,7 +5,7 @@ import { Head } from '@inertiajs/vue3';
 import ChatSidebar from '@/components/chat/ChatSidebar.vue';
 import ChatWindow from '@/components/chat/ChatWindow.vue';
 import ChatParticipantInfo from '@/components/chat/ChatParticipantInfo.vue';
-import { ref, provide } from 'vue';
+import { ref, provide, onMounted } from 'vue';
 import axios from 'axios';
 
 interface Conversation {
@@ -83,6 +83,21 @@ const startNewConversation = async (friend: User) => {
     }
 };
 
+
+onMounted(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('user');
+    
+    if (userId) {
+        const userToMessage = users.find(user => user.id === parseInt(userId));
+        if (userToMessage) {
+            startNewConversation(userToMessage);
+           
+            window.history.replaceState({}, '', '/chat');
+        }
+    }
+});
+
 provide('activeConversation', activeConversation);
 provide('selectedParticipant', selectedParticipant);
 provide('selectConversation', selectConversation);
@@ -106,7 +121,8 @@ provide('startNewConversation', startNewConversation);
                 v-if="activeConversation"
                 :conversation="activeConversation"
             />
-            <div v-else class="flex flex-1 items-center justify-center bg-white rounded-lg">
+            <div v-else class="flex flex-1 items-center justify-center bg-white rounded-lg h-max py-[25px] px-0 shadow-sm
+">
                 <p class="text-gray-500">Select a conversation to start chatting</p>
             </div>
             <ChatParticipantInfo 

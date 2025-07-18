@@ -18,14 +18,13 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
 const fullName = computed(() => `${props.participant.firstname} ${props.participant.lastname}`);
 </script>
 
 <template>
-    <div class="w-[340px] flex-shrink-0 bg-white p-4 dark:border-sidebar-border/10 dark:bg-gray-800/50 rounded-lg">
+    <div class="w-[300px] flex-shrink-0 bg-white h-max p-4 dark:border-sidebar-border/10 dark:bg-gray-800/50 rounded-lg shadow-sm">
         <div class="text-center">
-            <Avatar class="mx-auto h-24 w-24">
+            <Avatar class="mx-auto h-36 w-36">
                 <AvatarImage v-if="participant.avatar" :src="participant.avatar" :alt="fullName" />
                 <AvatarFallback>{{ getInitials(fullName) }}</AvatarFallback>
             </Avatar>

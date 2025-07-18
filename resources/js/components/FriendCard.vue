@@ -74,15 +74,14 @@ const visitProfile = () => {
 };
 
 const sendMessage = () => {
-    // Placeholder for messaging functionality
-    console.log('Send message to', fullName);
+    router.visit(`/chat?user=${props.friend.id}`);
 };
 </script>
 
 <template>
-    <div class="flex flex-col items-center space-y-4 p-4  rounded-lg bg-white dark:bg-gray-800">
+    <div class="flex flex-col items-center space-y-4 p-4  rounded-lg bg-white dark:bg-gray-800 shadow-sm">
         <Avatar 
-            class="w-24 h-24 cursor-pointer" 
+            class="w-36 h-36 cursor-pointer" 
             @click="visitProfile"
         >
             <AvatarImage 
@@ -155,7 +154,6 @@ const sendMessage = () => {
 
         <!-- Suggested Friend Actions -->
         <div v-else-if="type === 'suggested'" class="flex flex-col space-y-2 w-full">
-               {{ console.log(requestSent) }}
             <Button 
          
                 v-if="!requestSent"

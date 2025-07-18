@@ -17,15 +17,17 @@ withDefaults(defineProps<Props>(), {
 
 <template>
     <div class="min-h-screen bg-bg">
-        <TopNavbar />
-        <div class="pt-16">
-            <AppShell variant="sidebar">
-                <AppSidebar />
-                <AppContent variant="sidebar">
-                    <AppSidebarHeader :breadcrumbs="breadcrumbs" />
-                    <slot />
-                </AppContent>
-            </AppShell>
+        <div class="w-full max-w-[1536px] mx-auto relative px-4">
+            <TopNavbar />
+            <div class="pt-16">
+                <AppShell variant="sidebar">
+                    <AppSidebar />
+                    <AppContent variant="sidebar">
+                        <AppSidebarHeader :breadcrumbs="breadcrumbs" />
+                        <slot />
+                    </AppContent>
+                </AppShell>
+            </div>
         </div>
     </div>
 </template>

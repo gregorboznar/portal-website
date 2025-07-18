@@ -88,7 +88,7 @@ const getUserFullName = (user: User) => {
 </script>
 
 <template>
-    <div class="h-full w-[340px] flex-shrink-0 bg-white p-4 dark:bg-gray-800 rounded-lg">
+    <div class="h-max w-[340px] flex-shrink-0 bg-white p-4 dark:bg-gray-800 rounded-lg shadow-sm">
         <div class="flex flex-col gap-4">
             <div class="border-b border-gray-200 dark:border-gray-700 pb-4" v-if="onlineUsersList.length > 0">
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white">

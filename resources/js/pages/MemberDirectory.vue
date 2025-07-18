@@ -74,19 +74,17 @@ watch(searchQuery, () => {
                         The Talman Group members.
                     </p>
                 </div>
-            </div>
-                 
-            <div class="flex items-center space-x-4 max-w-md">
+                <div class="flex items-center space-x-4 max-w-md">
                 <div class="relative flex-1">
                     <SearchIcon name="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <Input
                         v-model="searchQuery"
                         placeholder="Search"
-                        class="pl-10 py-4 bg-white"
+                        class="pl-10 py-4 bg-white shadow-sm"
                     />
                 </div>
             </div>
-            
+            </div>
             <div v-if="members.length === 0" class="text-center py-12">
                 <p class="text-gray-500 dark:text-gray-400">
                     No members found.
