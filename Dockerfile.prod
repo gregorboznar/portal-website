@@ -1,0 +1,51 @@
+FROM php:8.2-fpm
+
+WORKDIR /var/www/html
+
+RUN apt-get update && apt-get install -y \
+  git \
+  curl \
+  libpng-dev \
+  libjpeg-dev \
+  libfreetype6-dev \
+  libwebp-dev \
+  libonig-dev \
+  libxml2-dev \
+  libmagickwand-dev \
+  zip \
+  unzip \
+  supervisor \
+  && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+  && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
+  && pecl install redis imagick \
+  && docker-php-ext-enable redis imagick \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+COPY --from=node:18-alpine /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:18-alpine /usr/local/lib/node_modules /usr/local/lib/node_modules
+COPY --from=node:18-alpine /usr/local/bin/npm /usr/local/bin/npm
+
+RUN echo "upload_max_filesize = 50M" > /usr/local/etc/php/conf.d/upload.ini \
+  && echo "post_max_size = 50M" >> /usr/local/etc/php/conf.d/upload.ini \
+  && echo "max_file_uploads = 20" >> /usr/local/etc/php/conf.d/upload.ini \
+  && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/upload.ini
+
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+
+RUN composer install --optimize-autoloader --no-interaction --no-dev \
+  && npm run build \
+  && rm -rf node_modules
+
+RUN chown -R www-data:www-data /var/www/html \
+  && chmod -R 755 /var/www/html/storage \
+  && chmod -R 755 /var/www/html/bootstrap/cache
+
+EXPOSE 9000
+
+CMD ["php-fpm"] 
