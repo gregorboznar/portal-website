@@ -6,8 +6,8 @@ WORKDIR /var/www/html
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --omit=dev
+# Install dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy source files
 COPY . .
