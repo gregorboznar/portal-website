@@ -1,3 +1,21 @@
+# Node.js stage for building assets
+FROM node:18-alpine as node-build
+
+WORKDIR /var/www/html
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --omit=dev
+
+# Copy source files
+COPY . .
+
+# Build assets
+RUN npm run build
+
+# PHP stage for the application
 FROM php:8.2-fpm
 
 WORKDIR /var/www/html
@@ -24,6 +42,7 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Copy Node.js and npm for reverb service
 COPY --from=node:18-alpine /usr/local/bin/node /usr/local/bin/node
 COPY --from=node:18-alpine /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=node:18-alpine /usr/local/bin/npm /usr/local/bin/npm
@@ -33,14 +52,14 @@ RUN echo "upload_max_filesize = 50M" > /usr/local/etc/php/conf.d/upload.ini \
   && echo "max_file_uploads = 20" >> /usr/local/etc/php/conf.d/upload.ini \
   && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/upload.ini
 
-COPY package*.json ./
-RUN npm ci --only=production
-
+# Copy application files
 COPY . .
 
-RUN composer install --optimize-autoloader --no-interaction --no-dev \
-  && npm run build \
-  && rm -rf node_modules
+# Copy built assets from node-build stage
+COPY --from=node-build /var/www/html/public/build /var/www/html/public/build
+
+# Install PHP dependencies
+RUN composer install --optimize-autoloader --no-interaction --no-dev
 
 RUN chown -R www-data:www-data /var/www/html \
   && chmod -R 755 /var/www/html/storage \
