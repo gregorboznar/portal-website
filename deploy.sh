@@ -32,28 +32,45 @@ docker-compose -f docker-compose.prod.yml build --no-cache app reverb
 echo "💾 Starting database and Redis..."
 docker-compose -f docker-compose.prod.yml up -d mysql redis
 
-# Wait for database to be ready
+# Wait for database to be ready with better health check
 echo "⏳ Waiting for database to be ready..."
-sleep 30
+sleep 10
 
-# Check if database is accessible
+# Check if database is accessible with improved logic
 echo "🔍 Checking database connection..."
-max_attempts=30
+max_attempts=60
 attempt=1
+
 while [ $attempt -le $max_attempts ]; do
-    if docker-compose -f docker-compose.prod.yml exec -T mysql mysql -u${DB_USERNAME} -p${DB_PASSWORD} -e "SELECT 1" ${DB_DATABASE} >/dev/null 2>&1; then
+    # Check if MySQL container is running
+    if ! docker-compose -f docker-compose.prod.yml ps mysql | grep -q "Up"; then
+        echo "⏳ MySQL container not running yet... (attempt $attempt/$max_attempts)"
+        sleep 5
+        attempt=$((attempt + 1))
+        continue
+    fi
+    
+    # Try to connect to MySQL
+    if docker-compose -f docker-compose.prod.yml exec -T mysql mysqladmin ping -h localhost -u root -p${DB_ROOT_PASSWORD} --silent >/dev/null 2>&1; then
         echo "✅ Database is ready!"
         break
     fi
+    
     echo "⏳ Waiting for database... (attempt $attempt/$max_attempts)"
-    sleep 2
+    sleep 5
     attempt=$((attempt + 1))
 done
 
 if [ $attempt -gt $max_attempts ]; then
     echo "❌ Database connection failed after $max_attempts attempts"
+    echo "🔍 Checking container logs..."
+    docker-compose -f docker-compose.prod.yml logs mysql
     exit 1
 fi
+
+# Additional wait to ensure MySQL is fully ready
+echo "⏳ Additional wait for MySQL to be fully ready..."
+sleep 10
 
 # Start application containers
 echo "🚀 Starting application containers..."
