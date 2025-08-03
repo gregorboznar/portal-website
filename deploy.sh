@@ -117,6 +117,10 @@ $DOCKER_COMPOSE -f docker-compose.prod.yml up -d app reverb
 echo "⏳ Waiting for application to start..."
 sleep 15
 
+# Copy .env file into the container
+echo "📋 Copying .env file into container..."
+$DOCKER_COMPOSE -f docker-compose.prod.yml cp .env app:/var/www/html/.env
+
 # Install/update dependencies
 echo "📦 Installing dependencies..."
 $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T app composer install --optimize-autoloader --no-dev

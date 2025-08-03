@@ -30,6 +30,13 @@ jobs:
             echo "🔧 Making deploy script executable..."
             chmod +x deploy.sh
 
+            echo "📋 Ensuring .env file exists..."
+            if [ ! -f .env ]; then
+                echo "⚠️  .env file not found, running setup..."
+                chmod +x setup-env.sh
+                ./setup-env.sh
+            fi
+
             echo "🏗️ Running deployment..."
             ./deploy.sh
 
