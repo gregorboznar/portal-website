@@ -82,7 +82,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::post('/api/update-profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/api/update-profile', [ProfileController::class, 'update'])->name('profile.update.api');
     Route::post('/api/update-profile/{uuid}', [ProfileController::class, 'update'])->name('profile.update.uuid');
     Route::delete('/api/users/{uuid}', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/api/toggle-displayed-badge', [ProfileController::class, 'toggleDisplayedBadge'])->name('profile.toggle-badge');

@@ -145,8 +145,20 @@ fi
 echo "🧹 Clearing and caching configuration..."
 $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T app php artisan config:clear
 $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T app php artisan config:cache
-$DOCKER_COMPOSE -f docker-compose.prod.yml exec -T app php artisan route:cache
-$DOCKER_COMPOSE -f docker-compose.prod.yml exec -T app php artisan view:cache
+$DOCKER_COMPOSE -f docker-compose.prod.yml exec -T app php artisan route:clear
+$DOCKER_COMPOSE -f docker-compose.prod.yml exec -T app php artisan view:clear
+
+# Try to cache routes, but don't fail if there are conflicts
+echo "🛣️  Caching routes..."
+if ! $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T app php artisan route:cache; then
+    echo "⚠️  Route caching failed (duplicate route names), continuing without route cache..."
+fi
+
+# Try to cache views, but don't fail if there are issues
+echo "👁️  Caching views..."
+if ! $DOCKER_COMPOSE -f docker-compose.prod.yml exec -T app php artisan view:cache; then
+    echo "⚠️  View caching failed, continuing without view cache..."
+fi
 
 # Set permissions
 echo "🔐 Setting permissions..."
