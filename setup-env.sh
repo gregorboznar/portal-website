@@ -7,6 +7,16 @@ set -e
 
 echo "🔧 Setting up environment variables..."
 
+# Detect docker compose command
+if command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+elif docker compose version &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+else
+    echo "❌ Error: Neither docker-compose nor docker compose found"
+    exit 1
+fi
+
 # Check if .env exists
 if [ -f .env ]; then
     echo "⚠️  .env file already exists. Creating backup..."
@@ -56,4 +66,4 @@ echo "2. Run: ./deploy.sh"
 echo "3. The APP_KEY will be generated automatically during deployment"
 echo ""
 echo "💡 To generate Reverb keys manually:"
-echo "   docker-compose -f docker-compose.prod.yml run --rm app php artisan reverb:keys" 
+echo "   $DOCKER_COMPOSE -f docker-compose.prod.yml run --rm app php artisan reverb:keys" 

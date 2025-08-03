@@ -45,13 +45,23 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
             cd ~/web/portal.glab.si/public_html
-            
+
+            # Detect docker compose command
+            if command -v docker-compose &> /dev/null; then
+                DOCKER_COMPOSE="docker-compose"
+            elif docker compose version &> /dev/null; then
+                DOCKER_COMPOSE="docker compose"
+            else
+                echo "❌ Error: Neither docker-compose nor docker compose found"
+                exit 1
+            fi
+
             echo "🔍 Checking if containers are running..."
-            docker-compose -f docker-compose.prod.yml ps
-            
+            $DOCKER_COMPOSE -f docker-compose.prod.yml ps
+
             echo "🌐 Checking application health..."
             sleep 10
             curl -f -s -o /dev/null -w "%{http_code}" https://portal.glab.si || echo "Application not responding"
-            
+
             echo "📊 Container status:"
-            docker-compose -f docker-compose.prod.yml ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
+            $DOCKER_COMPOSE -f docker-compose.prod.yml ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
