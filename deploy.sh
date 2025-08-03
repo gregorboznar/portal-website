@@ -36,6 +36,31 @@ fi
 echo "🛑 Stopping existing containers..."
 $DOCKER_COMPOSE -f docker-compose.prod.yml down
 
+# Check for MySQL corruption and fix if needed
+echo "🔍 Checking for MySQL corruption..."
+if docker volume ls | grep -q "public_html_mysql_data"; then
+    echo "⚠️  MySQL volume exists, checking for corruption..."
+    # Start MySQL to check if it's corrupted
+    $DOCKER_COMPOSE -f docker-compose.prod.yml up -d mysql
+    sleep 10
+    
+    # Check if MySQL is running properly
+    if ! $DOCKER_COMPOSE -f docker-compose.prod.yml ps mysql | grep -q "Up"; then
+        echo "❌ MySQL container failed to start, checking logs..."
+        $DOCKER_COMPOSE -f docker-compose.prod.yml logs mysql --tail=5
+        
+        # Check for corruption indicators
+        if $DOCKER_COMPOSE -f docker-compose.prod.yml logs mysql 2>/dev/null | grep -q "Table 'mysql.user' doesn't exist"; then
+            echo "🔧 Detected MySQL corruption, fixing..."
+            $DOCKER_COMPOSE -f docker-compose.prod.yml down
+            docker volume rm public_html_mysql_data
+            echo "✅ Removed corrupted MySQL data"
+        fi
+    else
+        echo "✅ MySQL appears to be working properly"
+    fi
+fi
+
 # Build new images
 echo "🏗️  Building production containers..."
 $DOCKER_COMPOSE -f docker-compose.prod.yml build --no-cache app reverb
