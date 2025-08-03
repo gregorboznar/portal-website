@@ -51,34 +51,6 @@ The platform includes sophisticated real-time capabilities powered by Laravel Re
 - **User Management**: Profiles, authentication, and permissions
 - **Media Handling**: Image upload, processing, and optimization
 
-## 🚀 Deployment
-
-### Automatic Deployment with GitHub Actions
-
-This project includes automatic deployment to production when code is pushed to the `main` branch.
-
-#### Setup Instructions
-
-1. **Add GitHub Secrets** (in your GitHub repository settings):
-   - Go to your repository → Settings → Secrets and variables → Actions
-   - Add the following secrets:
-     - `SERVER_HOST`: Your server's IP address or domain
-     - `SERVER_USERNAME`: SSH username (e.g., `jost`)
-     - `SERVER_SSH_KEY`: Your server's private SSH key
-     - `SERVER_PORT`: SSH port (usually `22`)
-
-2. **Server Requirements**:
-   - Docker and Docker Compose installed
-   - SSH access configured
-   - Git repository cloned at `~/web/portal.glab.si/public_html`
-
-3. **How it works**:
-   - When you push to `main` branch, GitHub Actions automatically:
-     - Connects to your server via SSH
-     - Pulls the latest code from GitHub
-     - Runs the deployment script (`deploy.sh`)
-     - Verifies the deployment was successful
-
 #### Manual Deployment
 
 If you need to deploy manually:
@@ -93,6 +65,7 @@ git pull origin main
 #### Deployment Script
 
 The `deploy.sh` script handles:
+
 - Pulling latest code from Git
 - Building Docker containers
 - Running database migrations
