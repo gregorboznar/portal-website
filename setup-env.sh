@@ -45,18 +45,15 @@ echo ""
 echo "🔐 Generating secure passwords..."
 DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 DB_ROOT_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
-REDIS_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 
 echo "✅ Generated secure passwords:"
 echo "   DB_PASSWORD=$DB_PASSWORD"
 echo "   DB_ROOT_PASSWORD=$DB_ROOT_PASSWORD"
-echo "   REDIS_PASSWORD=$REDIS_PASSWORD"
 echo ""
 
 # Update .env with generated passwords
 sed -i "s/DB_PASSWORD=your_secure_db_password/DB_PASSWORD=$DB_PASSWORD/" .env
 sed -i "s/DB_ROOT_PASSWORD=your_secure_root_password/DB_ROOT_PASSWORD=$DB_ROOT_PASSWORD/" .env
-sed -i "s/REDIS_PASSWORD=your_secure_redis_password/REDIS_PASSWORD=$REDIS_PASSWORD/" .env
 
 echo "📋 Updated .env file with generated passwords"
 echo ""

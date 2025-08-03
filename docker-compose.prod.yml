@@ -62,7 +62,7 @@ services:
       - redis_data:/data
     networks:
       - portal
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    command: redis-server --appendonly yes
 
   reverb:
     build:
@@ -87,7 +87,6 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
 
   # Optional: PHPMyAdmin for database management
   phpmyadmin:
